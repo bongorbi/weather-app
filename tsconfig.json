@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es2020",
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
@@ -16,6 +16,9 @@
       "webpack-env"
     ],
     "paths": {
+      "*": [
+        "types/*"
+      ],
       "@/*": [
         "src/*"
       ]
@@ -35,6 +38,7 @@
     "tests/**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "public/"
   ]
 }
