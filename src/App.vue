@@ -108,14 +108,14 @@ body {
 }
 
 #app {
-  background-image: url('./assets/background.gif');
+  background-image: url('assets/background.gif');
   background-size: cover;
   background-position: bottom;
   transition: 0.4s;
 }
 
 #app.warm {
-  background-image: url('./assets/sunny.gif');
+  background-image: url('./assets/warm.gif');
 }
 
 main {
@@ -194,13 +194,15 @@ main {
     justify-content: center;
     display: flex;
     font-style: italic;
+    align-items: center;
     height: 20vh;
     text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
 
     & > img {
       border-radius: 16px;
       margin-left: 10px;
-      height: 40%;
+      max-width: 100%;
+      height: 60%;
     }
   }
 
