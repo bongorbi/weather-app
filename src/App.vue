@@ -1,30 +1,208 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <div id="app" :class="typeof weather.main != 'undefined' && weather.main.temp > 16 ? 'warm' : ''">
+    <main>
+      <div class="search-box">
+        <input
+          v-model="query"
+          type="text"
+          class="search-bar"
+          placeholder="Search City..."
+          @keypress.enter="fetchWeather"
+        />
+      </div>
+
+      <div v-if="typeof weather.main != 'undefined'" class="weather-wrap">
+        <div class="location-box">
+          <div class="location">{{ weather.name }}, {{ weather.sys.country }}</div>
+          <div class="date">{{ dateBuilder() }}</div>
+        </div>
+        <div class="weather-box" v-if="this.image!==''">
+          <div class="temp">{{ Math.round(weather.main.temp) }}°c</div>
+          <div class="weather">{{ weather.weather[0].main }}
+            <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
-  <router-view/>
 </template>
 
-<style>
+<script lang="ts">
+import {Vue} from 'vue-class-component';
+
+export default class App extends Vue {
+  async created() {
+    await this.takeAllImages();
+  }
+
+  private async takeAllImages() {
+    const pictures = require.context(
+      '@/assets/',
+      true
+      // /^.*\.gif$/
+    );
+    pictures.keys().forEach(key => {
+      this.weatherSmallPicture.push(key.substring(2, 6));
+    });
+  }
+
+  private api_key = 'cab0c30b1dfc14ce360db2f0b4b5411b';
+  private url_base = 'https://api.openweathermap.org/data/2.5/';
+  private query = '';
+  private weather: any = {};
+  private weatherSmallPicture: any[] = [];
+  private imageNextToDeg = '';
+
+  private setImageName() {
+    this.weatherSmallPicture.forEach((word, index) => {
+      if (word.substring(0, 3).toLowerCase() === this.weather.weather[0].main.substring(0, 3).toLowerCase()) {
+        const images = require.context('./assets/', true);
+        const image = App.requireAll(images);
+        this.imageNextToDeg = image[index].substring(2, image[index].length);
+      }
+    });
+  }
+
+  private static requireAll(requireContext: any) {
+    return requireContext.keys();
+  }
+
+  getImgPath(pic: any) {
+    // eslint-disable-next-line global-require,import/no-dynamic-require
+    return require(`./assets/${pic}`);
+  }
+
+  fetchWeather() {
+    fetch(`${this.url_base}weather?q=${this.query}&units=metric&APPID=${this.api_key}`)
+      .then(res => res.json())
+      .then(this.setResults);
+  }
+
+  async setResults(results: any) {
+    this.weather = results;
+    await this.setImageName();
+  }
+
+  dateBuilder() {
+    const d = new Date();
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = days[d.getDay()];
+    const date = d.getDate();
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    return `${day} ${date} ${month} ${year}`;
+  }
+}
+</script>
+
+<style lang="scss">
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'montserrat', sans-serif;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-image: url('./assets/background.gif');
+  background-size: cover;
+  background-position: bottom;
+  transition: 0.4s;
+}
+
+#app.warm {
+  background-image: url('./assets/sunny.gif');
+}
+
+main {
+  min-height: 100vh;
+  padding: 25px;
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.75));
+}
+
+.search-box {
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.search-box .search-bar {
+  display: block;
+  width: 100%;
+  padding: 15px;
+
+  color: #313131;
+  font-size: 20px;
+  appearance: none;
+  border: none;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.5) none;
+  border-radius: 0 16px 0 16px;
+  transition: 0.4s;
+}
+
+.search-box .search-bar:focus {
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.25);
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 16px 0px 16px 0px;
+}
+
+.location-box .location {
+  color: #FFF;
+  font-size: 32px;
+  font-weight: 500;
   text-align: center;
-  color: #2c3e50;
+  text-shadow: 1px 3px rgba(0, 0, 0, 0.25);
 }
 
-#nav {
-  padding: 30px;
+.location-box .date {
+  color: #FFF;
+  font-size: 20px;
+  font-weight: 300;
+  font-style: italic;
+  text-align: center;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+.weather-box {
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 
-#nav a.router-link-exact-active {
-  color: #42b983;
+  & > .temp {
+    display: inline-block;
+    padding: 10px 25px;
+    color: #FFF;
+    font-size: 102px;
+    font-weight: 900;
+    text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: 16px;
+    margin: 30px 0px;
+    box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+  }
+
+  & > .weather {
+    color: #FFF;
+    font-size: 48px;
+    font-weight: 700;
+    justify-content: center;
+    display: flex;
+    font-style: italic;
+    height: 20vh;
+    text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+
+    & > img {
+      border-radius: 16px;
+      margin-left: 10px;
+      height: 40%;
+    }
+  }
+
 }
 </style>
