@@ -1,19 +1,22 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "esnext",
+    "module": "es2020",
+    "target": "esnext",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
-    "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env"
+      "webpack-env",
+      "mocha",
+      "chai",
+      "node"
     ],
     "paths": {
       "*": [
@@ -38,7 +41,7 @@
     "tests/**/*.tsx"
   ],
   "exclude": [
-    "node_modules",
+    "node_modules/*",
     "public/"
   ]
 }

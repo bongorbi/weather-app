@@ -16,24 +16,37 @@
           <div class="location">{{ weather.name }}, {{ weather.sys.country }}</div>
           <div class="date">{{ dateBuilder() }}</div>
         </div>
-        <div class="weather-box" v-if="this.image!==''">
+        <div class="weather-box">
           <div class="temp">{{ Math.round(weather.main.temp) }}°c</div>
           <div class="weather">{{ weather.weather[0].main }}
             <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
           </div>
         </div>
       </div>
+      <Chart class="diagram" :options="chartOptions"/>
     </main>
   </div>
 </template>
 
 <script lang="ts">
-import {Vue} from 'vue-class-component';
+import {Chart} from 'highcharts-vue';
+import {Component, Vue} from 'vue-property-decorator';
 
+@Component({
+  components: {
+    Chart
+  }
+})
 export default class App extends Vue {
   async created() {
     await this.takeAllImages();
   }
+
+  chartOptions = {
+    series: [{
+      data: [] // sample data
+    }]
+  };
 
   private async takeAllImages() {
     const pictures = require.context(
@@ -49,7 +62,9 @@ export default class App extends Vue {
   private api_key = 'cab0c30b1dfc14ce360db2f0b4b5411b';
   private url_base = 'https://api.openweathermap.org/data/2.5/';
   private query = '';
+  private coords = {};
   private weather: any = {};
+  private chartData = [];
   private weatherSmallPicture: any[] = [];
   private imageNextToDeg = '';
 
@@ -67,20 +82,30 @@ export default class App extends Vue {
     return requireContext.keys();
   }
 
-  getImgPath(pic: any) {
+  private getImgPath(pic: any) {
     // eslint-disable-next-line global-require,import/no-dynamic-require
     return require(`./assets/${pic}`);
   }
 
-  fetchWeather() {
+  private fetchWeather() {
     fetch(`${this.url_base}weather?q=${this.query}&units=metric&APPID=${this.api_key}`)
       .then(res => res.json())
       .then(this.setResults);
   }
 
-  async setResults(results: any) {
+  private async setResults(results: any) {
     this.weather = results;
+    this.coords = results.coord;
     await this.setImageName();
+    await this.getWeatherForPastDays();
+  }
+
+  private getWeatherForPastDays() {
+    fetch(`${this.url_base}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.api_key}`)
+      .then(res => res.json())
+      .then(res => (res.daily.forEach(day => {
+        this.chartData.push(day.temp.day);
+      })));
   }
 
   dateBuilder() {
@@ -112,6 +137,13 @@ body {
   background-size: cover;
   background-position: bottom;
   transition: 0.4s;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+  overflow: hidden;
 }
 
 #app.warm {
@@ -204,7 +236,14 @@ main {
       max-width: 100%;
       height: 60%;
     }
-  }
 
+    & img::after {
+      background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0, #fff 100%);
+    }
+  }
+}
+
+.diagram {
+  border-radius: 16px !important;
 }
 </style>

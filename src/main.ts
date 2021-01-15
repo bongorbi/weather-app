@@ -1,7 +1,15 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-import './registerServiceWorker';
+import {Vue} from 'vue-property-decorator';
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+import HighchartsVue from 'highcharts-vue';
 import router from './router';
-import store from './store';
+import App from './App.vue';
 
-createApp(App).use(store).use(router).mount('#app');
+Vue.use(HighchartsVue);
+Vue.config.productionTip = false;
+
+new Vue({
+  router,
+  render: (h: any) => h(App)
+}).$mount('#app');
+

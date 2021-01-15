@@ -1,23 +1,30 @@
 module.exports = {
-  root: true,
-  env: {
-    node: true
+  'root': true,
+  'env': {
+    'browser': true,
+    'es6': true
   },
-  extends: [
-    'plugin:vue/vue3-essential',
+  'extends': [
+    'plugin:vue/base',
+    'plugin:vue/essential',
+    'plugin:vue/strongly-recommended',
+    'plugin:vue/recommended',
     '@vue/airbnb',
-    '@vue/typescript/recommended'
+    '@vue/typescript',
+    'eslint:recommended'
   ],
-  parserOptions: {
-    ecmaVersion: 2020
+
+  'parser': 'vue-eslint-parser',
+  'parserOptions': {
+    'parser': '@typescript-eslint/parser'
   },
-  rules: {
-    quotes: ['error', 'single'],
+  'rules': {
+    'quotes': ['error', 'single'],
     'max-len': [
       'warn',
       {
-        code: 160,
-        ignoreTemplateLiterals: true
+        'code': 160,
+        'ignoreTemplateLiterals': true
       }
     ],
     'no-var': 'off',

@@ -23,9 +23,9 @@
   </div>
 </template>
 <script lang="ts">
-import {Options, Vue} from 'vue-class-component';
+import {Component, Vue} from 'vue-property-decorator';
 
-@Options({
+@Component({
   props: {
     fields: [],
     info: String
