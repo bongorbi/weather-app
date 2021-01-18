@@ -7,7 +7,7 @@
           type="text"
           class="search-bar"
           placeholder="Search City..."
-          @keypress.enter="fetchWeather"
+          @keypress.enter="getWeather"
         />
       </div>
 
@@ -23,7 +23,9 @@
           </div>
         </div>
       </div>
-      <Chart class="diagram" :options="chartOptions"/>
+      <Chart v-if="chartData.series[0].data.length!==0" class="diagram" :options="chartData"
+             :height="'200px'"
+             width="100%"/>
     </main>
   </div>
 </template>
@@ -31,6 +33,9 @@
 <script lang="ts">
 import {Chart} from 'highcharts-vue';
 import {Component, Vue} from 'vue-property-decorator';
+import axios, {Method, AxiosResponse} from 'axios';
+import moment from 'moment';
+import * as Highcharts from 'highcharts/highstock';
 
 @Component({
   components: {
@@ -39,14 +44,9 @@ import {Component, Vue} from 'vue-property-decorator';
 })
 export default class App extends Vue {
   async created() {
+    this.getNow();
     await this.takeAllImages();
   }
-
-  chartOptions = {
-    series: [{
-      data: [] // sample data
-    }]
-  };
 
   private async takeAllImages() {
     const pictures = require.context(
@@ -59,14 +59,62 @@ export default class App extends Vue {
     });
   }
 
-  private api_key = 'cab0c30b1dfc14ce360db2f0b4b5411b';
-  private url_base = 'https://api.openweathermap.org/data/2.5/';
+  private apiKey = 'cab0c30b1dfc14ce360db2f0b4b5411b';
+  private urlBase = 'https://api.openweathermap.org/data/2.5/';
   private query = '';
   private coords = {};
+  private date = '';
   private weather: any = {};
-  private chartData = [];
+  private chartData = {
+    xAxis: {
+      type: 'datetime',
+      title: {
+        text: 'Days'
+      },
+      labels: {
+        formatter() {
+          return Highcharts.dateFormat('%d/%a/%Y', this.value);
+        }
+      }
+    },
+    plotOptions: {
+      series: {
+        pointStart: moment().unix(),
+        pointInterval: 24 * 3600 * 1000
+      }
+    },
+    series: [{
+      data: []
+    }]
+  };
+
+  private getNow() {
+    const today = new Date();
+    const unit = type => parseFloat(moment(today).locale('bg').format(`${type}`));
+    this.date = {
+      day: unit('D'),
+      unix: moment().unix(),
+      month: unit('M'),
+      year: unit('YYYY')
+    };
+  }
+
   private weatherSmallPicture: any[] = [];
   private imageNextToDeg = '';
+
+  public request(url: string, method: Method, body?: any): Promise<any> {
+    const request = axios.request({
+      method,
+      url,
+      timeout: 30000,
+      data: body
+    });
+    return request
+      .then((response: AxiosResponse) => response.data)
+      .catch((e: Error) => {
+        throw e;
+      });
+  }
 
   private setImageName() {
     this.weatherSmallPicture.forEach((word, index) => {
@@ -87,26 +135,28 @@ export default class App extends Vue {
     return require(`./assets/${pic}`);
   }
 
-  private fetchWeather() {
-    fetch(`${this.url_base}weather?q=${this.query}&units=metric&APPID=${this.api_key}`)
-      .then(res => res.json())
-      .then(this.setResults);
-  }
-
-  private async setResults(results: any) {
+  private async getWeather() {
+    this.chartData.series[0].data = [];
+    const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
+    console.log(results, 'Get weather');
     this.weather = results;
     this.coords = results.coord;
     await this.setImageName();
     await this.getWeatherForPastDays();
   }
 
-  private getWeatherForPastDays() {
-    fetch(`${this.url_base}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.api_key}`)
-      .then(res => res.json())
-      .then(res => (res.daily.forEach(day => {
-        this.chartData.push(day.temp.day);
-      })));
+  private async getWeatherForPastDays() {
+    const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
+    console.log(results, 'Get past days weather');
+    results.daily.forEach((day: any) => {
+      const averageForDay: number = Math.round(day.temp.day);
+      this.chartData.series[0].data.push(averageForDay);
+    });
+    const averageTemp = this.average(this.chartData.series[0].data);
+    console.log(Math.round(averageTemp));
   }
+
+  private average = (array: number[]) => array.reduce((a, b) => a + b) / array.length;
 
   dateBuilder() {
     const d = new Date();
