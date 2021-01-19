@@ -14,7 +14,7 @@ module.exports = {
   chainWebpack: config => {
     config.plugin('html')
       .tap(args => {
-        args[0].title = 'warehouse';
+        args[0].title = 'Weather app';
         args[0].version = version;
         return args;
       });

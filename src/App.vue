@@ -8,23 +8,30 @@
           class="search-bar"
           placeholder="Search City..."
           @keypress.enter="getWeather"
-        />
+        >
       </div>
 
       <div v-if="typeof weather.main != 'undefined'" class="weather-wrap">
         <div class="location-box">
-          <div class="location">{{ weather.name }}, {{ weather.sys.country }}</div>
-          <div class="date">{{ dateBuilder() }}</div>
+          <div class="location">
+            {{ weather.name }}, {{ weather.sys.country }}
+          </div>
+          <div class="date">
+            {{ dateBuilder() }}
+          </div>
         </div>
         <div class="weather-box">
-          <div class="temp">{{ Math.round(weather.main.temp) }}°c</div>
-          <div class="weather">{{ weather.weather[0].main }}
+          <div class="temp">
+            {{ Math.round(weather.main.temp) }}°c
+          </div>
+          <div class="weather">
+            {{ weather.weather[0].main }}
             <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
           </div>
         </div>
       </div>
       <Chart v-if="chartData.series[0].data.length!==0" class="diagram" :options="chartData"
-             :height="'200px'"
+             :height="'150px'"
              width="100%"/>
     </main>
   </div>
@@ -34,8 +41,6 @@
 import {Chart} from 'highcharts-vue';
 import {Component, Vue} from 'vue-property-decorator';
 import axios, {Method, AxiosResponse} from 'axios';
-import moment from 'moment';
-import * as Highcharts from 'highcharts/highstock';
 
 @Component({
   components: {
@@ -44,7 +49,6 @@ import * as Highcharts from 'highcharts/highstock';
 })
 export default class App extends Vue {
   async created() {
-    this.getNow();
     await this.takeAllImages();
   }
 
@@ -63,40 +67,41 @@ export default class App extends Vue {
   private urlBase = 'https://api.openweathermap.org/data/2.5/';
   private query = '';
   private coords = {};
-  private date = '';
+  private days = ['Monday', 'Tuesday', 'Wednesday',
+    'Thursday', 'Friday', 'Saturday', 'Sunday'];
   private weather: any = {};
   private chartData = {
+    title: {
+      text: 'Weekly forecast'
+    },
+    series: [
+      {
+        name: 'Past week - today forecast',
+        data: []
+      },
+      {
+        name: 'Next week - today forecast',
+        data: []
+      }
+    ],
     xAxis: {
-      type: 'datetime',
+      type: 'category',
+      categories: App.pastWeekDays(this.days, new Date().getDay()),
       title: {
         text: 'Days'
-      },
-      labels: {
-        formatter() {
-          return Highcharts.dateFormat('%d/%a/%Y', this.value);
-        }
       }
     },
-    plotOptions: {
-      series: {
-        pointStart: moment().unix(),
-        pointInterval: 24 * 3600 * 1000
+    yAxis: {
+      title: {
+        text: 'Temperature (°C)'
       }
-    },
-    series: [{
-      data: []
-    }]
+    }
   };
 
-  private getNow() {
-    const today = new Date();
-    const unit = type => parseFloat(moment(today).locale('bg').format(`${type}`));
-    this.date = {
-      day: unit('D'),
-      unix: moment().unix(),
-      month: unit('M'),
-      year: unit('YYYY')
-    };
+  private static pastWeekDays(array: [], today: number) {
+    const week = array.slice(today, array.length + 1).concat(array.slice(0, today));
+    week.push(week[0]);
+    return week;
   }
 
   private weatherSmallPicture: any[] = [];
@@ -143,6 +148,7 @@ export default class App extends Vue {
     this.coords = results.coord;
     await this.setImageName();
     await this.getWeatherForPastDays();
+    await this.getWeatherForNextDays();
   }
 
   private async getWeatherForPastDays() {
@@ -156,9 +162,16 @@ export default class App extends Vue {
     console.log(Math.round(averageTemp));
   }
 
+  private async getWeatherForNextDays() {
+    const results = await this.request(`${this.urlBase}forecast?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=7&APPID=${this.apiKey}`, 'GET');
+    results.list.forEach(day=>{
+      console.log(day)
+    })
+  }
+
   private average = (array: number[]) => array.reduce((a, b) => a + b) / array.length;
 
-  dateBuilder() {
+  private dateBuilder() {
     const d = new Date();
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -208,7 +221,7 @@ main {
 
 .search-box {
   width: 100%;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
 }
 
 .search-box .search-bar {
@@ -265,7 +278,7 @@ main {
     text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
     background-color: rgba(255, 255, 255, 0.25);
     border-radius: 16px;
-    margin: 30px 0px;
+    margin: 5px 0;
     box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
   }
 
@@ -277,7 +290,7 @@ main {
     display: flex;
     font-style: italic;
     align-items: center;
-    height: 20vh;
+    height: 18vh;
     text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
 
     & > img {
