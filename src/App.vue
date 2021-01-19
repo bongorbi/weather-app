@@ -155,21 +155,18 @@ export default class App extends Vue {
     const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
     console.log(results, 'Get past days weather');
     results.daily.forEach((day: any) => {
-      const averageForDay: number = Math.round(day.temp.day);
+      const averageForDay: number = Math.round((day.temp.day + day.temp.night) / 2);
       this.chartData.series[0].data.push(averageForDay);
     });
-    const averageTemp = this.average(this.chartData.series[0].data);
-    console.log(Math.round(averageTemp));
   }
 
   private async getWeatherForNextDays() {
-    const results = await this.request(`${this.urlBase}forecast?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=7&APPID=${this.apiKey}`, 'GET');
-    results.list.forEach(day=>{
-      console.log(day)
-    })
+    const results = await this.request(`${this.urlBase}forecast?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
+    results.list.forEach(day => {
+      // console.log(day.main.temp, 'temp');
+    });
   }
 
-  private average = (array: number[]) => array.reduce((a, b) => a + b) / array.length;
 
   private dateBuilder() {
     const d = new Date();
