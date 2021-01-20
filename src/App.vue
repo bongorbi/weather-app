@@ -98,8 +98,8 @@ export default class App extends Vue {
     }
   };
 
-  private static pastWeekDays(array: [], today: number) {
-    const week = array.slice(today, array.length + 1).concat(array.slice(0, today));
+  private static pastWeekDays(array: any[], today: number) {
+    const week = array.slice(today - 1, array.length).concat(array.slice(0, today));
     week.push(week[0]);
     return week;
   }
@@ -158,6 +158,7 @@ export default class App extends Vue {
       const averageForDay: number = Math.round((day.temp.day + day.temp.night) / 2);
       this.chartData.series[0].data.push(averageForDay);
     });
+    this.chartData.series[0].data.reverse();
   }
 
   private async getWeatherForNextDays() {
@@ -166,7 +167,6 @@ export default class App extends Vue {
       // console.log(day.main.temp, 'temp');
     });
   }
-
 
   private dateBuilder() {
     const d = new Date();
