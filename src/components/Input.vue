@@ -15,7 +15,7 @@
         required aria-required="true"
         @keyup.enter="$emit('input-field-enter', {data: $event.target.value, field: field.field})"
         @focusout="$emit('input-field-focusout', {data: $event.target.value, field: field.field})"
-      />
+      >
     </div>
     <div class="label-field">
       <slot name="bottomContent"/>

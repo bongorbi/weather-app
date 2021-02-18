@@ -31,7 +31,6 @@
         </div>
       </div>
       <Chart v-if="chartData.series[0].data.length!==0" class="diagram" :options="chartData"
-             :height="'150px'"
              width="100%"/>
     </main>
   </div>
@@ -40,7 +39,7 @@
 <script lang="ts">
 import {Chart} from 'highcharts-vue';
 import {Component, Vue} from 'vue-property-decorator';
-import axios, {Method, AxiosResponse} from 'axios';
+import axios, {AxiosResponse, Method} from 'axios';
 
 @Component({
   components: {
@@ -54,7 +53,7 @@ export default class App extends Vue {
 
   private async takeAllImages() {
     const pictures = require.context(
-      '@/assets/',
+      '../public/assets/',
       true
       // /^.*\.gif$/
     );
@@ -65,12 +64,12 @@ export default class App extends Vue {
 
   private apiKey = 'cab0c30b1dfc14ce360db2f0b4b5411b';
   private urlBase = 'https://api.openweathermap.org/data/2.5/';
-  private query = '';
-  private coords = {};
+  private query: string = '';
+  private coords: any = {};
   private days = ['Monday', 'Tuesday', 'Wednesday',
     'Thursday', 'Friday', 'Saturday', 'Sunday'];
   private weather: any = {};
-  private chartData = {
+  private chartData: any = {
     title: {
       text: 'Weekly forecast'
     },
@@ -124,7 +123,7 @@ export default class App extends Vue {
   private setImageName() {
     this.weatherSmallPicture.forEach((word, index) => {
       if (word.substring(0, 3).toLowerCase() === this.weather.weather[0].main.substring(0, 3).toLowerCase()) {
-        const images = require.context('./assets/', true);
+        const images = require.context('../public/assets/', true);
         const image = App.requireAll(images);
         this.imageNextToDeg = image[index].substring(2, image[index].length);
       }
@@ -137,7 +136,7 @@ export default class App extends Vue {
 
   private getImgPath(pic: any) {
     // eslint-disable-next-line global-require,import/no-dynamic-require
-    return require(`./assets/${pic}`);
+    return require(`../public/assets/${pic}`);
   }
 
   private async getWeather() {
@@ -163,8 +162,9 @@ export default class App extends Vue {
 
   private async getWeatherForNextDays() {
     const results = await this.request(`${this.urlBase}forecast?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
-    results.list.forEach(day => {
-      // console.log(day.main.temp, 'temp');
+    results.list.forEach((day: any) => {
+      console.log(day.main.temp, 'temp');
+      this.chartData.series[1].data.push(day.main.temp);
     });
   }
 
@@ -182,6 +182,8 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss">
+@import 'https://code.highcharts.com/5/css/highcharts.css';
+
 * {
   margin: 0;
   padding: 0;
@@ -193,21 +195,23 @@ body {
 }
 
 #app {
-  background-image: url('assets/background.gif');
+  background-image: url('../public/assets/background.gif');
   background-size: cover;
+  -webkit-background-size: cover;
   background-position: bottom;
   transition: 0.4s;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
+  height: 100vh;
   color: #2c3e50;
-  margin-top: 60px;
-  overflow: hidden;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 #app.warm {
-  background-image: url('./assets/warm.gif');
+  background-image: url('../public/assets/warm.jpg');
 }
 
 main {
@@ -305,5 +309,9 @@ main {
 
 .diagram {
   border-radius: 16px !important;
+
+  & > .highcharts-background {
+    fill: #223;
+  }
 }
 </style>

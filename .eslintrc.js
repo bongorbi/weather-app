@@ -1,10 +1,10 @@
 module.exports = {
-  'root': true,
-  'env': {
-    'browser': true,
-    'es6': true
+  root: true,
+  env: {
+    browser: true,
+    es6: true
   },
-  'extends': [
+  extends: [
     'plugin:vue/base',
     'plugin:vue/essential',
     'plugin:vue/strongly-recommended',
@@ -14,17 +14,17 @@ module.exports = {
     'eslint:recommended'
   ],
 
-  'parser': 'vue-eslint-parser',
-  'parserOptions': {
-    'parser': '@typescript-eslint/parser'
+  parser: 'vue-eslint-parser',
+  parserOptions: {
+    parser: '@typescript-eslint/parser'
   },
-  'rules': {
-    'quotes': ['error', 'single'],
+  rules: {
+    quotes: ['error', 'single'],
     'max-len': [
       'warn',
       {
-        'code': 160,
-        'ignoreTemplateLiterals': true
+        code: 160,
+        ignoreTemplateLiterals: true
       }
     ],
     'no-var': 'off',
