@@ -2,13 +2,16 @@
   <div id="app" :class="typeof weather.main != 'undefined' && weather.main.temp > 16 ? 'warm' : ''">
     <main>
       <div class="search-box">
-        <input
-          v-model="query"
-          type="text"
-          class="search-bar"
-          placeholder="Search City..."
-          @keypress.enter="getWeather"
-        >
+        <label>
+          <input
+            v-model="query"
+            ref="input"
+            type="text"
+            class="search-bar"
+            placeholder="Search City..."
+            @keypress.enter="getWeather"
+          >
+        </label>
       </div>
 
       <div v-if="typeof weather.main != 'undefined'" class="weather-wrap">
@@ -106,7 +109,7 @@ export default class App extends Vue {
   private weatherSmallPicture: any[] = [];
   private imageNextToDeg = '';
 
-  public request(url: string, method: Method, body?: any): Promise<any> {
+  private request(url: string, method: Method, body?: any): Promise<any> {
     const request = axios.request({
       method,
       url,
@@ -141,10 +144,11 @@ export default class App extends Vue {
 
   private async getWeather() {
     this.chartData.series[0].data = [];
+    this.chartData.series[1].data = [];
     const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
-    console.log(results, 'Get weather');
     this.weather = results;
     this.coords = results.coord;
+    (this.$refs.input as HTMLInputElement).blur();
     await this.setImageName();
     await this.getWeatherForPastDays();
     await this.getWeatherForNextDays();
@@ -152,7 +156,6 @@ export default class App extends Vue {
 
   private async getWeatherForPastDays() {
     const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
-    console.log(results, 'Get past days weather');
     results.daily.forEach((day: any) => {
       const averageForDay: number = Math.round((day.temp.day + day.temp.night) / 2);
       this.chartData.series[0].data.push(averageForDay);
@@ -163,7 +166,6 @@ export default class App extends Vue {
   private async getWeatherForNextDays() {
     const results = await this.request(`${this.urlBase}forecast?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
     results.list.forEach((day: any) => {
-      console.log(day.main.temp, 'temp');
       this.chartData.series[1].data.push(day.main.temp);
     });
   }
@@ -228,8 +230,7 @@ main {
 .search-box .search-bar {
   display: block;
   width: 100%;
-  padding: 15px;
-
+  padding: 10px;
   color: #313131;
   font-size: 20px;
   appearance: none;
@@ -242,9 +243,9 @@ main {
 }
 
 .search-box .search-bar:focus {
-  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.25);
   background-color: rgba(255, 255, 255, 0.75);
-  border-radius: 16px 0px 16px 0px;
+  border-radius: 16px 0 16px 0;
 }
 
 .location-box .location {
@@ -263,46 +264,48 @@ main {
   text-align: center;
 }
 
-.weather-box {
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-
-  & > .temp {
-    display: inline-block;
-    padding: 10px 25px;
-    color: #FFF;
-    font-size: 102px;
-    font-weight: 900;
-    text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
-    background-color: rgba(255, 255, 255, 0.25);
-    border-radius: 16px;
-    margin: 5px 0;
-    box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
-  }
-
-  & > .weather {
-    color: #FFF;
-    font-size: 48px;
-    font-weight: 700;
+.weather-wrap {
+  & > .weather-box {
+    text-align: center;
+    align-items: center;
     justify-content: center;
     display: flex;
-    font-style: italic;
-    align-items: center;
-    height: 18vh;
-    text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+    flex-direction: column;
 
-    & > img {
+    & > .temp {
+      display: inline-block;
+      padding: 10px 25px;
+      color: #FFF;
+      font-size: 102px;
+      font-weight: 900;
+      text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+      background-color: rgba(255, 255, 255, 0.25);
       border-radius: 16px;
-      margin-left: 10px;
-      max-width: 100%;
-      height: 60%;
+      margin: 5px 0;
+      box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
     }
 
-    & img::after {
-      background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0, #fff 100%);
+    & > .weather {
+      color: #FFF;
+      height: 13vh;
+      font-size: 48px;
+      font-weight: 700;
+      justify-content: center;
+      display: flex;
+      font-style: italic;
+      align-items: center;
+      text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+
+      & > img {
+        border-radius: 16px;
+        margin-left: 10px;
+        max-width: 100%;
+        height: 60%;
+      }
+
+      & img::after {
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0, #fff 100%);
+      }
     }
   }
 }
