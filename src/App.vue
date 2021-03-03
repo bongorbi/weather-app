@@ -1,7 +1,7 @@
 <template>
-  <div id="app" :class="typeof weather.main != 'undefined' && weather.main.temp < 16 ? 'cold' : ''">
+  <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()">
     <main>
-      <div style="height: 40vh">
+      <div class="infoForecast">
         <div class="search-box">
           <label>
             <input
@@ -36,210 +36,94 @@
           </div>
         </div>
       </div>
-      <Chart v-if="chartData.series[0].data.length!==0" class="diagram" :options="chartData"/>
+      <div>
+        <div v-show="error===''" class="chartButtons">
+          <button :class="{'selected':showPastWeek}" @click="showPastWeekChart">
+            Past Week
+          </button>
+          <button :class="{'selected':showNextWeek}" @click="showNextWeekChart">
+            Next Week
+          </button>
+        </div>
+        <div class="chartContainer">
+          <Chart v-if="nextWeekChartData.series[0].data.length!==0 && showNextWeek" :key="componentKey" ref="chart"
+                 class="diagram"
+                 :options="nextWeekChartData"/>
+          <Chart v-if="pastWeekChartData.series[0].data.length!==0 && showPastWeek" :key="componentKey" ref="chart"
+                 class="diagram"
+                 :options="pastWeekChartData"/>
+        </div>
+      </div>
     </main>
   </div>
 </template>
 
-<script lang="ts">
-import {Chart} from 'highcharts-vue';
-import {Component, Vue} from 'vue-property-decorator';
-import axios, {AxiosResponse, Method} from 'axios';
-import Highcharts from 'highcharts';
-
-@Component({
-  components: {
-    Chart
-  }
-})
-export default class App extends Vue {
-  async created() {
-    await this.takeAllImages();
-  }
-
-  async mounted() {
-    Highcharts.setOptions({});
-    // for testing only
-    await this.getWeather();
-  }
-
-  private async takeAllImages() {
-    const pictures = require.context(
-      './assets/',
-      true
-    );
-    pictures.keys().forEach(key => {
-      this.weatherSmallPicture.push(key.substring(2, 6));
-    });
-  }
-
-  private apiKey = 'cab0c30b1dfc14ce360db2f0b4b5411b';
-  private urlBase = 'https://api.openweathermap.org/data/2.5/';
-  private query: string = 'sofia';
-  private error: string = '';
-  private coords: any = {};
-  private days = ['Monday', 'Tuesday', 'Wednesday',
-    'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  private weather: any = {};
-  private chartData: any = {
-    // type of diagram
-    // chart: {
-    //   type: 'column'
-    // },
-    title: {
-      text: 'Weekly forecast'
-    },
-    series: [
-      {
-        name: 'Past Week',
-        data: []
-      },
-      {
-        name: 'Next Week',
-        data: []
-      }
-    ],
-    xAxis: {
-      type: 'category',
-      categories: App.pastWeekDays(this.days, new Date().getDay()),
-    },
-    yAxis: {
-      title: {
-        text: 'Temperature (°C)'
-      }
-    },
-    tooltip: {
-      crosshairs: true,
-      shared: true,
-      split: true
-    }
-  };
-
-  private static pastWeekDays(array: any[], today: number) {
-    const week = array.slice(today - 1, array.length).concat(array.slice(0, today));
-    week.push(week[0]);
-    return week;
-  }
-
-  private weatherSmallPicture: any[] = [];
-  private imageNextToDeg = '';
-
-  private request(url: string, method: Method, body?: any): Promise<any> {
-    this.error = '';
-    const request = axios.request({
-      method,
-      url,
-      timeout: 30000,
-      data: body
-    });
-    return request
-      .then((response: AxiosResponse) => response.data)
-      .catch((e: Error) => {
-        this.error = 'No city was found...';
-        throw e;
-      });
-  }
-
-  private setImageName() {
-    this.weatherSmallPicture.forEach((word, index) => {
-      if (word.substring(0, 3).toLowerCase() === this.weather.weather[0].main.substring(0, 3).toLowerCase()) {
-        const images = require.context('./assets/', true);
-        const image = App.requireAll(images);
-        this.imageNextToDeg = image[index].substring(2, image[index].length);
-      }
-    });
-  }
-
-  private static requireAll(requireContext: any) {
-    return requireContext.keys();
-  }
-
-  private getImgPath(pic: any) {
-    // eslint-disable-next-line global-require,import/no-dynamic-require
-    return require(`./assets/${pic}`);
-  }
-
-  private async getWeather() {
-    this.chartData.series[0].data = [];
-    this.chartData.series[1].data = [];
-    const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
-    this.weather = results;
-    this.coords = results.coord;
-    (this.$refs.input as HTMLInputElement).blur();
-    await this.setImageName();
-    await this.getWeatherForPastDays();
-    await this.getWeatherForNextDays();
-  }
-
-  private async getWeatherForPastDays() {
-    const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
-    results.daily.forEach((day: any) => {
-      const averageForDay: number = Math.trunc((day.temp.morn + day.temp.night) / 2);
-      this.chartData.series[0].data.push(averageForDay);
-    });
-    this.chartData.series[0].data.reverse();
-  }
-
-  private async getWeatherForNextDays() {
-    const results = await this.request(`${this.urlBase}forecast?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
-    results.list.forEach((day: any) => {
-      this.chartData.series[1].data.push(Math.trunc(day.main.temp));
-    });
-  }
-
-  private dateBuilder() {
-    const d = new Date();
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const day = days[d.getDay()];
-    const date = d.getDate();
-    const month = months[d.getMonth()];
-    const year = d.getFullYear();
-    return `${day} ${date} ${month} ${year}`;
-  }
-}
+<script src="./App.ts">
 </script>
 
 <style lang="scss">
 @import 'https://code.highcharts.com/css/highcharts.css';
 
-.highcharts-container {
-  height: 100% !important;
-  width: 100vw !important;
-}
+.chartContainer {
+  display: flex;
+  padding-top: 10px;
+  justify-content: center;
 
-.highcharts-plot-background {
-  fill: #efffff;
-}
+  .diagram {
+    border-radius: 16px;
 
-.highcharts-xaxis-labels {
-  & > * {
-    fill: black !important;
-    font-size: 0.8rem !important;
+    .highcharts-root {
+      border-radius: 16px;
+    }
+
+    .highcharts-plot-background {
+      fill: #efffff;
+    }
+
+    .highcharts-xaxis-labels {
+      & > * {
+        fill: black !important;
+        font-size: 0.8rem !important;
+      }
+    }
+
+    .highcharts-yaxis {
+      & > * {
+        fill: black !important;
+        font-size: 0.8rem !important;
+      }
+    }
+
+    .highcharts-yaxis-labels {
+      & > * {
+        fill: black !important;
+        font-size: 0.8rem !important;
+      }
+    }
+
+    .highcharts-background {
+      fill: rgba(255, 255, 255, 0.75);
+    }
+
+    .highcharts-plot-border {
+      stroke-width: 2px;
+      stroke: #7cb5ec;
+    }
+
+    //.highcharts-tracker-line {
+    //  stroke-linejoin: round;
+    //  stroke: rgb(78, 56, 102);
+    //  stroke-width: 2;
+    //  fill: none;
+    //}
+    .highcharts-color-0 {
+      fill: rgb(78, 56, 102);
+    }
+
+    .highcharts-plot-border {
+      stroke: rgb(78, 56, 102);
+    }
   }
-}
-
-.highcharts-yaxis {
-  & > * {
-    fill: black !important;
-    font-size: 0.8rem !important;
-  }
-}
-
-.highcharts-yaxis-labels {
-  & > * {
-    fill: black !important;
-    font-size: 0.8rem !important;
-  }
-}
-
-.highcharts-background {
-  fill: rgba(255, 255, 255, 0.75)
-}
-
-.highcharts-plot-border {
-  stroke-width: 2px;
-  stroke: #7cb5ec;
 }
 
 .error {
@@ -267,6 +151,49 @@ export default class App extends Vue {
   box-sizing: border-box;
 }
 
+.chartButtons {
+  width: 100%;
+  height: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  :last-child{
+    margin-left: 10px;
+  }
+  :first-child{
+    margin-right: 10px;
+  }
+  & > button {
+    box-sizing: border-box;
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    white-space: nowrap;
+    outline: none;
+    cursor: pointer;
+    padding: 0 5px;
+    width: 50%;
+    height: 50%;
+    min-height: 35px;
+    color: #160c0c;
+    font-size: 1.5rem;
+    background-color: rgb(149, 158, 160, 0.9);
+    border-radius: 6px;
+    box-shadow: 2px 4px rgb(0 0 0 / 65%);
+  }
+
+  & > .selected {
+    background-color: rgb(78, 56, 102, 0.9);
+    border-radius: 6px;
+    transform: scale(1.08); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+    transition: 0.7s;
+    color: #e3dddd;
+    font-size: 1.7rem;
+  }
+}
+
 body {
   font-family: 'montserrat', sans-serif;
 }
@@ -287,7 +214,11 @@ body {
   overflow-x: hidden;
 }
 
-#app.cold {
+.infoForecast {
+  height: 40vh;
+}
+
+#app.under2 {
   background-image: url(./assets/background.gif);
   background-size: cover;
 }
@@ -309,7 +240,7 @@ main {
   width: 100%;
   padding: 10px;
   color: #313131;
-  font-size: 20px;
+  font-size: 1.4rem;
   appearance: none;
   border: none;
   outline: none;
@@ -321,6 +252,7 @@ main {
 
 .search-box .search-bar:focus {
   background-color: rgba(255, 255, 255, 0.75);
+  font-size: 2rem;
 }
 
 .location-box .location {
@@ -387,8 +319,26 @@ main {
   }
 }
 
-.diagram {
-  height: 58vh;
-  //border-radius: 16px !important;
+@media only screen and (min-width: 1000px) {
+  main {
+    display: grid;
+    grid-template-columns:40vw 60vw;
+    grid-column-gap: 5%;
+
+    & > .infoForecast {
+      grid-column: 1;
+    }
+
+    .chartContainer {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      grid-column: 2;
+
+      & > .diagram {
+        grid-column: 2;
+      }
+    }
+  }
 }
 </style>
