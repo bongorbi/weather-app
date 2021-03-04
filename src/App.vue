@@ -26,17 +26,26 @@
             </div>
           </div>
           <div class="weather-box">
-            <div class="temp">
-              {{ Math.round(weather.main.temp) }}°c
+            <div class="firstColumn">
+              <span class="weather">Temp now:<span class="temp">{{ Math.round(weather.main.temp) }}°c</span></span>
+              <div class="weather">
+                Weather: {{ weather.weather[0].main }}
+                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
+              </div>
             </div>
-            <div class="weather">
-              {{ weather.weather[0].main }}
-              <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
+            <div class="secondColumn">
+              <span class="weather">Feels like: <span class="temp">
+                {{ Math.round(weather.main.feels_like) }}°c</span>
+              </span>
+              <span class="weather">Wind speed: <span class="temp">
+                {{ weather.wind.speed }}m/s</span>
+              </span>
+
             </div>
           </div>
         </div>
       </div>
-      <div>
+      <div style="height: 40vh">
         <div v-show="error===''" class="chartButtons">
           <button :class="{'selected':showPastWeek}" @click="showPastWeekChart">
             Past Week
@@ -63,6 +72,17 @@
 
 <style lang="scss">
 @import 'https://code.highcharts.com/css/highcharts.css';
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
+
+@font-face {
+  font-family: "Nunito-Regular";
+  src: url("../public/fonts/Nunito/Nunito-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Nunito-LightItalic";
+  src: url("../public/fonts/Nunito/Nunito-LightItalic.ttf") format("truetype");
+}
 
 .chartContainer {
   display: flex;
@@ -70,10 +90,10 @@
   justify-content: center;
 
   .diagram {
-    border-radius: 16px;
+    //border-radius: 16px;
 
     .highcharts-root {
-      border-radius: 16px;
+      //border-radius: 16px;
     }
 
     .highcharts-plot-background {
@@ -117,11 +137,11 @@
     //  fill: none;
     //}
     .highcharts-color-0 {
-      fill: rgb(78, 56, 102);
+      fill: rgb(253, 65, 14);
     }
 
     .highcharts-plot-border {
-      stroke: rgb(78, 56, 102);
+      stroke: rgb(253, 65, 14);
     }
   }
 }
@@ -148,23 +168,14 @@
 * {
   margin: 0;
   padding: 0;
+  font-family: Nunito-Regular, sans-serif;
   box-sizing: border-box;
 }
 
 .chartButtons {
-  width: 100%;
-  height: 10%;
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
-
-  :last-child {
-    margin-left: 10px;
-  }
-
-  :first-child {
-    margin-right: 10px;
-  }
 
   & > button {
     box-sizing: border-box;
@@ -182,18 +193,16 @@
     min-height: 35px;
     color: #160c0c;
     font-size: 1.5rem;
-    background-color: rgb(149, 158, 160, 0.9);
-    border-radius: 6px;
+    background-color: rgb(247, 136, 101);
+    transition: 0.7s;
     box-shadow: 2px 4px rgb(0 0 0 / 65%);
     transform: scale(0.9); /* (-9% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
   }
 
   & > .selected {
-    background-color: rgb(78, 56, 102, 0.9);
-    border-radius: 6px;
+    background-color: rgb(253, 65, 14);
     transform: scale(1.08); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
     transition: 0.7s;
-    color: #e3dddd;
     font-size: 1.7rem;
   }
 }
@@ -204,7 +213,6 @@
   -webkit-background-size: cover;
   background-position: bottom;
   transition: 0.4s;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -267,56 +275,46 @@ main {
 
 .location-box .location {
   color: #FFF;
-  font-size: 32px;
-  font-weight: 500;
+  font-size: 2em;
+  font-weight: 600;
+  font-family: Nunito-Regular, sans-serif;
   text-align: center;
   text-shadow: 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 .location-box .date {
   color: #FFF;
-  font-size: 20px;
-  font-weight: 300;
-  font-style: italic;
+  font-size: 1.5rem;
+  font-family: Nunito-Regular, sans-serif;
   text-align: center;
 }
 
 .weather-wrap {
-  height: 30%;
-
   & > .weather-box {
+    display: grid;
+    grid-template-columns: 50% 50%;
     text-align: center;
     align-items: center;
     margin: 5px 0;
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
 
-    & > .temp {
-      display: inline-block;
-      padding: 10px 25px;
-      color: #FFF;
-      font-size: 3rem;
-      font-weight: 900;
-      text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
-      background-color: rgba(255, 255, 255, 0.25);
-      border-radius: 16px;
-      box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+    & .temp {
+      margin-left: 5px;
+      font-family: Nunito-Regular, sans-serif;
+      font-size: 2rem;
+      text-shadow: 1px 2px rgba(0, 0, 0, 0.25);
     }
 
-    & > .weather {
+    & .weather {
       color: #FFF;
-      height: 13vh;
-      font-size: 2rem;
-      font-weight: 700;
+      height: 10vh;
+      font-size: 1.6rem;
       justify-content: center;
       display: flex;
-      font-style: italic;
+      font-family: Nunito-Regular, sans-serif;
       align-items: center;
-      text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+      text-shadow: 1px 2px rgba(0, 0, 0, 0.25);
 
-      & > img {
-        border-radius: 16px;
+      & img {
         margin-left: 10px;
         max-width: 100%;
         height: 60%;
@@ -324,33 +322,6 @@ main {
 
       & img::after {
         background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0, #fff 100%);
-      }
-    }
-  }
-}
-
-@media only screen and (min-width: 1000px) {
-  main {
-    display: grid;
-    grid-template-columns:40vw 60vw;
-    grid-column-gap: 5%;
-
-    & > .infoForecast {
-      grid-column: 1;
-    }
-
-    .chartButtons {
-      padding-right: 15%;
-    }
-
-    .chartContainer {
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      grid-column: 2;
-
-      & > .diagram {
-        grid-column: 2;
       }
     }
   }
@@ -380,6 +351,20 @@ main {
         grid-column: 2;
       }
     }
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .weather {
+    font-size: 1.2rem !important;
+  }
+  .temp {
+    font-size: 1.3rem !important;
+  }
+  .firstColumn {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
   }
 }
 </style>

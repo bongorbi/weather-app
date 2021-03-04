@@ -25,17 +25,17 @@ export default class App extends Vue {
 
   private resizeChart() {
     switch (true) {
-      // detects landscape mode or width > 1000px
-      case window.innerWidth > 1000 || window.matchMedia('(orientation: landscape)').matches:
+      // detects landscape mode
+      case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
         this.nextWeekChartData.chart.width = (window.innerWidth) * 0.5;
         this.nextWeekChartData.chart.height = (window.innerHeight) * 0.4;
         this.pastWeekChartData.chart.width = (window.innerWidth) * 0.5;
         this.pastWeekChartData.chart.height = (window.innerHeight) * 0.4;
         break;
       case window.innerWidth < 500:
-        this.nextWeekChartData.chart.width = window.innerWidth - (0.1 * window.innerWidth);
+        this.nextWeekChartData.chart.width = window.innerWidth - (0.04 * window.innerWidth);
         this.nextWeekChartData.chart.height = (window.innerHeight) * 0.5;
-        this.pastWeekChartData.chart.width = window.innerWidth - (0.1 * window.innerWidth);
+        this.pastWeekChartData.chart.width = window.innerWidth - (0.04 * window.innerWidth);
         this.pastWeekChartData.chart.height = (window.innerHeight) * 0.5;
         break;
       default:
@@ -131,12 +131,13 @@ export default class App extends Vue {
     tooltip: {
       crosshairs: true,
       shared: true,
-      split: true
+      split: true,
+      valueSuffix: '°C'
     }
   };
   private nextWeekChartData: any = {
-    // type of diagram
     chart: {
+      // type of diagram
       type: 'column',
       width: 0,
       height: 0
@@ -174,7 +175,8 @@ export default class App extends Vue {
     tooltip: {
       crosshairs: true,
       shared: true,
-      split: true
+      split: true,
+      valueSuffix: '°C'
     }
   };
 
@@ -247,8 +249,8 @@ export default class App extends Vue {
   private async getWeatherForPastDays() {
     const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
     results.daily.forEach((day: any) => {
-      const averageForDay: number = Math.trunc((day.temp.morn + day.temp.night) / 2);
-      this.pastWeekChartData.series[0].data.push(averageForDay);
+      // const averageForDay: number = Math.trunc((day.temp.morn + day.temp.night) / 2);
+      this.pastWeekChartData.series[0].data.push(Math.trunc(day.temp.day));
     });
     this.pastWeekChartData.series[0].data.reverse();
   }
