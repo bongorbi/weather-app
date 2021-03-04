@@ -157,12 +157,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  :last-child{
+
+  :last-child {
     margin-left: 10px;
   }
-  :first-child{
+
+  :first-child {
     margin-right: 10px;
   }
+
   & > button {
     box-sizing: border-box;
     border: 0;
@@ -174,7 +177,7 @@
     outline: none;
     cursor: pointer;
     padding: 0 5px;
-    width: 50%;
+    width: 45%;
     height: 50%;
     min-height: 35px;
     color: #160c0c;
@@ -182,6 +185,7 @@
     background-color: rgb(149, 158, 160, 0.9);
     border-radius: 6px;
     box-shadow: 2px 4px rgb(0 0 0 / 65%);
+    transform: scale(0.9); /* (-9% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
   }
 
   & > .selected {
@@ -192,10 +196,6 @@
     color: #e3dddd;
     font-size: 1.7rem;
   }
-}
-
-body {
-  font-family: 'montserrat', sans-serif;
 }
 
 #app {
@@ -210,7 +210,7 @@ body {
   text-align: center;
   height: 100vh;
   color: #2c3e50;
-  overflow-y: hidden;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
@@ -220,6 +220,16 @@ body {
 
 #app.under2 {
   background-image: url(./assets/background.gif);
+  background-size: cover;
+}
+
+#app.over2 {
+  background-image: url(./assets/2-15.jpg);
+  background-size: cover;
+}
+
+#app.over16 {
+  background-image: url(./assets/verySunny.jpg);
   background-size: cover;
 }
 
@@ -327,6 +337,37 @@ main {
 
     & > .infoForecast {
       grid-column: 1;
+    }
+
+    .chartButtons {
+      padding-right: 15%;
+    }
+
+    .chartContainer {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      grid-column: 2;
+
+      & > .diagram {
+        grid-column: 2;
+      }
+    }
+  }
+}
+
+@media screen and (min-aspect-ratio: 13/9) {
+  main {
+    display: grid;
+    grid-template-columns:40vw 55vw;
+    grid-column-gap: 5%;
+
+    & > .infoForecast {
+      grid-column: 1;
+    }
+
+    .chartButtons {
+      padding-right: 15%;
     }
 
     .chartContainer {

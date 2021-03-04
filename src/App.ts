@@ -1,7 +1,6 @@
 import {Chart} from 'highcharts-vue';
 import {Component, Vue} from 'vue-property-decorator';
 import axios, {AxiosResponse, Method} from 'axios';
-import Highcharts from 'highcharts';
 import debounce from 'lodash/debounce';
 
 @Component({
@@ -25,16 +24,25 @@ export default class App extends Vue {
   }
 
   private resizeChart() {
-    if (window.innerWidth > 1000) {
-      this.nextWeekChartData.chart.width = (window.innerWidth) * 0.45;
-      this.nextWeekChartData.chart.height = (window.innerHeight) * 0.4;
-      this.pastWeekChartData.chart.width = (window.innerWidth) * 0.45;
-      this.pastWeekChartData.chart.height = (window.innerHeight) * 0.4;
-    } else {
-      this.nextWeekChartData.chart.width = window.innerWidth - (0.01 * window.innerWidth);
-      this.nextWeekChartData.chart.height = (window.innerHeight) * 0.51;
-      this.pastWeekChartData.chart.width = window.innerWidth - (0.01 * window.innerWidth);
-      this.pastWeekChartData.chart.height = (window.innerHeight) * 0.51;
+    switch (true) {
+      // detects landscape mode or width > 1000px
+      case window.innerWidth > 1000 || window.matchMedia('(orientation: landscape)').matches:
+        this.nextWeekChartData.chart.width = (window.innerWidth) * 0.5;
+        this.nextWeekChartData.chart.height = (window.innerHeight) * 0.4;
+        this.pastWeekChartData.chart.width = (window.innerWidth) * 0.5;
+        this.pastWeekChartData.chart.height = (window.innerHeight) * 0.4;
+        break;
+      case window.innerWidth < 500:
+        this.nextWeekChartData.chart.width = window.innerWidth - (0.1 * window.innerWidth);
+        this.nextWeekChartData.chart.height = (window.innerHeight) * 0.5;
+        this.pastWeekChartData.chart.width = window.innerWidth - (0.1 * window.innerWidth);
+        this.pastWeekChartData.chart.height = (window.innerHeight) * 0.5;
+        break;
+      default:
+        this.nextWeekChartData.chart.width = window.innerWidth - (0.02 * window.innerWidth);
+        this.nextWeekChartData.chart.height = (window.innerHeight) * 0.51;
+        this.pastWeekChartData.chart.width = window.innerWidth - (0.02 * window.innerWidth);
+        this.pastWeekChartData.chart.height = (window.innerHeight) * 0.51;
     }
   }
 
@@ -45,8 +53,14 @@ export default class App extends Vue {
       default:
         background = '';
         break;
-      case temp <= 16:
+      case temp <= 2:
         background = 'under2';
+        break;
+      case temp > 2 && temp < 16:
+        background = 'over2';
+        break;
+      case temp >= 16:
+        background = 'over16';
         break;
     }
     return background;
@@ -99,19 +113,19 @@ export default class App extends Vue {
       {
         name: 'Past Week',
         data: []
-      },
-      {
-        name: 'Next Week',
-        data: []
       }
     ],
     xAxis: {
       type: 'category',
-      categories: App.pastWeekDays(this.days, new Date().getDay())
+      categories: App.pastWeekDays(this.days, new Date().getDay()),
+      labels: {
+        rotation: 0
+      }
     },
     yAxis: {
       title: {
-        text: 'Temperature (°C)'
+        text: 'Temperature (°C)',
+        margin: 4
       }
     },
     tooltip: {
@@ -140,21 +154,21 @@ export default class App extends Vue {
     },
     series: [
       {
-        name: 'Past Week',
-        data: []
-      },
-      {
         name: 'Next Week',
         data: []
       }
     ],
     xAxis: {
       type: 'category',
-      categories: App.pastWeekDays(this.days, new Date().getDay())
+      categories: App.pastWeekDays(this.days, new Date().getDay()),
+      labels: {
+        rotation: 0
+      }
     },
     yAxis: {
       title: {
-        text: 'Temperature (°C)'
+        text: 'Temperature (°C)',
+        margin: 4
       }
     },
     tooltip: {
