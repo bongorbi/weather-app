@@ -91,6 +91,23 @@ export default class App extends Vue {
   private days = ['Monday', 'Tuesday', 'Wednesday',
     'Thursday', 'Friday', 'Saturday', 'Sunday'];
   private weather: any = {};
+
+  private static metricUnitSetter(name: string) {
+    let unit;
+    switch (true) {
+      case name === 'Wind':
+        unit = 'm/s';
+        break;
+      case name === 'Weather status':
+        unit = '';
+        break;
+      default:
+        unit = '°C';
+        break;
+    }
+    return unit;
+  }
+
   private pastWeekChartData: any = {
     // type of diagram
     chart: {
@@ -138,9 +155,9 @@ export default class App extends Vue {
   private nextWeekChartData: any = {
     chart: {
       // type of diagram
-      type: 'column',
-      width: 0,
-      height: 0
+      type: 'line',
+      marginLeft: 55,
+      marginRight: 10
     },
     // bottom right credit
     credits: {
@@ -148,15 +165,32 @@ export default class App extends Vue {
     },
     // bottom legend for different chart
     legend: {
-      enabled: false
+      enabled: true
     },
     title: {
       text: 'Next Week Forecast'
     },
     series: [
       {
-        name: 'Next Week',
-        data: []
+        name: 'Temperature',
+        data: [],
+        zIndex: 1,
+        color: '#ff3333'
+      },
+      {
+        name: 'Wind',
+        data: [],
+        color: '#eebc06'
+      },
+      {
+        name: 'Weather status',
+        data: [],
+        color: '#05dce3'
+      },
+      {
+        name: 'Feels Like',
+        data: [],
+        color: '#36ef0d'
       }
     ],
     xAxis: {
@@ -175,8 +209,12 @@ export default class App extends Vue {
     tooltip: {
       crosshairs: true,
       shared: true,
-      split: true,
-      valueSuffix: '°C'
+      formatter() {
+        console.log(this.points);
+        // @ts-ignore
+        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:
+        ${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+      }
     }
   };
 
@@ -234,9 +272,16 @@ export default class App extends Vue {
     return require(`./assets/${pic}`);
   }
 
+  private clearChartData(chart: any) {
+    chart.series.forEach((obj: any) => {
+      // eslint-disable-next-line no-param-reassign
+      obj.data = [];
+    });
+  }
+
   private async getWeather() {
-    this.nextWeekChartData.series[0].data = [];
-    this.pastWeekChartData.series[0].data = [];
+    this.clearChartData(this.nextWeekChartData);
+    this.clearChartData(this.pastWeekChartData);
     const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
     this.weather = results;
     this.coords = results.coord;
@@ -250,7 +295,7 @@ export default class App extends Vue {
     const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
     results.daily.forEach((day: any) => {
       // const averageForDay: number = Math.trunc((day.temp.morn + day.temp.night) / 2);
-      this.pastWeekChartData.series[0].data.push(Math.trunc(day.temp.day));
+      this.pastWeekChartData.series[0].data.push(Math.round(day.temp.day));
     });
     this.pastWeekChartData.series[0].data.reverse();
   }
@@ -258,7 +303,10 @@ export default class App extends Vue {
   private async getWeatherForNextDays() {
     const results = await this.request(`${this.urlBase}forecast?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
     results.list.forEach((day: any) => {
-      this.nextWeekChartData.series[0].data.push(Math.trunc(day.main.temp));
+      this.nextWeekChartData.series[0].data.push(Math.round(day.main.temp));
+      this.nextWeekChartData.series[2].data.push(day.weather[0].main);
+      this.nextWeekChartData.series[1].data.push(day.wind.speed);
+      this.nextWeekChartData.series[3].data.push(Math.round(day.main.feels_like));
     });
   }
 

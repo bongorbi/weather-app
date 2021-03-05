@@ -353,8 +353,17 @@ main {
     }
   }
 }
-
+@media screen and (max-width: 500px) {
+  .chartContainer {
+    position: fixed;
+    bottom: 0;
+  }
+}
 @media screen and (max-width: 360px) {
+  .chartContainer{
+    position: fixed;
+    bottom: 0
+  }
   .weather {
     font-size: 1.2rem !important;
   }
