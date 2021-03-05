@@ -10,58 +10,69 @@
               type="text"
               class="search-bar"
               placeholder="Search City..."
+              @focus="hideContentTrigger"
+              @focusout="hideContentTrigger"
               @keypress.enter="getWeather">
           </label>
         </div>
-        <div v-if="error!==''" class="error">
-          <p> {{ error }} </p>
-        </div>
-        <div v-if="typeof weather.main != 'undefined'" class="weather-wrap">
-          <div class="location-box">
-            <div class="location">
-              {{ weather.name }}, {{ weather.sys.country }}
-            </div>
-            <div class="date">
-              {{ dateBuilder() }}
-            </div>
+        <div v-if="!hideContent">
+          <div v-if="error!==''" class="error">
+            <p> {{ error }} </p>
           </div>
-          <div class="weather-box">
-            <div class="firstColumn">
-              <span class="weather">Temp now:<span class="temp">{{ Math.round(weather.main.temp) }}°c</span></span>
-              <div class="weather">
-                Weather: {{ weather.weather[0].main }}
-                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
+          <div v-if="typeof weather.main != 'undefined'" class="weather-wrap">
+            <div class="location-box">
+              <div class="location">
+                {{ weather.name }}, {{ weather.sys.country }}
+              </div>
+              <div class="date">
+                {{ dateBuilder() }}
               </div>
             </div>
-            <div class="secondColumn">
-              <span class="weather">Feels like: <span class="temp">
-                {{ Math.round(weather.main.feels_like) }}°c</span>
-              </span>
-              <span class="weather">Wind speed: <span class="temp">
-                {{ weather.wind.speed }}m/s</span>
-              </span>
-
+            <div class="weather-box">
+              <div class="firstColumn">
+                <span class="weather">Temp now:<span class="temp">{{ Math.round(weather.main.temp) }}°c</span></span>
+                <div class="weather">
+                  Weather: {{ weather.weather[0].main }}
+                  <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
+                </div>
+              </div>
+              <div class="secondColumn">
+                <span class="weather">Feels like: <span class="temp">
+                  {{ Math.round(weather.main.feels_like) }}°c</span>
+                </span>
+                <span class="weather">Wind speed: <span class="temp">
+                  {{ weather.wind.speed }}m/s</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div style="height: 40vh">
-        <div v-show="error===''" class="chartButtons">
-          <button :class="{'selected':showPastWeek}" @click="showPastWeekChart">
-            Past Week
-          </button>
-          <button :class="{'selected':showNextWeek}" @click="showNextWeekChart">
-            Next Week
-          </button>
-        </div>
-        <div class="chartContainer">
-          <Chart v-if="nextWeekChartData.series[0].data.length!==0 && showNextWeek" :key="componentKey" ref="chart"
-                 class="diagram"
-                 :options="nextWeekChartData"/>
-          <Chart v-if="pastWeekChartData.series[0].data.length!==0 && showPastWeek" :key="componentKey" ref="chart"
-                 class="diagram"
-                 :options="pastWeekChartData"/>
-        </div>
+      <div v-show="mobileView && !hideContent" class="chartButtons">
+        <button :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
+          Feels Like
+        </button>
+        <button :class="{'selected':showWindChart}" @click="showWind">
+          Wind
+        </button>
+        <button :class="{'selected':showTempChart}" @click="showTemp">
+          Temperature
+        </button>
+      </div>
+      <div v-show="showTempChart && !hideContent" class="chartContainer">
+        <Chart :key="componentKey" ref="chart"
+               class="diagram"
+               :options="tempChart"/>
+      </div>
+      <div v-show="showWindChart && !hideContent" class="chartContainer">
+        <Chart :key="componentKey+1" ref="chart"
+               class="diagram"
+               :options="windChart"/>
+      </div>
+      <div v-show="showFeelsLikeChart && !hideContent" class="chartContainer">
+        <Chart :key="componentKey+2" ref="chart"
+               class="diagram"
+               :options="feelsLikeChart"/>
       </div>
     </main>
   </div>
@@ -85,6 +96,7 @@
 }
 
 .chartContainer {
+  transition: 0.8s;
   display: flex;
   padding-top: 10px;
   justify-content: center;
@@ -127,20 +139,6 @@
 
     .highcharts-plot-border {
       stroke-width: 2px;
-      stroke: #7cb5ec;
-    }
-
-    //.highcharts-tracker-line {
-    //  stroke-linejoin: round;
-    //  stroke: rgb(78, 56, 102);
-    //  stroke-width: 2;
-    //  fill: none;
-    //}
-    .highcharts-color-0 {
-      fill: rgb(253, 65, 14);
-    }
-
-    .highcharts-plot-border {
       stroke: rgb(253, 65, 14);
     }
   }
@@ -173,45 +171,56 @@
 }
 
 .chartButtons {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 33% 33% 33%;
+  grid-column-gap: 1%;
 
   & > button {
     box-sizing: border-box;
     border: 0;
-    display: flex;
     align-items: center;
     justify-content: center;
     user-select: none;
     white-space: nowrap;
     outline: none;
     cursor: pointer;
-    padding: 0 5px;
-    width: 45%;
-    height: 50%;
+    width: 100%;
     min-height: 35px;
-    color: #160c0c;
     font-size: 1.5rem;
     background-color: rgb(247, 136, 101);
-    transition: 0.7s;
-    box-shadow: 2px 4px rgb(0 0 0 / 65%);
-    transform: scale(0.9); /* (-9% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+    top: 0;
+    left: 0;
+    transition: all .15s linear 0s;
+    position: relative;
+    display: inline-block;
+    color: #160c0c;
+    letter-spacing: 1px;
+    box-shadow: 3px 6px 0 rgb(0 0 0 / 65%);
+
+    &:hover {
+      top: 3px;
+      left: 3px;
+      box-shadow: 1px 2px 0 rgb(0, 0, 0);
+    }
+  }
+
+  @media screen and (max-width: 500px) {
+    button {
+      font-size: 1rem;
+    }
   }
 
   & > .selected {
     background-color: rgb(253, 65, 14);
-    transform: scale(1.08); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
     transition: 0.7s;
-    font-size: 1.7rem;
   }
 }
 
 #app {
-  background-image: url(./assets/warm.jpg);
+  background: url(./assets/warm.jpg) no-repeat center center fixed;
   background-size: cover;
+  overflow: hidden;
   -webkit-background-size: cover;
-  background-position: bottom;
   transition: 0.4s;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -219,7 +228,6 @@
   height: 100vh;
   color: #2c3e50;
   overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .infoForecast {
@@ -227,25 +235,30 @@
 }
 
 #app.under2 {
-  background-image: url(./assets/background.gif);
+  background: url(./assets/coldBackground.jpeg) no-repeat center center fixed;
   background-size: cover;
+  overflow: hidden;
 }
 
 #app.over2 {
-  background-image: url(./assets/2-15.jpg);
+  background: url(./assets/2-.jpg) no-repeat center center fixed;
   background-size: cover;
+  overflow: hidden;
 }
 
 #app.over16 {
-  background-image: url(./assets/verySunny.jpg);
+  background: url(./assets/warm.jpg) no-repeat center center fixed;
   background-size: cover;
+  overflow: hidden;
 }
 
 main {
-  min-height: 100vh;
-  width: 100vw;
-  padding: 8px 8px 0 8px;
+  width: 100%; /* percentage fixes the X axis white space when zoom out */
+  height: 100vh; /* this is still an issue where you see white space when zoom out in the Y axis */
+  overflow: scroll; /* needed for safari to show the x axis scrollbar */
+  padding: 8px;
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.75));
+  background-repeat: no-repeat;
 }
 
 .search-box {
@@ -274,22 +287,28 @@ main {
 }
 
 .location-box .location {
-  color: #FFF;
+  color: #070303;
   font-size: 2em;
   font-weight: 600;
   font-family: Nunito-Regular, sans-serif;
   text-align: center;
-  text-shadow: 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 .location-box .date {
-  color: #FFF;
+  color: #000000;
   font-size: 1.5rem;
   font-family: Nunito-Regular, sans-serif;
   text-align: center;
 }
 
 .weather-wrap {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 16px;
+  width: 100%;
+  box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+
   & > .weather-box {
     display: grid;
     grid-template-columns: 50% 50%;
@@ -301,18 +320,16 @@ main {
       margin-left: 5px;
       font-family: Nunito-Regular, sans-serif;
       font-size: 2rem;
-      text-shadow: 1px 2px rgba(0, 0, 0, 0.25);
     }
 
     & .weather {
-      color: #FFF;
+      color: #050303;
       height: 10vh;
       font-size: 1.6rem;
       justify-content: center;
       display: flex;
       font-family: Nunito-Regular, sans-serif;
       align-items: center;
-      text-shadow: 1px 2px rgba(0, 0, 0, 0.25);
 
       & img {
         margin-left: 10px;
@@ -328,42 +345,109 @@ main {
 }
 
 @media screen and (min-aspect-ratio: 13/9) {
+  .chartContainer:nth-child(3):hover {
+    & > :first-child {
+      transform: translate(-10%, 10%) scale(1.2);
+      transition: transform .2s ease;
+
+      .highcharts-background {
+        fill: rgba(255, 255, 255, 0.95);
+      }
+
+      z-index: 111;
+    }
+  }
+
+  .chartContainer:nth-child(3) {
+    & > :first-child {
+
+      transform: translate(10%, -10%) scale(.8);
+      transition: transform .2s ease;
+
+      .highcharts-background {
+        fill: rgba(255, 255, 255, 0.95);
+      }
+
+      z-index: 111;
+    }
+  }
+
+  .chartContainer:nth-child(4) {
+    & > :first-child {
+
+      transform: translate(-10%, 10%) scale(.8);
+      transition: transform .2s ease;
+    }
+  }
+
+  .chartContainer:nth-child(4):hover {
+    & > :first-child {
+
+      transform: translate(10%, -10%) scale(1.2);
+      transition: transform .2s ease;
+
+      .highcharts-background {
+        fill: rgba(255, 255, 255, 0.95);
+      }
+
+      z-index: 111;
+    }
+  }
+
+  .chartContainer:nth-child(5):hover {
+    & > :first-child {
+
+      transform: translate(-10%, -10%) scale(1.2);
+      transition: transform .2s ease;
+
+      .highcharts-background {
+        fill: rgba(255, 255, 255, 0.95);
+      }
+
+      z-index: 111;
+    }
+  }
+
+  .chartContainer:nth-child(5) {
+    & > :first-child {
+      transform: translate(10%, 10%) scale(.8);
+      transition: transform .2s ease;
+    }
+  }
   main {
     display: grid;
-    grid-template-columns:40vw 55vw;
-    grid-column-gap: 5%;
+    grid-template-columns:auto auto;
+    grid-column-gap: 1%;
+    grid-row-gap: 1%;
+    grid-template-rows: 50% 50%;
 
     & > .infoForecast {
       grid-column: 1;
+      grid-row: 1;
     }
 
     .chartButtons {
       padding-right: 15%;
     }
 
-    .chartContainer {
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
+    & .wind {
       grid-column: 2;
+      grid-row: 1;
+    }
 
-      & > .diagram {
-        grid-column: 2;
-      }
+    & .feelslike {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    & .temp {
+      grid-column: 1;
+      grid-row: 2;
     }
   }
 }
-@media screen and (max-width: 500px) {
-  .chartContainer {
-    position: fixed;
-    bottom: 0;
-  }
-}
+
 @media screen and (max-width: 360px) {
-  .chartContainer{
-    position: fixed;
-    bottom: 0
-  }
   .weather {
     font-size: 1.2rem !important;
   }

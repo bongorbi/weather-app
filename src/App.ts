@@ -14,35 +14,83 @@ export default class App extends Vue {
   }
 
   async mounted() {
+    this.tempChart.series.push({
+      name: 'Temperature',
+      data: [],
+      zIndex: 1,
+      color: '#ff3333'
+    });
+    this.windChart.series.push({
+      name: 'Wind',
+      data: [],
+      color: '#eebc06'
+    });
+    this.feelsLikeChart.series.push({
+      name: 'Feels Like',
+      data: [],
+      color: '#36ef0d'
+    });
+    this.showOrHideCharts();
     this.resizeChart();
     window.onresize = debounce(() => {
       this.resizeChart();
       this.forceRerender();
+      this.showOrHideCharts();
     }, 10);
     // for testing only
     await this.getWeather();
   }
 
+  private blurClass() {
+    if (this.hideContent) {
+      return 'blur';
+    }
+    return '';
+  }
+
+  private showOrHideCharts() {
+    if (window.matchMedia('(min-aspect-ratio: 13/9)').matches) {
+      this.showWindChart = true;
+      this.showTempChart = true;
+      this.showFeelsLikeChart = true;
+    } else {
+      this.showWindChart = false;
+      this.showTempChart = true;
+      this.showFeelsLikeChart = false;
+    }
+  }
+
+  private hideContentTrigger() {
+    setTimeout(() => {
+      this.hideContent = !this.hideContent;
+    }, 100);
+  }
+
+  private hideContent: boolean = false;
+
   private resizeChart() {
     switch (true) {
       // detects landscape mode
       case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
-        this.nextWeekChartData.chart.width = (window.innerWidth) * 0.5;
-        this.nextWeekChartData.chart.height = (window.innerHeight) * 0.4;
-        this.pastWeekChartData.chart.width = (window.innerWidth) * 0.5;
-        this.pastWeekChartData.chart.height = (window.innerHeight) * 0.4;
+        this.mobileView = false;
+        this.windChart.chart.width = (window.innerWidth) * 0.5;
+        this.tempChart.chart.width = (window.innerWidth) * 0.5;
+        this.feelsLikeChart.chart.width = (window.innerWidth) * 0.5;
         break;
       case window.innerWidth < 500:
-        this.nextWeekChartData.chart.width = window.innerWidth - (0.04 * window.innerWidth);
-        this.nextWeekChartData.chart.height = (window.innerHeight) * 0.5;
-        this.pastWeekChartData.chart.width = window.innerWidth - (0.04 * window.innerWidth);
-        this.pastWeekChartData.chart.height = (window.innerHeight) * 0.5;
+        this.mobileView = true;
+        this.windChart.chart.width = window.innerWidth - (0.04 * window.innerWidth);
+        this.tempChart.chart.width = window.innerWidth - (0.04 * window.innerWidth);
+        this.feelsLikeChart.chart.width = window.innerWidth - (0.04 * window.innerWidth);
+        this.windChart.chart.height = (window.innerHeight) * 0.5;
+        this.tempChart.chart.height = (window.innerHeight) * 0.5;
+        this.feelsLikeChart.chart.height = (window.innerHeight) * 0.5;
         break;
       default:
-        this.nextWeekChartData.chart.width = window.innerWidth - (0.02 * window.innerWidth);
-        this.nextWeekChartData.chart.height = (window.innerHeight) * 0.51;
-        this.pastWeekChartData.chart.width = window.innerWidth - (0.02 * window.innerWidth);
-        this.pastWeekChartData.chart.height = (window.innerHeight) * 0.51;
+        this.mobileView = true;
+        this.windChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
+        this.tempChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
+        this.feelsLikeChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
     }
   }
 
@@ -80,9 +128,11 @@ export default class App extends Vue {
     this.componentKey += 1;
   }
 
+  private mobileView: boolean = false;
   private componentKey = 0;
-  private showPastWeek = false;
-  private showNextWeek = true;
+  private showFeelsLikeChart = false;
+  private showWindChart = false;
+  private showTempChart = true;
   private apiKey = 'cab0c30b1dfc14ce360db2f0b4b5411b';
   private urlBase = 'https://api.openweathermap.org/data/2.5/';
   private query: string = 'sofia';
@@ -98,9 +148,6 @@ export default class App extends Vue {
       case name === 'Wind':
         unit = 'm/s';
         break;
-      case name === 'Weather status':
-        unit = '';
-        break;
       default:
         unit = '°C';
         break;
@@ -108,91 +155,28 @@ export default class App extends Vue {
     return unit;
   }
 
-  private pastWeekChartData: any = {
-    // type of diagram
-    chart: {
-      type: 'column',
-      width: 0,
-      height: 0
-    },
-    // bottom right credit
-    credits: {
-      enabled: false
-    },
-    // bottom legend for different chart
-    legend: {
-      enabled: false
-    },
-    title: {
-      text: 'Past Week Forecast'
-    },
-    series: [
-      {
-        name: 'Past Week',
-        data: []
-      }
-    ],
-    xAxis: {
-      type: 'category',
-      categories: App.pastWeekDays(this.days, new Date().getDay()),
-      labels: {
-        rotation: 0
-      }
-    },
-    yAxis: {
-      title: {
-        text: 'Temperature (°C)',
-        margin: 4
-      }
-    },
-    tooltip: {
-      crosshairs: true,
-      shared: true,
-      split: true,
-      valueSuffix: '°C'
-    }
-  };
-  private nextWeekChartData: any = {
+  private dataChart: any = {
     chart: {
       // type of diagram
       type: 'line',
       marginLeft: 55,
-      marginRight: 10
+      marginRight: 10,
+      height: 0,
+      width: 0
     },
+    boost: {enabled: true},
     // bottom right credit
     credits: {
       enabled: false
     },
     // bottom legend for different chart
     legend: {
-      enabled: true
+      enabled: false
     },
     title: {
       text: 'Next Week Forecast'
     },
-    series: [
-      {
-        name: 'Temperature',
-        data: [],
-        zIndex: 1,
-        color: '#ff3333'
-      },
-      {
-        name: 'Wind',
-        data: [],
-        color: '#eebc06'
-      },
-      {
-        name: 'Weather status',
-        data: [],
-        color: '#05dce3'
-      },
-      {
-        name: 'Feels Like',
-        data: [],
-        color: '#36ef0d'
-      }
-    ],
+    series: [],
     xAxis: {
       type: 'category',
       categories: App.pastWeekDays(this.days, new Date().getDay()),
@@ -210,22 +194,35 @@ export default class App extends Vue {
       crosshairs: true,
       shared: true,
       formatter() {
-        console.log(this.points);
         // @ts-ignore
         return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:
         ${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+        // return `<b>${this.series}</b><br />
+        //       value: ${this.y} <br />
+        //       time: ${this.x}`;
       }
     }
   };
+  private windChart = JSON.parse(JSON.stringify(this.dataChart));
+  private tempChart = JSON.parse(JSON.stringify(this.dataChart));
+  private feelsLikeChart = JSON.parse(JSON.stringify(this.dataChart));
 
-  private showPastWeekChart() {
-    this.showNextWeek = false;
-    this.showPastWeek = true;
+  private showFeelsLike() {
+    this.showWindChart = false;
+    this.showTempChart = false;
+    this.showFeelsLikeChart = true;
   }
 
-  private showNextWeekChart() {
-    this.showPastWeek = false;
-    this.showNextWeek = true;
+  private showTemp() {
+    this.showWindChart = false;
+    this.showTempChart = true;
+    this.showFeelsLikeChart = false;
+  }
+
+  private showWind() {
+    this.showWindChart = true;
+    this.showTempChart = false;
+    this.showFeelsLikeChart = false;
   }
 
   private static pastWeekDays(array: any[], today: number) {
@@ -272,41 +269,31 @@ export default class App extends Vue {
     return require(`./assets/${pic}`);
   }
 
-  private clearChartData(chart: any) {
-    chart.series.forEach((obj: any) => {
-      // eslint-disable-next-line no-param-reassign
-      obj.data = [];
+  private clearChartData(charts: any) {
+    charts.forEach((chart: { series: any[]; }) => {
+      chart.series.forEach((obj: any) => {
+        // eslint-disable-next-line no-param-reassign
+        obj.data = [];
+      });
     });
   }
 
   private async getWeather() {
-    this.clearChartData(this.nextWeekChartData);
-    this.clearChartData(this.pastWeekChartData);
+    this.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart]);
     const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
     this.weather = results;
     this.coords = results.coord;
     (this.$refs.input as HTMLInputElement).blur();
     await this.setImageName();
-    await this.getWeatherForPastDays();
     await this.getWeatherForNextDays();
-  }
-
-  private async getWeatherForPastDays() {
-    const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
-    results.daily.forEach((day: any) => {
-      // const averageForDay: number = Math.trunc((day.temp.morn + day.temp.night) / 2);
-      this.pastWeekChartData.series[0].data.push(Math.round(day.temp.day));
-    });
-    this.pastWeekChartData.series[0].data.reverse();
   }
 
   private async getWeatherForNextDays() {
     const results = await this.request(`${this.urlBase}forecast?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
     results.list.forEach((day: any) => {
-      this.nextWeekChartData.series[0].data.push(Math.round(day.main.temp));
-      this.nextWeekChartData.series[2].data.push(day.weather[0].main);
-      this.nextWeekChartData.series[1].data.push(day.wind.speed);
-      this.nextWeekChartData.series[3].data.push(Math.round(day.main.feels_like));
+      this.tempChart.series[0].data.push(Math.round(day.main.temp));
+      this.windChart.series[0].data.push(day.wind.speed);
+      this.feelsLikeChart.series[0].data.push(Math.round(day.main.feels_like));
     });
   }
 
