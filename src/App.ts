@@ -41,13 +41,6 @@ export default class App extends Vue {
     await this.getWeather();
   }
 
-  private blurClass() {
-    if (this.hideContent) {
-      return 'blur';
-    }
-    return '';
-  }
-
   private showOrHideCharts() {
     if (window.matchMedia('(min-aspect-ratio: 13/9)').matches) {
       this.showWindChart = true;
@@ -60,10 +53,9 @@ export default class App extends Vue {
     }
   }
 
-  private hideContentTrigger() {
-    setTimeout(() => {
-      this.hideContent = !this.hideContent;
-    }, 100);
+  private hideAndBlurContent() {
+    this.blurBackground = !this.blurBackground;
+    this.hideContent = !this.hideContent;
   }
 
   private hideContent: boolean = false;
@@ -111,6 +103,9 @@ export default class App extends Vue {
         background = 'over16';
         break;
     }
+    if (this.blurBackground) {
+      background = `${background} blurBackground`;
+    }
     return background;
   }
 
@@ -129,6 +124,7 @@ export default class App extends Vue {
   }
 
   private mobileView: boolean = false;
+  private blurBackground: boolean = false;
   private componentKey = 0;
   private showFeelsLikeChart = false;
   private showWindChart = false;
@@ -158,11 +154,19 @@ export default class App extends Vue {
   private dataChart: any = {
     chart: {
       // type of diagram
-      type: 'line',
+      type: 'area',
       marginLeft: 55,
       marginRight: 10,
       height: 0,
       width: 0
+    },
+    plotOptions: {
+      area: {
+        stacking: 'normal',
+        dataLabels: {
+          enabled: true
+        }
+      }
     },
     boost: {enabled: true},
     // bottom right credit
@@ -192,15 +196,7 @@ export default class App extends Vue {
     },
     tooltip: {
       crosshairs: true,
-      shared: true,
-      formatter() {
-        // @ts-ignore
-        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:
-        ${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
-        // return `<b>${this.series}</b><br />
-        //       value: ${this.y} <br />
-        //       time: ${this.x}`;
-      }
+      shared: true
     }
   };
   private windChart = JSON.parse(JSON.stringify(this.dataChart));
@@ -246,6 +242,8 @@ export default class App extends Vue {
       .then((response: AxiosResponse) => response.data)
       .catch((e: Error) => {
         this.error = 'No city was found...';
+        this.hideContent = true;
+        (this.$refs.input as HTMLInputElement).blur();
         throw e;
       });
   }

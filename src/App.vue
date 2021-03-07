@@ -1,5 +1,6 @@
 <template>
-  <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()">
+  <div style="overflow:hidden">
+    <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()"/>
     <main>
       <div class="infoForecast">
         <div class="search-box">
@@ -10,8 +11,8 @@
               type="text"
               class="search-bar"
               placeholder="Search City..."
-              @focus="hideContentTrigger"
-              @focusout="hideContentTrigger"
+              @focus="hideAndBlurContent"
+              @focusout="hideAndBlurContent"
               @keypress.enter="getWeather">
           </label>
         </div>
@@ -19,7 +20,7 @@
           <div v-if="error!==''" class="error">
             <p> {{ error }} </p>
           </div>
-          <div v-if="typeof weather.main != 'undefined'" class="weather-wrap">
+          <div v-if="typeof weather.main != 'undefined' && error===''" class="weather-wrap">
             <div class="location-box">
               <div class="location">
                 {{ weather.name }}, {{ weather.sys.country }}
@@ -48,7 +49,7 @@
           </div>
         </div>
       </div>
-      <div v-show="mobileView && !hideContent" class="chartButtons">
+      <div v-show="mobileView && !hideContent && error===''" class="chartButtons">
         <button :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
           Feels Like
         </button>
@@ -59,17 +60,17 @@
           Temperature
         </button>
       </div>
-      <div v-show="showTempChart && !hideContent" class="chartContainer">
+      <div v-show="showTempChart && !hideContent && error===''" class="chartContainer">
         <Chart :key="componentKey" ref="chart"
                class="diagram"
                :options="tempChart"/>
       </div>
-      <div v-show="showWindChart && !hideContent" class="chartContainer">
+      <div v-show="showWindChart && !hideContent && error===''" class="chartContainer">
         <Chart :key="componentKey+1" ref="chart"
                class="diagram"
                :options="windChart"/>
       </div>
-      <div v-show="showFeelsLikeChart && !hideContent" class="chartContainer">
+      <div v-show="showFeelsLikeChart && !hideContent && error===''" class="chartContainer">
         <Chart :key="componentKey+2" ref="chart"
                class="diagram"
                :options="feelsLikeChart"/>
@@ -93,6 +94,11 @@
 @font-face {
   font-family: "Nunito-LightItalic";
   src: url("../public/fonts/Nunito/Nunito-LightItalic.ttf") format("truetype");
+}
+
+.blurBackground {
+  filter: blur(8px);
+  -webkit-filter: blur(8px);
 }
 
 .chartContainer {
@@ -253,6 +259,12 @@
 }
 
 main {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  text-align: center;
   width: 100%; /* percentage fixes the X axis white space when zoom out */
   height: 100vh; /* this is still an issue where you see white space when zoom out in the Y axis */
   overflow: scroll; /* needed for safari to show the x axis scrollbar */
