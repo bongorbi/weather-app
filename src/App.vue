@@ -25,13 +25,11 @@
               <div class="location">
                 {{ weather.name }}, {{ weather.sys.country }}
               </div>
-              <div class="date">
-                {{ dateBuilder() }}
-              </div>
             </div>
             <div class="weather-box">
               <div class="firstColumn">
-                <span class="weather">Temp now:<span class="temp">{{ Math.round(weather.main.temp) }}°c</span></span>
+                <span class="weather">Temp. now:<span class="temp">{{ Math.round(weather.main.temp) }}°C</span></span>
+                <span class="weather">Minimum temp.:<span class="temp">{{ Math.round(weather.main.temp_min) }}°C</span></span>
                 <div class="weather">
                   Weather: {{ weather.weather[0].main }}
                   <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
@@ -39,8 +37,9 @@
               </div>
               <div class="secondColumn">
                 <span class="weather">Feels like: <span class="temp">
-                  {{ Math.round(weather.main.feels_like) }}°c</span>
+                  {{ Math.round(weather.main.feels_like) }}°C</span>
                 </span>
+                <span class="weather">Maximum temp.:<span class="temp">{{ Math.round(weather.main.temp_max) }}°C</span></span>
                 <span class="weather">Wind speed: <span class="temp">
                   {{ weather.wind.speed }}m/s</span>
                 </span>
@@ -127,15 +126,15 @@
 
     .highcharts-yaxis {
       & > * {
-        fill: black !important;
-        font-size: 0.8rem !important;
+        fill: #000000 !important;
+        font-size: 1rem !important;
       }
     }
 
     .highcharts-yaxis-labels {
       & > * {
-        fill: black !important;
-        font-size: 0.8rem !important;
+        fill: #000000 !important;
+        font-size: 1rem !important;
       }
     }
 
@@ -145,7 +144,7 @@
 
     .highcharts-plot-border {
       stroke-width: 2px;
-      stroke: rgb(253, 65, 14);
+      stroke: rgb(253, 101, 1, 1);
     }
   }
 }
@@ -179,7 +178,7 @@
 .chartButtons {
   display: grid;
   grid-template-columns: 33% 33% 33%;
-  grid-column-gap: 1%;
+  grid-column-gap: 5px;
 
   & > button {
     box-sizing: border-box;
@@ -190,16 +189,15 @@
     white-space: nowrap;
     outline: none;
     cursor: pointer;
-    width: 100%;
+    color: black;
     min-height: 35px;
     font-size: 1.5rem;
-    background-color: rgb(247, 136, 101);
+    background-color: rgb(27, 178, 242);
     top: 0;
     left: 0;
     transition: all .15s linear 0s;
     position: relative;
     display: inline-block;
-    color: #160c0c;
     letter-spacing: 1px;
     box-shadow: 3px 6px 0 rgb(0 0 0 / 65%);
 
@@ -217,15 +215,15 @@
   }
 
   & > .selected {
-    background-color: rgb(253, 65, 14);
-    transition: 0.7s;
+    color: white;
+    background-color: rgb(253, 101, 1, 1);
+    transition: 0.4s;
   }
 }
 
 #app {
   background: url(./assets/warm.jpg) no-repeat center center fixed;
   background-size: cover;
-  overflow: hidden;
   -webkit-background-size: cover;
   transition: 0.4s;
   -webkit-font-smoothing: antialiased;
@@ -233,11 +231,11 @@
   text-align: center;
   height: 100vh;
   color: #2c3e50;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .infoForecast {
-  height: 40vh;
+  height: 42vh;
 }
 
 #app.under2 {
@@ -267,50 +265,36 @@ main {
   text-align: center;
   width: 100%; /* percentage fixes the X axis white space when zoom out */
   height: 100vh; /* this is still an issue where you see white space when zoom out in the Y axis */
-  overflow: scroll; /* needed for safari to show the x axis scrollbar */
+  overflow: hidden; /* needed for safari to show the x axis scrollbar */
   padding: 8px;
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.75));
   background-repeat: no-repeat;
 }
 
 .search-box {
+  height: 7vh;
   width: 100%;
   margin-bottom: 10px;
-}
 
-.search-box .search-bar {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  color: #313131;
-  font-size: 1.4rem;
-  appearance: none;
-  border: none;
-  outline: none;
-  border-radius: 16px;
-  box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
-  background: rgba(255, 255, 255, 0.5) none;
-  transition: 0.4s;
-}
+  & .search-bar {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    color: #313131;
+    font-size: 1.4rem;
+    appearance: none;
+    border: none;
+    outline: none;
+    border-radius: 16px;
+    box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.5) none;
+    transition: 0.4s;
+  }
 
-.search-box .search-bar:focus {
-  background-color: rgba(255, 255, 255, 0.75);
-  font-size: 2rem;
-}
-
-.location-box .location {
-  color: #070303;
-  font-size: 2em;
-  font-weight: 600;
-  font-family: Nunito-Regular, sans-serif;
-  text-align: center;
-}
-
-.location-box .date {
-  color: #000000;
-  font-size: 1.5rem;
-  font-family: Nunito-Regular, sans-serif;
-  text-align: center;
+  & .search-bar:focus {
+    background-color: rgba(255, 255, 255, 0.75);
+    font-size: 2rem;
+  }
 }
 
 .weather-wrap {
@@ -318,45 +302,90 @@ main {
   padding: 5px 10px;
   background-color: rgba(255, 255, 255, 0.75);
   border-radius: 16px;
+  height: 32vh;
   width: 100%;
   box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+
+  & > .location-box {
+    padding-bottom: 5px;
+
+    & > .location {
+      color: #070303;
+      font-size: 1.4em;
+      font-weight: 600;
+      font-family: Nunito-Regular, sans-serif;
+      text-align: center;
+    }
+
+    & > .date {
+      color: #000000;
+      font-size: 1.4rem;
+      font-family: Nunito-Regular, sans-serif;
+      text-align: center;
+    }
+  }
 
   & > .weather-box {
     display: grid;
     grid-template-columns: 50% 50%;
     text-align: center;
+    grid-column-gap: 3%;
     align-items: center;
-    margin: 5px 0;
+    height: 23vh;
+    margin-bottom: 10px;
+
+    & > :first-child {
+      border-right: 1px solid rgb(0, 0, 0);
+    }
+
+    & .firstColumn {
+      display: grid;
+      grid-template-rows: 33% 33% 33%;
+      height: 100%;
+    }
+
+    & .secondColumn {
+      display: grid;
+      grid-template-rows: 33% 33% 33%;
+      height: 100%;
+    }
 
     & .temp {
       margin-left: 5px;
       font-family: Nunito-Regular, sans-serif;
-      font-size: 2rem;
+      font-size: 1.5rem;
+      color: #e25800;
     }
 
     & .weather {
       color: #050303;
-      height: 10vh;
-      font-size: 1.6rem;
-      justify-content: center;
-      display: flex;
+      font-size: 1.3rem;
+      display: grid;
+      grid-template-columns: auto 50%;
+      text-align: left;
       font-family: Nunito-Regular, sans-serif;
       align-items: center;
 
-      & img {
-        margin-left: 10px;
-        max-width: 100%;
-        height: 60%;
-      }
-
-      & img::after {
-        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0, #fff 100%);
+      & > img {
+        height: 6vh;
       }
     }
   }
 }
 
 @media screen and (min-aspect-ratio: 13/9) {
+  .weather-wrap {
+    height: 30vh;
+
+    & > .location-box {
+      height: 20%
+    }
+
+    & > .weather-box {
+      height: 80%;
+
+    }
+  }
   .chartContainer:nth-child(3):hover {
     & > :first-child {
       transform: translate(-10%, 10%) scale(1.2);
@@ -427,6 +456,7 @@ main {
     }
   }
   main {
+    overflow: hidden;
     display: grid;
     grid-template-columns:auto auto;
     grid-column-gap: 1%;
@@ -465,11 +495,6 @@ main {
   }
   .temp {
     font-size: 1.3rem !important;
-  }
-  .firstColumn {
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: column;
   }
 }
 </style>

@@ -14,22 +14,6 @@ export default class App extends Vue {
   }
 
   async mounted() {
-    this.tempChart.series.push({
-      name: 'Temperature',
-      data: [],
-      zIndex: 1,
-      color: '#ff3333'
-    });
-    this.windChart.series.push({
-      name: 'Wind',
-      data: [],
-      color: '#eebc06'
-    });
-    this.feelsLikeChart.series.push({
-      name: 'Feels Like',
-      data: [],
-      color: '#36ef0d'
-    });
     this.showOrHideCharts();
     this.resizeChart();
     window.onresize = debounce(() => {
@@ -151,12 +135,13 @@ export default class App extends Vue {
     return unit;
   }
 
-  private dataChart: any = {
+  private windChart: any = {
     chart: {
       // type of diagram
       type: 'area',
-      marginLeft: 55,
+      marginLeft: 25,
       marginRight: 10,
+      marginBottom: 25,
       height: 0,
       width: 0
     },
@@ -164,6 +149,8 @@ export default class App extends Vue {
       area: {
         stacking: 'normal',
         dataLabels: {
+          color: 'black',
+          format: '{y} m/s',
           enabled: true
         }
       }
@@ -178,9 +165,162 @@ export default class App extends Vue {
       enabled: false
     },
     title: {
-      text: 'Next Week Forecast'
+      text: ''
     },
-    series: [],
+    series: [{
+      name: 'Wind',
+      data: [],
+      color: '#1bb2f2',
+      dataLabels: {
+        style: {
+          fontSize: '1.1rem'
+        }
+      }
+    }],
+    xAxis: {
+      type: 'category',
+      categories: App.pastWeekDays(this.days, new Date().getDay()),
+      labels: {
+        rotation: 0
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Metre per second (m/s)',
+        margin: 4
+      },
+      labels: {
+        enabled: false
+      }
+    },
+    tooltip: {
+      followPointer: true,
+      crosshairs: true,
+      shared: true,
+      formatter() {
+        // @ts-ignore
+        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:
+        ${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+      }
+    }
+  };
+  private tempChart: any = {
+    chart: {
+      // type of diagram
+      type: 'column',
+      marginLeft: 25,
+      marginRight: 10,
+      marginBottom: 25,
+      height: 0,
+      width: 0
+    },
+    plotOptions: {
+      column: {
+        dataLabels: {
+          color: 'black',
+          format: '{y}°C',
+          enabled: true
+        }
+      },
+      series: {
+        pointPadding: -0.2
+      }
+    },
+    boost: {enabled: true},
+    // bottom right credit
+    credits: {
+      enabled: false
+    },
+    // bottom legend for different chart
+    legend: {
+      enabled: false
+    },
+    title: {
+      text: ''
+    },
+    series: [{
+      name: 'Temperature',
+      data: [],
+      color: '#fd6501',
+      stacking: 'normal',
+      minPointWidth: 50,
+      dataLabels: {
+        style: {
+          fontSize: '1.1rem'
+        }
+      }
+    }],
+    xAxis: {
+      type: 'category',
+      categories: App.pastWeekDays(this.days, new Date().getDay()),
+      labels: {
+        rotation: 0
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Temperature (°C)'
+      },
+      labels: {
+        enabled: false
+      }
+    },
+    tooltip: {
+      followPointer: true,
+      crosshairs: true,
+      shared: true,
+      formatter() {
+        // @ts-ignore
+        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:
+        ${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+      }
+    }
+  };
+  private feelsLikeChart: any = {
+    chart: {
+      // type of diagram
+      type: 'column',
+      marginLeft: 25,
+      marginRight: 10,
+      marginBottom: 25,
+      height: 0,
+      width: 0
+    },
+    plotOptions: {
+      column: {
+        stacking: 'normal',
+        dataLabels: {
+          color: 'black',
+          format: '{y}°C',
+          enabled: true
+        }
+      },
+      series: {
+        pointPadding: -0.2
+      }
+    },
+    boost: {enabled: true},
+    // bottom right credit
+    credits: {
+      enabled: false
+    },
+    // bottom legend for different chart
+    legend: {
+      enabled: false
+    },
+    title: {
+      text: ''
+    },
+    series: [{
+      name: 'Feels Like',
+      data: [],
+      color: '#fd6501',
+      dataLabels: {
+        style: {
+          fontSize: '1.1rem'
+        }
+      }
+    }],
     xAxis: {
       type: 'category',
       categories: App.pastWeekDays(this.days, new Date().getDay()),
@@ -192,16 +332,22 @@ export default class App extends Vue {
       title: {
         text: 'Temperature (°C)',
         margin: 4
+      },
+      labels: {
+        enabled: false
       }
     },
     tooltip: {
+      followPointer: true,
       crosshairs: true,
-      shared: true
+      shared: true,
+      formatter() {
+        // @ts-ignore
+        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:
+        ${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+      }
     }
   };
-  private windChart = JSON.parse(JSON.stringify(this.dataChart));
-  private tempChart = JSON.parse(JSON.stringify(this.dataChart));
-  private feelsLikeChart = JSON.parse(JSON.stringify(this.dataChart));
 
   private showFeelsLike() {
     this.showWindChart = false;
@@ -287,22 +433,12 @@ export default class App extends Vue {
   }
 
   private async getWeatherForNextDays() {
-    const results = await this.request(`${this.urlBase}forecast?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
-    results.list.forEach((day: any) => {
-      this.tempChart.series[0].data.push(Math.round(day.main.temp));
-      this.windChart.series[0].data.push(day.wind.speed);
-      this.feelsLikeChart.series[0].data.push(Math.round(day.main.feels_like));
+    const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
+    console.log(results);
+    results.daily.forEach((day: any) => {
+      this.tempChart.series[0].data.push(Math.round(day.temp.day));
+      this.windChart.series[0].data.push(day.wind_speed);
+      this.feelsLikeChart.series[0].data.push(Math.round(day.feels_like.day));
     });
-  }
-
-  private dateBuilder() {
-    const d = new Date();
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const day = days[d.getDay()];
-    const date = d.getDate();
-    const month = months[d.getMonth()];
-    const year = d.getFullYear();
-    return `${day} ${date} ${month} ${year}`;
   }
 }
