@@ -49,13 +49,13 @@
         </div>
       </div>
       <div v-show="mobileView && !hideContent && error===''" class="chartButtons">
-        <button :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
+        <button class="buttons" :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
           Feels Like
         </button>
-        <button :class="{'selected':showWindChart}" @click="showWind">
+        <button class="buttons" :class="{'selected':showWindChart}" @click="showWind">
           Wind
         </button>
-        <button :class="{'selected':showTempChart}" @click="showTemp">
+        <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
           Temperature
         </button>
       </div>
@@ -84,7 +84,7 @@
 <style lang="scss">
 @import 'https://code.highcharts.com/css/highcharts.css';
 @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
-
+@import './src/scss/location-button';
 @font-face {
   font-family: "Nunito-Regular";
   src: url("../public/fonts/Nunito/Nunito-Regular.ttf") format("truetype");
@@ -95,9 +95,15 @@
   src: url("../public/fonts/Nunito/Nunito-LightItalic.ttf") format("truetype");
 }
 
+* {
+  font-family: Nunito-Regular, sans-serif;
+  box-sizing: border-box;
+}
+
 .blurBackground {
   filter: blur(8px);
   -webkit-filter: blur(8px);
+  transition-timing-function: ease-in-out
 }
 
 .chartContainer {
@@ -168,19 +174,12 @@
   }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  font-family: Nunito-Regular, sans-serif;
-  box-sizing: border-box;
-}
-
 .chartButtons {
   display: grid;
   grid-template-columns: 33% 33% 33%;
   grid-column-gap: 5px;
 
-  & > button {
+  & > .buttons {
     box-sizing: border-box;
     border: 0;
     align-items: center;
@@ -209,7 +208,7 @@
   }
 
   @media screen and (max-width: 500px) {
-    button {
+    .buttons {
       font-size: 1rem;
     }
   }
@@ -222,7 +221,7 @@
 }
 
 #app {
-  background: url(./assets/warm.jpg) no-repeat center center fixed;
+  background: url(../public/assets/warm.jpg) no-repeat center center fixed;
   background-size: cover;
   -webkit-background-size: cover;
   transition: 0.4s;
@@ -231,6 +230,7 @@
   text-align: center;
   height: 100vh;
   color: #2c3e50;
+  padding: 5vh 10vw;
   overflow: hidden;
 }
 
@@ -239,19 +239,19 @@
 }
 
 #app.under2 {
-  background: url(./assets/coldBackground.jpeg) no-repeat center center fixed;
+  background: url(../public/assets/coldBackground.jpeg) no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
 }
 
 #app.over2 {
-  background: url(./assets/2-.jpg) no-repeat center center fixed;
+  background: url(../public/assets/2-.jpg) no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
 }
 
 #app.over16 {
-  background: url(./assets/warm.jpg) no-repeat center center fixed;
+  background: url(../public/assets/warm.jpg) no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
 }
@@ -266,7 +266,7 @@ main {
   width: 100%; /* percentage fixes the X axis white space when zoom out */
   height: 100vh; /* this is still an issue where you see white space when zoom out in the Y axis */
   overflow: hidden; /* needed for safari to show the x axis scrollbar */
-  padding: 8px;
+  padding: 5vh 10vw;
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.75));
   background-repeat: no-repeat;
 }
@@ -274,7 +274,8 @@ main {
 .search-box {
   height: 7vh;
   width: 100%;
-  margin-bottom: 10px;
+  display: inline-block;
+  transition: all 0.4s linear;
 
   & .search-bar {
     display: block;
@@ -288,13 +289,40 @@ main {
     border-radius: 16px;
     box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
     background: rgba(255, 255, 255, 0.5) none;
-    transition: 0.4s;
+    transition: all 0.4s;
+    transition-timing-function: ease-in-out
   }
 
   & .search-bar:focus {
     background-color: rgba(255, 255, 255, 0.75);
     font-size: 2rem;
+    transition-timing-function: ease-in-out;
+    width: 80vw;
+    top: 0;
+    right: 100%;
   }
+
+  @media screen and (min-aspect-ratio: 13/9), (pointer: none), (pointer: coarse) {
+    .search-bar:focus {
+      background-color: rgba(255, 255, 255, 0.75);
+      font-size: 2rem;
+      transition-timing-function: ease-in-out;
+      width: 99vw !important;
+      top: 0;
+      right: 100%;
+    }
+  }
+  @media screen and (max-width: 500px), (pointer: none), (pointer: coarse) {
+    .search-bar:focus {
+      background-color: rgba(255, 255, 255, 0.75);
+      font-size: 2rem;
+      transition-timing-function: ease-in-out;
+      width: 100%;
+      top: 0;
+      right: 100%;
+    }
+  }
+
 }
 
 .weather-wrap {
@@ -302,7 +330,7 @@ main {
   padding: 5px 10px;
   background-color: rgba(255, 255, 255, 0.75);
   border-radius: 16px;
-  height: 32vh;
+  height: 30vh;
   width: 100%;
   box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
 
@@ -375,7 +403,7 @@ main {
 
 @media screen and (min-aspect-ratio: 13/9) {
   .weather-wrap {
-    height: 30vh;
+    height: 36vh;
 
     & > .location-box {
       height: 20%
@@ -386,82 +414,16 @@ main {
 
     }
   }
-  .chartContainer:nth-child(3):hover {
-    & > :first-child {
-      transform: translate(-10%, 10%) scale(1.2);
-      transition: transform .2s ease;
-
-      .highcharts-background {
-        fill: rgba(255, 255, 255, 0.95);
-      }
-
-      z-index: 111;
-    }
-  }
-
-  .chartContainer:nth-child(3) {
-    & > :first-child {
-
-      transform: translate(10%, -10%) scale(.8);
-      transition: transform .2s ease;
-
-      .highcharts-background {
-        fill: rgba(255, 255, 255, 0.95);
-      }
-
-      z-index: 111;
-    }
-  }
-
-  .chartContainer:nth-child(4) {
-    & > :first-child {
-
-      transform: translate(-10%, 10%) scale(.8);
-      transition: transform .2s ease;
-    }
-  }
-
-  .chartContainer:nth-child(4):hover {
-    & > :first-child {
-
-      transform: translate(10%, -10%) scale(1.2);
-      transition: transform .2s ease;
-
-      .highcharts-background {
-        fill: rgba(255, 255, 255, 0.95);
-      }
-
-      z-index: 111;
-    }
-  }
-
-  .chartContainer:nth-child(5):hover {
-    & > :first-child {
-
-      transform: translate(-10%, -10%) scale(1.2);
-      transition: transform .2s ease;
-
-      .highcharts-background {
-        fill: rgba(255, 255, 255, 0.95);
-      }
-
-      z-index: 111;
-    }
-  }
-
-  .chartContainer:nth-child(5) {
-    & > :first-child {
-      transform: translate(10%, 10%) scale(.8);
-      transition: transform .2s ease;
-    }
-  }
   main {
+    width: 100%;
     overflow: hidden;
     display: grid;
     grid-template-columns:auto auto;
-    grid-column-gap: 1%;
-    grid-row-gap: 1%;
     grid-template-rows: 50% 50%;
+
+    .highcharts-root {
+      border-radius: 16px;
+    }
 
     & > .infoForecast {
       grid-column: 1;
@@ -495,6 +457,15 @@ main {
   }
   .temp {
     font-size: 1.3rem !important;
+  }
+}
+
+@media (pointer: none), (pointer: coarse) {
+  main {
+    padding: 8px;
+  }
+  #app {
+    padding: 0;
   }
 }
 </style>

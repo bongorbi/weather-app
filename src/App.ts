@@ -2,10 +2,13 @@ import {Chart} from 'highcharts-vue';
 import {Component, Vue} from 'vue-property-decorator';
 import axios, {AxiosResponse, Method} from 'axios';
 import debounce from 'lodash/debounce';
+// @ts-ignore
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 @Component({
   components: {
-    Chart
+    Chart,
+    FontAwesomeIcon
   }
 })
 export default class App extends Vue {
@@ -21,8 +24,7 @@ export default class App extends Vue {
       this.forceRerender();
       this.showOrHideCharts();
     }, 10);
-    // for testing only
-    await this.getWeather();
+    await this.getLocation();
   }
 
   private showOrHideCharts() {
@@ -39,7 +41,56 @@ export default class App extends Vue {
 
   private hideAndBlurContent() {
     this.blurBackground = !this.blurBackground;
-    this.hideContent = !this.hideContent;
+    if (this.hideContent) {
+      setTimeout(() => {
+        this.hideContent = false;
+      }, 450);
+    } else {
+      this.hideContent = true;
+    }
+  }
+
+  // private locationBtnAnimation() {
+  //   const animateButton = (e) => {
+  //     // eslint-disable-next-line no-unused-expressions
+  //     e.preventDefault;
+  //     // reset animation
+  //     e.target.classList.remove('animate');
+  //
+  //     e.target.classList.add('animate');
+  //     setTimeout(() => {
+  //       e.target.classList.remove('animate');
+  //     }, 700);
+  //   };
+  //
+  //   const bubblyButtons = document.getElementsByClassName('bubbly-button');
+  //
+  //   for (let i = 0; i < bubblyButtons.length; i += 1) {
+  //     bubblyButtons[i].addEventListener('click', animateButton, false);
+  //   }
+  // }
+
+  private async getLocation() {
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 0
+    };
+
+    const success = async (pos: { coords: any; }) => {
+      this.query = '';
+      const crd = pos.coords;
+      this.coords.lon = crd.longitude;
+      this.coords.lat = crd.latitude;
+      this.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart]);
+      await this.getWeatherByCoords();
+    };
+
+    function error(err: any) {
+      console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error, options);
   }
 
   private hideContent: boolean = false;
@@ -49,9 +100,9 @@ export default class App extends Vue {
       // detects landscape mode
       case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
         this.mobileView = false;
-        this.windChart.chart.width = (window.innerWidth) * 0.5;
-        this.tempChart.chart.width = (window.innerWidth) * 0.5;
-        this.feelsLikeChart.chart.width = (window.innerWidth) * 0.5;
+        this.windChart.chart.width = (window.innerWidth) * 0.39;
+        this.tempChart.chart.width = (window.innerWidth) * 0.39;
+        this.feelsLikeChart.chart.width = (window.innerWidth) * 0.39;
         break;
       case window.innerWidth < 500:
         this.mobileView = true;
@@ -95,7 +146,7 @@ export default class App extends Vue {
 
   private async takeAllImages() {
     const pictures = require.context(
-      './assets/',
+      '../public/assets/',
       true
     );
     pictures.keys().forEach(key => {
@@ -115,7 +166,7 @@ export default class App extends Vue {
   private showTempChart = true;
   private apiKey = 'cab0c30b1dfc14ce360db2f0b4b5411b';
   private urlBase = 'https://api.openweathermap.org/data/2.5/';
-  private query: string = 'sofia';
+  private query: string = '';
   private error: string = '';
   private coords: any = {};
   private days = ['Monday', 'Tuesday', 'Wednesday',
@@ -197,10 +248,10 @@ export default class App extends Vue {
       followPointer: true,
       crosshairs: true,
       shared: true,
+      // @ts-ignore
       formatter() {
         // @ts-ignore
-        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:
-        ${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
       }
     }
   };
@@ -269,10 +320,10 @@ export default class App extends Vue {
       followPointer: true,
       crosshairs: true,
       shared: true,
+      // @ts-ignore
       formatter() {
         // @ts-ignore
-        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:
-        ${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
       }
     }
   };
@@ -341,10 +392,10 @@ export default class App extends Vue {
       followPointer: true,
       crosshairs: true,
       shared: true,
+      // @ts-ignore
       formatter() {
         // @ts-ignore
-        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:
-        ${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
       }
     }
   };
@@ -397,7 +448,7 @@ export default class App extends Vue {
   private setImageName() {
     this.weatherSmallPicture.forEach((word, index) => {
       if (word.substring(0, 3).toLowerCase() === this.weather.weather[0].main.substring(0, 3).toLowerCase()) {
-        const images = require.context('./assets/', true);
+        const images = require.context('../public/assets/', true);
         const image = App.requireAll(images);
         this.imageNextToDeg = image[index].substring(2, image[index].length);
       }
@@ -410,7 +461,7 @@ export default class App extends Vue {
 
   private getImgPath(pic: any) {
     // eslint-disable-next-line global-require,import/no-dynamic-require
-    return require(`./assets/${pic}`);
+    return require(`../public/assets/${pic}`);
   }
 
   private clearChartData(charts: any) {
@@ -432,9 +483,18 @@ export default class App extends Vue {
     await this.getWeatherForNextDays();
   }
 
+  private async getWeatherByCoords() {
+    this.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart]);
+    const results = await this.request(`${this.urlBase}weather?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
+    this.weather = results;
+    this.coords = results.coord;
+    (this.$refs.input as HTMLInputElement).blur();
+    await this.setImageName();
+    await this.getWeatherForNextDays();
+  }
+
   private async getWeatherForNextDays() {
     const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
-    console.log(results);
     results.daily.forEach((day: any) => {
       this.tempChart.series[0].data.push(Math.round(day.temp.day));
       this.windChart.series[0].data.push(day.wind_speed);
