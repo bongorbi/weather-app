@@ -84,7 +84,7 @@
 <style lang="scss">
 @import 'https://code.highcharts.com/css/highcharts.css';
 @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
-@import './src/scss/location-button';
+
 @font-face {
   font-family: "Nunito-Regular";
   src: url("../public/fonts/Nunito/Nunito-Regular.ttf") format("truetype");
@@ -239,7 +239,7 @@
 }
 
 #app.under2 {
-  background: url(../public/assets/coldBackground.jpeg) no-repeat center center fixed;
+  background: url(../public/assets/coldBackground.jpg) no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
 }

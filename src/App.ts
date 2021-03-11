@@ -50,26 +50,6 @@ export default class App extends Vue {
     }
   }
 
-  // private locationBtnAnimation() {
-  //   const animateButton = (e) => {
-  //     // eslint-disable-next-line no-unused-expressions
-  //     e.preventDefault;
-  //     // reset animation
-  //     e.target.classList.remove('animate');
-  //
-  //     e.target.classList.add('animate');
-  //     setTimeout(() => {
-  //       e.target.classList.remove('animate');
-  //     }, 700);
-  //   };
-  //
-  //   const bubblyButtons = document.getElementsByClassName('bubbly-button');
-  //
-  //   for (let i = 0; i < bubblyButtons.length; i += 1) {
-  //     bubblyButtons[i].addEventListener('click', animateButton, false);
-  //   }
-  // }
-
   private async getLocation() {
     const options = {
       enableHighAccuracy: true,

@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "module": "es2020",
-    "target": "esnext",
     "strict": true,
+    "target": "es5",
+    "module": "commonjs",
     "jsx": "preserve",
     "importHelpers": true,
     "moduleResolution": "node",

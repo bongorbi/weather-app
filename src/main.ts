@@ -8,6 +8,11 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {fas} from '@fortawesome/free-solid-svg-icons';
 import App from './App.vue';
 import router from './router';
+// @ts-ignore
+import wb from './registerServiceWorker';
+
+// @ts-ignore
+Vue.prototype.$workbox = wb;
 
 library.add(fas);
 
