@@ -286,16 +286,13 @@ html {
 }
 
 main {
+  display: grid;
+  grid-template-rows: 100vh 100vh;
   scroll-behavior: smooth;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
+  overflow: auto;
   text-align: center;
-  width: 100%; /* percentage fixes the X axis white space when zoom out */
+  width: 100vw; /* percentage fixes the X axis white space when zoom out */
   height: 100vh; /* this is still an issue where you see white space when zoom out in the Y axis */
-  //overflow: hidden;
   padding: 5vh 10vw;
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.75));
   background-repeat: no-repeat;

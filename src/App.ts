@@ -37,6 +37,7 @@ export default class App extends Vue {
 
   private onScroll() {
     this.windowYAxisTop = (window.top.scrollY < (document.body.offsetHeight * 0.75));
+    debugger
     if (this.windowYAxisTop) {
       this.downButtonIcon = 'chevron-down';
     } else {
