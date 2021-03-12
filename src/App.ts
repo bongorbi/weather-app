@@ -25,6 +25,23 @@ export default class App extends Vue {
       this.showOrHideCharts();
     }, 10);
     await this.getLocation();
+    window.addEventListener('scroll', this.onScroll);
+  }
+
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.onScroll);
+  }
+
+  private windowYAxisTop: boolean = true;
+  private downButtonIcon: string = 'chevron-down';
+
+  private onScroll() {
+    this.windowYAxisTop = (window.top.scrollY < (document.body.offsetHeight * 0.75));
+    if (this.windowYAxisTop) {
+      this.downButtonIcon = 'chevron-down';
+    } else {
+      this.downButtonIcon = 'chevron-up';
+    }
   }
 
   private showOrHideCharts() {
@@ -74,16 +91,13 @@ export default class App extends Vue {
   }
 
   private hideContent: boolean = false;
-  private downButtonIcon: string = 'chevron-down';
 
   private scrollButton() {
     if (window.scrollY < (document.body.offsetHeight * 0.75)) {
       // you're at the bottom of the page
       window.scrollBy(0, 1000);
-      this.downButtonIcon = 'chevron-up';
     } else {
       window.scrollBy(0, -1000);
-      this.downButtonIcon = 'chevron-down';
     }
   }
 
@@ -213,10 +227,11 @@ export default class App extends Vue {
     series: [{
       name: 'Wind',
       data: [],
-      color: '#1bb2f2',
+      color: '#68bb59',
       dataLabels: {
         style: {
-          fontSize: '1.1rem'
+          fontSize: '1.1rem',
+          fontFamily: 'Trebuchet MS'
         }
       }
     }],
@@ -260,7 +275,7 @@ export default class App extends Vue {
     plotOptions: {
       column: {
         dataLabels: {
-          color: 'black',
+          color: 'white',
           format: '{y}°C',
           enabled: true
         }
@@ -284,12 +299,13 @@ export default class App extends Vue {
     series: [{
       name: 'Temperature',
       data: [],
-      color: '#fd6501',
+      color: '#1E5531',
       stacking: 'normal',
       minPointWidth: 50,
       dataLabels: {
         style: {
-          fontSize: '1.1rem'
+          fontSize: '1.1rem',
+          fontFamily: 'Trebuchet MS'
         }
       }
     }],
@@ -333,7 +349,7 @@ export default class App extends Vue {
       column: {
         stacking: 'normal',
         dataLabels: {
-          color: 'black',
+          color: 'white',
           format: '{y}°C',
           enabled: true
         }
@@ -357,10 +373,11 @@ export default class App extends Vue {
     series: [{
       name: 'Feels Like',
       data: [],
-      color: '#fd6501',
+      color: '#1E5531',
       dataLabels: {
         style: {
-          fontSize: '1.1rem'
+          fontSize: '1.1rem',
+          fontFamily: 'Trebuchet MS'
         }
       }
     }],

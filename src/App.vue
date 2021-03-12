@@ -1,6 +1,5 @@
 <template>
-  <div style="overflow:hidden">
-    <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()"/>
+  <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()" style="overflow:hidden">
     <main>
       <div class="infoForecast">
         <div class="search-box">
@@ -25,25 +24,36 @@
               <div class="location">
                 {{ weather.name }}, {{ weather.sys.country }}
               </div>
+              <div class="date">
+                {{ dateBuilder() }}
+              </div>
             </div>
             <div class="weather-box">
-              <div class="firstColumn">
-                <span class="weather">Temp. now:<span class="temp">{{ Math.round(weather.main.temp) }}°C</span></span>
-                <span class="weather">Minimum temp.:<span class="temp">{{ Math.round(weather.main.temp_min) }}°C</span></span>
-                <div class="weather">
-                  Weather: {{ weather.weather[0].main }}
-                  <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
-                </div>
+              <div class="weather">
+                <span class="temp">{{ Math.round(weather.main.temp) }}°C</span>
               </div>
-              <div class="secondColumn">
-                <span class="weather">Feels like: <span class="temp">
-                  {{ Math.round(weather.main.feels_like) }}°C</span>
-                </span>
-                <span class="weather">Maximum temp.:<span class="temp">{{ Math.round(weather.main.temp_max) }}°C</span></span>
-                <span class="weather">Wind speed: <span class="temp">
-                  {{ weather.wind.speed }}m/s</span>
-                </span>
+              <div class="weather">
+                {{ weather.weather[0].main }}
+                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
               </div>
+            </div>
+          </div>
+          <div v-if="typeof weather.main != 'undefined' && error===''" class="weather-wrap">
+            <div class="secondWeatherWindow">
+              <span>Minimum temp.:</span>
+              <span>{{ Math.round(weather.main.temp_min) }}°C</span>
+            </div>
+            <div class="secondWeatherWindow">
+              <span>Feels like:</span>
+              <span>{{ Math.round(weather.main.feels_like) }}°C</span>
+            </div>
+            <div class="secondWeatherWindow">
+              <span>Maximum temp.:</span>
+              <span>{{ Math.round(weather.main.temp_max) }}°C</span>
+            </div>
+            <div class="secondWeatherWindow">
+              <span>Wind speed:</span>
+              <span>{{ weather.wind.speed }}m/s</span>
             </div>
           </div>
         </div>
@@ -87,6 +97,9 @@
                  :options="feelsLikeChart"/>
         </div>
       </div>
+      <footer>
+        <p><a href="mailto:andonov225@gmail.com">andonov225@gmail.com</a></p>
+      </footer>
     </main>
   </div>
 </template>
@@ -108,8 +121,11 @@
   src: url("../public/fonts/Nunito/Nunito-LightItalic.ttf") format("truetype");
 }
 
+$lightestgreen: rgb(171, 221, 134);
+$lightgreen: rgb(163, 220, 2);
+$darkgreen: rgb(30, 85, 49);
+
 * {
-  font-family: Nunito-Regular, sans-serif;
   box-sizing: border-box;
 }
 
@@ -137,7 +153,7 @@ html {
     }
 
     .highcharts-plot-background {
-      fill: #efffff;
+      fill: aliceblue;
     }
 
     .highcharts-xaxis-labels {
@@ -162,12 +178,12 @@ html {
     }
 
     .highcharts-background {
-      fill: rgba(255, 255, 255, 0.75);
+      fill: rgb(171, 221, 134);
     }
 
     .highcharts-plot-border {
       stroke-width: 2px;
-      stroke: rgb(253, 101, 1, 1);
+      stroke: $darkgreen;
     }
   }
 }
@@ -195,20 +211,23 @@ html {
   display: grid;
   grid-template-columns: 33% 33% 33%;
   grid-column-gap: 5px;
+  width: 98%;
+  font-family: Nunito-Regular, sans-serif !important;
 
   & > .buttons {
     box-sizing: border-box;
     border: 0;
     align-items: center;
     justify-content: center;
+    border: none;
+    outline: none;
     user-select: none;
     white-space: nowrap;
-    outline: none;
     cursor: pointer;
     color: black;
     min-height: 35px;
     font-size: 1.5rem;
-    background-color: rgb(27, 178, 242);
+    background-color: $lightgreen;
     top: 0;
     left: 0;
     transition: all .15s linear 0s;
@@ -232,7 +251,7 @@ html {
 
   & > .selected {
     color: white;
-    background-color: rgb(253, 101, 1, 1);
+    background-color: $darkgreen;
     transition: 0.4s;
   }
 }
@@ -281,6 +300,13 @@ main {
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.75));
   background-repeat: no-repeat;
 
+  & > .infoForecast {
+    grid-row: 1;
+  }
+  & > .downPage {
+    grid-row: 2;
+  }
+
   .weather-wrap {
     display: inline-block;
     padding: 5px 10px;
@@ -291,12 +317,25 @@ main {
     box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
     width: 80%;
 
+    @media screen and (max-width: 500px) {
+      & > .secondWeatherWindow {
+        font-size: 1.7rem !important;
+        padding: 5px 5px !important;
+      }
+    }
+
     & > .secondWeatherWindow {
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 2rem;
       padding: 10px 30px;
+      text-align: left;
+
+
+      & > * {
+        font-family: Nunito-Regular, sans-serif;
+      }
 
       & > .temp {
         font-weight: 600;
@@ -312,7 +351,6 @@ main {
         padding: 5px;
         font-size: 1.4em;
         font-weight: 600;
-        font-family: Nunito-Regular, sans-serif;
         text-align: center;
       }
 
@@ -320,7 +358,6 @@ main {
         padding: 5px;
         color: #000000;
         font-size: 1.4rem;
-        font-family: Nunito-Regular, sans-serif;
         text-align: center;
         font-weight: 300;
         font-style: italic;
@@ -335,14 +372,13 @@ main {
 
       & .temp {
         margin-left: 5px;
-        font-family: Nunito-Regular, sans-serif;
         color: black;
         display: inline-block;
         padding: 10px 25px;
         align-items: center;
         font-size: 3rem;
         font-weight: 900;
-        background-color: rgba(255, 255, 255, 0.25);
+        background-color: $lightgreen;
         border-radius: 16px;
         box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
       }
@@ -350,7 +386,6 @@ main {
       & .weather {
         color: #050303;
         grid-template-columns: auto 50%;
-        font-family: Nunito-Regular, sans-serif;
         align-items: center;
         font-size: 2rem;
         padding: 5px;
@@ -359,6 +394,7 @@ main {
         display: flex;
 
         & > img {
+          margin-left: 10px;
           height: 6vh;
         }
       }
@@ -376,6 +412,9 @@ main {
       & > .scrollButton {
         width: 100%;
         height: 100%;
+        background-color: $lightgreen;
+        border: none;
+        outline: none;
 
         & > * {
           font-size: 3rem;
@@ -419,7 +458,6 @@ main {
           background-color: rgba(255, 255, 255, 0.75);
           font-size: 2rem;
           transition-timing-function: ease-in-out;
-          width: 99vw !important;
           top: 0;
           right: 100%;
         }
@@ -429,7 +467,7 @@ main {
           background-color: rgba(255, 255, 255, 0.75);
           font-size: 2rem;
           transition-timing-function: ease-in-out;
-          width: 100%;
+          width: 100% !important;
           top: 0;
           right: 100%;
         }
@@ -439,6 +477,7 @@ main {
 
   & > .downPage {
     height: 90vh;
+    margin-top: 10px;
   }
 }
 
@@ -456,6 +495,7 @@ main {
   }
   main {
     width: 100%;
+    height: 100%;
     overflow: hidden;
     display: grid;
     grid-template-columns:auto auto;
@@ -492,11 +532,13 @@ main {
 }
 
 @media screen and (max-width: 360px) {
-  .weather {
-    font-size: 1.2rem !important;
-  }
   .temp {
-    font-size: 1.3rem !important;
+    font-size: 1.3rem;
+  }
+  .secondWeatherWindow {
+    & > span {
+      font-size: 1.3rem;
+    }
   }
 }
 
@@ -506,6 +548,20 @@ main {
   }
   #app {
     padding: 0;
+  }
+}
+
+footer {
+  z-index: 1111;
+  width: 100%;
+  background-color: $darkgreen;
+  height: 2%;
+  text-align: right;
+
+  & a {
+    color: white;
+    align-items: center;
+    margin-right: 5px;
   }
 }
 </style>
