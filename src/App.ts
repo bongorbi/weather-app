@@ -74,6 +74,18 @@ export default class App extends Vue {
   }
 
   private hideContent: boolean = false;
+  private downButtonIcon: string = 'chevron-down';
+
+  private scrollButton() {
+    if (window.scrollY < (document.body.offsetHeight * 0.75)) {
+      // you're at the bottom of the page
+      window.scrollBy(0, 1000);
+      this.downButtonIcon = 'chevron-up';
+    } else {
+      window.scrollBy(0, -1000);
+      this.downButtonIcon = 'chevron-down';
+    }
+  }
 
   private resizeChart() {
     switch (true) {
@@ -480,5 +492,16 @@ export default class App extends Vue {
       this.windChart.series[0].data.push(day.wind_speed);
       this.feelsLikeChart.series[0].data.push(Math.round(day.feels_like.day));
     });
+  }
+
+  private dateBuilder() {
+    const d = new Date();
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = days[d.getDay()];
+    const date = d.getDate();
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    return `${day} ${date} ${month} ${year}`;
   }
 }

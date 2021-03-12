@@ -47,32 +47,45 @@
             </div>
           </div>
         </div>
+        <div v-if="!hideContent" class="downButton">
+          <button
+            class="scrollButton"
+            @click="scrollButton">
+            <font-awesome-icon
+              ref="functionButton"
+              aria-hidden="true"
+              :icon="downButtonIcon"
+              class="icon"/>
+          </button>
+        </div>
       </div>
-      <div v-show="mobileView && !hideContent && error===''" class="chartButtons">
-        <button class="buttons" :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
-          Feels Like
-        </button>
-        <button class="buttons" :class="{'selected':showWindChart}" @click="showWind">
-          Wind
-        </button>
-        <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
-          Temperature
-        </button>
-      </div>
-      <div v-show="showTempChart && !hideContent && error===''" class="chartContainer">
-        <Chart :key="componentKey" ref="chart"
-               class="diagram"
-               :options="tempChart"/>
-      </div>
-      <div v-show="showWindChart && !hideContent && error===''" class="chartContainer">
-        <Chart :key="componentKey+1" ref="chart"
-               class="diagram"
-               :options="windChart"/>
-      </div>
-      <div v-show="showFeelsLikeChart && !hideContent && error===''" class="chartContainer">
-        <Chart :key="componentKey+2" ref="chart"
-               class="diagram"
-               :options="feelsLikeChart"/>
+      <div v-show="!hideContent && !hideContent && error===''" class="downPage">
+        <div v-show="mobileView" class="chartButtons">
+          <button class="buttons" :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
+            Feels Like
+          </button>
+          <button class="buttons" :class="{'selected':showWindChart}" @click="showWind">
+            Wind
+          </button>
+          <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
+            Temperature
+          </button>
+        </div>
+        <div v-show="showTempChart " class="chartContainer">
+          <Chart :key="componentKey" ref="chart"
+                 class="diagram"
+                 :options="tempChart"/>
+        </div>
+        <div v-show="showWindChart" class="chartContainer">
+          <Chart :key="componentKey+1" ref="chart"
+                 class="diagram"
+                 :options="windChart"/>
+        </div>
+        <div v-show="showFeelsLikeChart" class="chartContainer">
+          <Chart :key="componentKey+2" ref="chart"
+                 class="diagram"
+                 :options="feelsLikeChart"/>
+        </div>
       </div>
     </main>
   </div>
@@ -98,6 +111,10 @@
 * {
   font-family: Nunito-Regular, sans-serif;
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 .blurBackground {
@@ -231,32 +248,26 @@
   height: 100vh;
   color: #2c3e50;
   padding: 5vh 10vw;
-  overflow: hidden;
-}
-
-.infoForecast {
-  height: 42vh;
+  overflow: auto;
 }
 
 #app.under2 {
   background: url(../public/assets/coldBackground.jpg) no-repeat center center fixed;
   background-size: cover;
-  overflow: hidden;
 }
 
 #app.over2 {
   background: url(../public/assets/2-.jpg) no-repeat center center fixed;
   background-size: cover;
-  overflow: hidden;
 }
 
 #app.over16 {
   background: url(../public/assets/warm.jpg) no-repeat center center fixed;
   background-size: cover;
-  overflow: hidden;
 }
 
 main {
+  scroll-behavior: smooth;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -265,139 +276,169 @@ main {
   text-align: center;
   width: 100%; /* percentage fixes the X axis white space when zoom out */
   height: 100vh; /* this is still an issue where you see white space when zoom out in the Y axis */
-  overflow: hidden; /* needed for safari to show the x axis scrollbar */
+  //overflow: hidden;
   padding: 5vh 10vw;
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.75));
   background-repeat: no-repeat;
-}
 
-.search-box {
-  height: 7vh;
-  width: 100%;
-  display: inline-block;
-  transition: all 0.4s linear;
-
-  & .search-bar {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    color: #313131;
-    font-size: 1.4rem;
-    appearance: none;
-    border: none;
-    outline: none;
-    border-radius: 16px;
-    box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
-    background: rgba(255, 255, 255, 0.5) none;
-    transition: all 0.4s;
-    transition-timing-function: ease-in-out
-  }
-
-  & .search-bar:focus {
+  .weather-wrap {
+    display: inline-block;
+    padding: 5px 10px;
     background-color: rgba(255, 255, 255, 0.75);
-    font-size: 2rem;
-    transition-timing-function: ease-in-out;
-    width: 80vw;
-    top: 0;
-    right: 100%;
-  }
-
-  @media screen and (min-aspect-ratio: 13/9), (pointer: none), (pointer: coarse) {
-    .search-bar:focus {
-      background-color: rgba(255, 255, 255, 0.75);
-      font-size: 2rem;
-      transition-timing-function: ease-in-out;
-      width: 99vw !important;
-      top: 0;
-      right: 100%;
-    }
-  }
-  @media screen and (max-width: 500px), (pointer: none), (pointer: coarse) {
-    .search-bar:focus {
-      background-color: rgba(255, 255, 255, 0.75);
-      font-size: 2rem;
-      transition-timing-function: ease-in-out;
-      width: 100%;
-      top: 0;
-      right: 100%;
-    }
-  }
-
-}
-
-.weather-wrap {
-  display: inline-block;
-  padding: 5px 10px;
-  background-color: rgba(255, 255, 255, 0.75);
-  border-radius: 16px;
-  height: 30vh;
-  width: 100%;
-  box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
-
-  & > .location-box {
-    padding-bottom: 5px;
-
-    & > .location {
-      color: #070303;
-      font-size: 1.4em;
-      font-weight: 600;
-      font-family: Nunito-Regular, sans-serif;
-      text-align: center;
-    }
-
-    & > .date {
-      color: #000000;
-      font-size: 1.4rem;
-      font-family: Nunito-Regular, sans-serif;
-      text-align: center;
-    }
-  }
-
-  & > .weather-box {
-    display: grid;
-    grid-template-columns: 50% 50%;
-    text-align: center;
-    grid-column-gap: 3%;
-    align-items: center;
-    height: 23vh;
+    border-radius: 16px;
+    min-height: 15vh;
     margin-bottom: 10px;
+    box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+    width: 80%;
 
-    & > :first-child {
-      border-right: 1px solid rgb(0, 0, 0);
-    }
-
-    & .firstColumn {
-      display: grid;
-      grid-template-rows: 33% 33% 33%;
-      height: 100%;
-    }
-
-    & .secondColumn {
-      display: grid;
-      grid-template-rows: 33% 33% 33%;
-      height: 100%;
-    }
-
-    & .temp {
-      margin-left: 5px;
-      font-family: Nunito-Regular, sans-serif;
-      font-size: 1.5rem;
-      color: #e25800;
-    }
-
-    & .weather {
-      color: #050303;
-      font-size: 1.3rem;
-      display: grid;
-      grid-template-columns: auto 50%;
-      text-align: left;
-      font-family: Nunito-Regular, sans-serif;
+    & > .secondWeatherWindow {
+      display: flex;
       align-items: center;
+      justify-content: space-between;
+      font-size: 2rem;
+      padding: 10px 30px;
 
-      & > img {
-        height: 6vh;
+      & > .temp {
+        font-weight: 600;
+        font-size: 2.2rem;
       }
     }
+
+    & > .location-box {
+      padding: 5px;
+
+      & > .location {
+        color: #070303;
+        padding: 5px;
+        font-size: 1.4em;
+        font-weight: 600;
+        font-family: Nunito-Regular, sans-serif;
+        text-align: center;
+      }
+
+      & > .date {
+        padding: 5px;
+        color: #000000;
+        font-size: 1.4rem;
+        font-family: Nunito-Regular, sans-serif;
+        text-align: center;
+        font-weight: 300;
+        font-style: italic;
+      }
+    }
+
+    & > .weather-box {
+      display: flex;
+      justify-content: space-between;
+      text-align: left;
+      flex-direction: column;
+
+      & .temp {
+        margin-left: 5px;
+        font-family: Nunito-Regular, sans-serif;
+        color: black;
+        display: inline-block;
+        padding: 10px 25px;
+        align-items: center;
+        font-size: 3rem;
+        font-weight: 900;
+        background-color: rgba(255, 255, 255, 0.25);
+        border-radius: 16px;
+        box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+      }
+
+      & .weather {
+        color: #050303;
+        grid-template-columns: auto 50%;
+        font-family: Nunito-Regular, sans-serif;
+        align-items: center;
+        font-size: 2rem;
+        padding: 5px;
+        font-weight: 700;
+        justify-content: center;
+        display: flex;
+
+        & > img {
+          height: 6vh;
+        }
+      }
+    }
+  }
+
+  .infoForecast {
+    height: 99vh;
+    display: grid;
+    grid-template-rows: 10% 80% 10%;
+
+    & > .downButton {
+      width: 100%;
+
+      & > .scrollButton {
+        width: 100%;
+        height: 100%;
+
+        & > * {
+          font-size: 3rem;
+        }
+      }
+    }
+
+    .search-box {
+      height: 7vh;
+      width: 100%;
+      display: inline-block;
+      transition: all 0.4s linear;
+
+      & .search-bar {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        color: #313131;
+        font-size: 1.4rem;
+        appearance: none;
+        border: none;
+        outline: none;
+        border-radius: 16px;
+        box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+        background: rgba(255, 255, 255, 0.5) none;
+        transition: all 0.4s;
+        transition-timing-function: ease-in-out
+      }
+
+      & .search-bar:focus {
+        background-color: rgba(255, 255, 255, 0.75);
+        font-size: 2rem;
+        transition-timing-function: ease-in-out;
+        width: 80vw;
+        top: 0;
+        right: 100%;
+      }
+
+      @media screen and (min-aspect-ratio: 13/9), (pointer: none), (pointer: coarse) {
+        .search-bar:focus {
+          background-color: rgba(255, 255, 255, 0.75);
+          font-size: 2rem;
+          transition-timing-function: ease-in-out;
+          width: 99vw !important;
+          top: 0;
+          right: 100%;
+        }
+      }
+      @media screen and (max-width: 500px), (pointer: none), (pointer: coarse) {
+        .search-bar:focus {
+          background-color: rgba(255, 255, 255, 0.75);
+          font-size: 2rem;
+          transition-timing-function: ease-in-out;
+          width: 100%;
+          top: 0;
+          right: 100%;
+        }
+      }
+    }
+  }
+
+  & > .downPage {
+    height: 90vh;
   }
 }
 
@@ -411,7 +452,6 @@ main {
 
     & > .weather-box {
       height: 80%;
-
     }
   }
   main {
