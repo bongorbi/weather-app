@@ -1,6 +1,6 @@
 <template>
-  <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()" style="overflow:hidden">
-    <main>
+  <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()">
+    <main @scroll.passive="changeScrollBtnIcon">
       <div class="infoForecast">
         <div class="search-box">
           <label>
@@ -57,7 +57,7 @@
             </div>
           </div>
         </div>
-        <div v-if="!hideContent" class="downButton">
+        <div v-if="!hideContent && error===''" class="downButton">
           <button
             class="scrollButton"
             @click="scrollButton">
@@ -97,10 +97,10 @@
                  :options="feelsLikeChart"/>
         </div>
       </div>
-      <footer>
-        <p><a href="mailto:andonov225@gmail.com">andonov225@gmail.com</a></p>
-      </footer>
     </main>
+    <footer>
+      <p><a href="mailto:andonov225@gmail.com">andonov225@gmail.com</a></p>
+    </footer>
   </div>
 </template>
 
@@ -121,7 +121,7 @@
   src: url("../public/fonts/Nunito/Nunito-LightItalic.ttf") format("truetype");
 }
 
-$lightestgreen: rgb(171, 221, 134);
+$thelightestgreen: rgb(171, 221, 134);
 $lightgreen: rgb(163, 220, 2);
 $darkgreen: rgb(30, 85, 49);
 
@@ -257,7 +257,7 @@ html {
 }
 
 #app {
-  background: url(../public/assets/warm.jpg) no-repeat center center fixed;
+  background-image: url(../public/assets/warm.jpg);
   background-size: cover;
   -webkit-background-size: cover;
   transition: 0.4s;
@@ -271,23 +271,23 @@ html {
 }
 
 #app.under2 {
-  background: url(../public/assets/coldBackground.jpg) no-repeat center center fixed;
+  background-image: url(../public/assets/coldBackground.jpg);
   background-size: cover;
 }
 
 #app.over2 {
-  background: url(../public/assets/2-.jpg) no-repeat center center fixed;
+  background-image: url(../public/assets/2-.jpg);
   background-size: cover;
 }
 
 #app.over16 {
-  background: url(../public/assets/warm.jpg) no-repeat center center fixed;
+  background-image: url(../public/assets/warm.jpg);
   background-size: cover;
 }
 
 main {
   display: grid;
-  grid-template-rows: 100vh 100vh;
+  grid-template-rows: 100vh 87vh;
   scroll-behavior: smooth;
   overflow: auto;
   text-align: center;
@@ -300,6 +300,7 @@ main {
   & > .infoForecast {
     grid-row: 1;
   }
+
   & > .downPage {
     grid-row: 2;
   }
@@ -328,7 +329,6 @@ main {
       font-size: 2rem;
       padding: 10px 30px;
       text-align: left;
-
 
       & > * {
         font-family: Nunito-Regular, sans-serif;
@@ -491,43 +491,44 @@ main {
     }
   }
   main {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    display: grid;
-    grid-template-columns:auto auto;
-    grid-template-rows: 50% 50%;
-
-    .highcharts-root {
-      border-radius: 16px;
-    }
-
-    & > .infoForecast {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .chartButtons {
-      padding-right: 15%;
-    }
-
-    & .wind {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    & .feelslike {
-      grid-column: 2;
-      grid-row: 2;
-    }
-
-    & .temp {
-      grid-column: 1;
-      grid-row: 2;
-    }
+    //width: 100%;
+    //height: 100%;
+    //overflow: hidden;
+    //display: grid;
+    //grid-template-columns:auto auto;
+    //grid-template-rows: 50% 50%;
+    //
+    //.highcharts-root {
+    //  border-radius: 16px;
+    //}
+    //
+    //& > .infoForecast {
+    //  grid-column: 1;
+    //  grid-row: 1;
+    //}
+    //
+    //.chartButtons {
+    //  padding-right: 15%;
+    //}
+    //
+    //& .wind {
+    //  grid-column: 2;
+    //  grid-row: 1;
+    //}
+    //
+    //& .feelslike {
+    //  grid-column: 2;
+    //  grid-row: 2;
+    //}
+    //
+    //& .temp {
+    //  grid-column: 1;
+    //  grid-row: 2;
+    //}
   }
 }
 
+// mobile
 @media screen and (max-width: 360px) {
   .temp {
     font-size: 1.3rem;
@@ -552,7 +553,6 @@ footer {
   z-index: 1111;
   width: 100%;
   background-color: $darkgreen;
-  height: 2%;
   text-align: right;
 
   & a {

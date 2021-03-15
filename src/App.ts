@@ -25,23 +25,32 @@ export default class App extends Vue {
       this.showOrHideCharts();
     }, 10);
     await this.getLocation();
-    window.addEventListener('scroll', this.onScroll);
   }
 
-  beforeDestroy() {
-    window.removeEventListener('scroll', this.onScroll);
-  }
-
-  private windowYAxisTop: boolean = true;
   private downButtonIcon: string = 'chevron-down';
+  private scrollUpOrDown: string = 'scrollDown';
 
-  private onScroll() {
-    this.windowYAxisTop = (window.top.scrollY < (document.body.offsetHeight * 0.75));
-    debugger
-    if (this.windowYAxisTop) {
+  private changeScrollBtnIcon(e: { target: HTMLInputElement }) {
+    const screenHeight = e.target.offsetHeight;
+    const scrollFromTop = e.target.scrollTop;
+    if ((screenHeight - 120) > scrollFromTop) {
       this.downButtonIcon = 'chevron-down';
+      this.scrollUpOrDown = 'scrollDown';
     } else {
       this.downButtonIcon = 'chevron-up';
+      this.scrollUpOrDown = 'scrollUp';
+    }
+  }
+
+  private scrollButton() {
+    const mainEl = document.querySelector('main');
+    switch (this.scrollUpOrDown) {
+      default:
+        mainEl!.scrollBy(0, 1000);
+        break;
+      case 'scrollUp':
+        mainEl!.scrollBy(0, -1000);
+        break;
     }
   }
 
@@ -92,15 +101,6 @@ export default class App extends Vue {
   }
 
   private hideContent: boolean = false;
-
-  private scrollButton() {
-    if (window.scrollY < (document.body.offsetHeight * 0.75)) {
-      // you're at the bottom of the page
-      window.scrollBy(0, 1000);
-    } else {
-      window.scrollBy(0, -1000);
-    }
-  }
 
   private resizeChart() {
     switch (true) {
@@ -211,6 +211,9 @@ export default class App extends Vue {
           format: '{y} m/s',
           enabled: true
         }
+      },
+      series: {
+        pointPadding: -0.2
       }
     },
     boost: {enabled: true},
@@ -319,7 +322,8 @@ export default class App extends Vue {
     },
     yAxis: {
       title: {
-        text: 'Temperature (°C)'
+        text: 'Temperature (°C)',
+        margin: 4
       },
       labels: {
         enabled: false
