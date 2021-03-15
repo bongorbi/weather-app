@@ -1,5 +1,6 @@
 <template>
-  <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()">
+  <div style="overflow:hidden">
+    <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()"/>
     <main @scroll.passive="changeScrollBtnIcon">
       <div class="infoForecast">
         <div class="search-box">
@@ -30,7 +31,9 @@
             </div>
             <div class="weather-box">
               <div class="weather">
-                <span class="temp">{{ Math.round(weather.main.temp) }}°C</span>
+                <span class="temp" :class="typeof weather.main != 'undefined' && tempClass()">{{
+                  Math.round(weather.main.temp)
+                }}°C</span>
               </div>
               <div class="weather">
                 {{ weather.weather[0].main }}
@@ -38,7 +41,7 @@
               </div>
             </div>
           </div>
-          <div v-if="typeof weather.main != 'undefined' && error===''" class="weather-wrap">
+          <div v-if="typeof weather.main != 'undefined' && error===''" class="weather-wrap" :class="tempClass()">
             <div class="secondWeatherWindow">
               <span>Minimum temp.:</span>
               <span>{{ Math.round(weather.main.temp_min) }}°C</span>
@@ -60,6 +63,7 @@
         <div v-if="!hideContent && error===''" class="downButton">
           <button
             class="scrollButton"
+            :class="typeof weather.main != 'undefined' && tempClass()"
             @click="scrollButton">
             <font-awesome-icon
               ref="functionButton"
@@ -98,9 +102,6 @@
         </div>
       </div>
     </main>
-    <footer>
-      <p><a href="mailto:andonov225@gmail.com">andonov225@gmail.com</a></p>
-    </footer>
   </div>
 </template>
 
@@ -121,9 +122,13 @@
   src: url("../public/fonts/Nunito/Nunito-LightItalic.ttf") format("truetype");
 }
 
-$thelightestgreen: rgb(171, 221, 134);
-$lightgreen: rgb(163, 220, 2);
-$darkgreen: rgb(30, 85, 49);
+$whitish: rgba(255, 255, 255, 0.55);
+$thelightestgreen: #f6fceb;
+//$lightgreen: rgb(149, 213, 178, 0.75);
+//$darkgreen: rgb(111, 116, 8, 0.6);
+$darkgreen: rgba(234, 225, 0, 1);
+$lightgreen: rgba(234, 225, 0, 0.78);
+$transparent: rgb(0, 0, 0, 0);
 
 * {
   box-sizing: border-box;
@@ -178,12 +183,12 @@ html {
     }
 
     .highcharts-background {
-      fill: rgb(171, 221, 134);
+      fill: $whitish;
     }
 
     .highcharts-plot-border {
       stroke-width: 2px;
-      stroke: $darkgreen;
+      stroke: darkgreen;
     }
   }
 }
@@ -227,7 +232,7 @@ html {
     color: black;
     min-height: 35px;
     font-size: 1.5rem;
-    background-color: $lightgreen;
+    background-color: $whitish;
     top: 0;
     left: 0;
     transition: all .15s linear 0s;
@@ -250,15 +255,29 @@ html {
   }
 
   & > .selected {
-    color: white;
-    background-color: $darkgreen;
+    color: whitesmoke;
+    background-color: rgb(3, 7, 30);
     transition: 0.4s;
   }
 }
 
-#app {
-  background-image: url(../public/assets/warm.jpg);
+//ugly fix for loading background on mobile
+#app:before {
+  content: "";
+  display: block;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -10;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
   background-size: cover;
+}
+
+#app {
   -webkit-background-size: cover;
   transition: 0.4s;
   -webkit-font-smoothing: antialiased;
@@ -268,6 +287,9 @@ html {
   color: #2c3e50;
   padding: 5vh 10vw;
   overflow: auto;
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #app.under2 {
@@ -292,10 +314,15 @@ main {
   overflow: auto;
   text-align: center;
   width: 100vw; /* percentage fixes the X axis white space when zoom out */
-  height: 100vh; /* this is still an issue where you see white space when zoom out in the Y axis */
   padding: 5vh 10vw;
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.75));
   background-repeat: no-repeat;
+  position: absolute;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 
   & > .infoForecast {
     grid-row: 1;
@@ -305,15 +332,20 @@ main {
     grid-row: 2;
   }
 
+  :first-child.weather-wrap {
+    background: transparent;
+    box-shadow: none;
+  }
+
   .weather-wrap {
     display: inline-block;
     padding: 5px 10px;
-    background-color: rgba(255, 255, 255, 0.75);
+    background-color: $whitish;
     border-radius: 16px;
-    min-height: 15vh;
+    min-height: 39vh;
     margin-bottom: 10px;
     box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
-    width: 80%;
+    width: 90%;
 
     @media screen and (max-width: 500px) {
       & > .secondWeatherWindow {
@@ -334,17 +366,13 @@ main {
         font-family: Nunito-Regular, sans-serif;
       }
 
-      & > .temp {
-        font-weight: 600;
-        font-size: 2.2rem;
-      }
     }
 
     & > .location-box {
       padding: 5px;
 
       & > .location {
-        color: #070303;
+        color: white;
         padding: 5px;
         font-size: 1.4em;
         font-weight: 600;
@@ -353,7 +381,7 @@ main {
 
       & > .date {
         padding: 5px;
-        color: #000000;
+        color: white;
         font-size: 1.4rem;
         text-align: center;
         font-weight: 300;
@@ -367,13 +395,17 @@ main {
       text-align: left;
       flex-direction: column;
 
+      & > * {
+        font-family: Nunito-Regular, sans-serif;
+      }
+
       & .temp {
         margin-left: 5px;
         color: black;
         display: inline-block;
         padding: 10px 25px;
         align-items: center;
-        font-size: 3rem;
+        font-size: 5rem;
         font-weight: 900;
         background-color: $lightgreen;
         border-radius: 16px;
@@ -381,10 +413,10 @@ main {
       }
 
       & .weather {
-        color: #050303;
+        color: whitesmoke;
         grid-template-columns: auto 50%;
         align-items: center;
-        font-size: 2rem;
+        font-size: 2.5rem;
         padding: 5px;
         font-weight: 700;
         justify-content: center;
@@ -392,30 +424,26 @@ main {
 
         & > img {
           margin-left: 10px;
-          height: 6vh;
+          height: 10vh;
         }
       }
     }
   }
 
   .infoForecast {
-    height: 99vh;
+    height: 100vh;
     display: grid;
-    grid-template-rows: 10% 80% 10%;
+    grid-template-rows: 10% 83% 7%;
 
-    & > .downButton {
+    & .scrollButton {
       width: 100%;
+      height: 100%;
+      background: $whitish;
+      border: none;
+      outline: none;
 
-      & > .scrollButton {
-        width: 100%;
-        height: 100%;
-        background-color: $lightgreen;
-        border: none;
-        outline: none;
-
-        & > * {
-          font-size: 3rem;
-        }
+      & > * {
+        font-size: 3rem;
       }
     }
 
@@ -447,6 +475,7 @@ main {
         transition-timing-function: ease-in-out;
         width: 80vw;
         top: 0;
+        z-index: 11111;
         right: 100%;
       }
 
@@ -467,13 +496,15 @@ main {
           width: 100% !important;
           top: 0;
           right: 100%;
+          z-index: 11111;
+
         }
       }
     }
   }
 
   & > .downPage {
-    height: 90vh;
+    height: 92vh;
     margin-top: 10px;
   }
 }
@@ -542,23 +573,26 @@ main {
 
 @media (pointer: none), (pointer: coarse) {
   main {
-    padding: 8px;
+    padding: 0
+  }
+  .search-box {
+    padding: 10px 10px 0 10px
   }
   #app {
     padding: 0;
   }
 }
 
-footer {
-  z-index: 1111;
-  width: 100%;
-  background-color: $darkgreen;
-  text-align: right;
+.over2 {
+  background-color: rgb(183, 228, 199) !important;
+}
 
-  & a {
-    color: white;
-    align-items: center;
-    margin-right: 5px;
-  }
+.bellow2 {
+  background-color: rgb(3, 7, 30) !important;
+  color: $whitish !important;
+}
+
+.over16 {
+  background-color: rgb(250, 163, 7) !important;
 }
 </style>

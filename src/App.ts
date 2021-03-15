@@ -68,13 +68,7 @@ export default class App extends Vue {
 
   private hideAndBlurContent() {
     this.blurBackground = !this.blurBackground;
-    if (this.hideContent) {
-      setTimeout(() => {
-        this.hideContent = false;
-      }, 450);
-    } else {
-      this.hideContent = true;
-    }
+    this.hideContent = !this.hideContent;
   }
 
   private async getLocation() {
@@ -126,6 +120,26 @@ export default class App extends Vue {
         this.tempChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
         this.feelsLikeChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
     }
+  }
+
+  private tempClass() {
+    const {temp} = this.weather.main;
+    let cssClass = '';
+    switch (true) {
+      default:
+        cssClass = '';
+        break;
+      case temp <= 2:
+        cssClass = 'bellow2';
+        break;
+      case temp > 2 && temp < 16:
+        cssClass = 'over2';
+        break;
+      case temp >= 16:
+        cssClass = 'over16';
+        break;
+    }
+    return cssClass;
   }
 
   private backgroundImage() {
@@ -231,10 +245,10 @@ export default class App extends Vue {
     series: [{
       name: 'Wind',
       data: [],
-      color: '#68bb59',
+      color: '#74C69D',
       dataLabels: {
         style: {
-          fontSize: '1.1rem',
+          fontSize: '1rem',
           fontFamily: 'Trebuchet MS'
         }
       }
@@ -261,6 +275,7 @@ export default class App extends Vue {
       shared: true,
       // @ts-ignore
       formatter() {
+        console.log(this);
         // @ts-ignore
         return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
       }
@@ -279,7 +294,7 @@ export default class App extends Vue {
     plotOptions: {
       column: {
         dataLabels: {
-          color: 'white',
+          color: 'black',
           format: '{y}°C',
           enabled: true
         }
@@ -308,7 +323,7 @@ export default class App extends Vue {
       minPointWidth: 50,
       dataLabels: {
         style: {
-          fontSize: '1.1rem',
+          fontSize: '1rem',
           fontFamily: 'Trebuchet MS'
         }
       }
@@ -354,7 +369,7 @@ export default class App extends Vue {
       column: {
         stacking: 'normal',
         dataLabels: {
-          color: 'white',
+          color: 'black',
           format: '{y}°C',
           enabled: true
         }
@@ -381,7 +396,7 @@ export default class App extends Vue {
       color: '#1E5531',
       dataLabels: {
         style: {
-          fontSize: '1.1rem',
+          fontSize: '1rem',
           fontFamily: 'Trebuchet MS'
         }
       }
@@ -508,11 +523,24 @@ export default class App extends Vue {
   }
 
   private async getWeatherForNextDays() {
+    function colorPicker(temp: number) {
+      if (temp > 0) {
+        return '#74C69D';
+      }
+      return '#E63946';
+    }
+
     const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
     results.daily.forEach((day: any) => {
-      this.tempChart.series[0].data.push(Math.round(day.temp.day));
-      this.windChart.series[0].data.push(day.wind_speed);
-      this.feelsLikeChart.series[0].data.push(Math.round(day.feels_like.day));
+      this.tempChart.series[0].data.push({
+        y: Math.round(day.temp.day),
+        color: colorPicker(Math.round(day.temp.day))
+      });
+      this.windChart.series[0].data.push(Math.round(day.wind_speed));
+      this.feelsLikeChart.series[0].data.push({
+        y: Math.round(day.feels_like.day),
+        color: colorPicker(Math.round(day.feels_like.day))
+      });
     });
   }
 
