@@ -16,7 +16,7 @@
               @keypress.enter="getWeather">
           </label>
         </div>
-        <div v-if="!hideContent">
+        <div v-if="!hideContent" class="contentContainer">
           <div v-if="error!==''" class="error">
             <p> {{ error }} </p>
           </div>
@@ -32,8 +32,8 @@
             <div class="weather-box">
               <div class="weather">
                 <span class="temp" :class="typeof weather.main != 'undefined' && tempClass()">{{
-                  Math.round(weather.main.temp)
-                }}°C</span>
+                    Math.round(weather.main.temp)
+                  }}°C</span>
               </div>
               <div class="weather">
                 {{ weather.weather[0].main }}
@@ -124,11 +124,8 @@
 
 $whitish: rgba(255, 255, 255, 0.55);
 $thelightestgreen: #f6fceb;
-//$lightgreen: rgb(149, 213, 178, 0.75);
-//$darkgreen: rgb(111, 116, 8, 0.6);
 $darkgreen: rgba(234, 225, 0, 1);
 $lightgreen: rgba(234, 225, 0, 0.78);
-$transparent: rgb(0, 0, 0, 0);
 
 * {
   box-sizing: border-box;
@@ -194,21 +191,22 @@ html {
 }
 
 .error {
-  height: 90vh;
-  padding: 10px 25px;
+  height: 100%;
   display: flex;
   justify-content: center;
-  text-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+  width: 93%;
+  text-shadow: 1px 3px rgb(0 0 0 / 25%);
   background-color: rgba(255, 255, 255, 0.25);
   border-radius: 16px;
-  box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+  box-shadow: 3px 6px rgb(0 0 0 / 25%);
 
   & > p {
     font-size: 3rem;
     align-items: center;
     display: flex;
-    font-weight: 900;
-    color: #000000;
+    font-family: Nunito-Regular, sans-serif;
+    font-weight: 700;
+    color: #FFFF3F;
   }
 }
 
@@ -338,14 +336,16 @@ main {
   }
 
   .weather-wrap {
-    display: inline-block;
-    padding: 5px 10px;
-    background-color: $whitish;
+    display: flex;
+    padding: 0 14%;
+    background-color: rgba(255, 255, 255, 0.55);
     border-radius: 16px;
     min-height: 39vh;
     margin-bottom: 10px;
-    box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+    box-shadow: 3px 6px rgb(0 0 0 / 25%);
     width: 90%;
+    justify-content: space-around;
+    flex-direction: column;
 
     @media screen and (max-width: 500px) {
       & > .secondWeatherWindow {
@@ -445,6 +445,13 @@ main {
       & > * {
         font-size: 3rem;
       }
+    }
+
+    & > .contentContainer {
+      justify-content: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .search-box {
@@ -584,15 +591,36 @@ main {
 }
 
 .over2 {
-  background-color: rgb(183, 228, 199) !important;
+  background-color: rgb(183, 228, 199, 0.7) !important;
+
+  & > .secondWeatherWindow {
+    & > :last-child {
+      color: rgb(3, 7, 30);
+      font-weight: 600;
+    }
+  }
 }
 
 .bellow2 {
   background-color: rgb(3, 7, 30) !important;
   color: $whitish !important;
+
+  & > .secondWeatherWindow {
+    & > :last-child {
+      color: white;
+      font-weight: 600;
+    }
+  }
 }
 
 .over16 {
-  background-color: rgb(250, 163, 7) !important;
+  background-color: rgb(249, 65, 68, 0.8) !important;
+
+  & > .secondWeatherWindow {
+    & > :last-child {
+      color: #293241;
+      font-weight: 600;
+    }
+  }
 }
 </style>
