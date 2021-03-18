@@ -27,6 +27,24 @@ export default class App extends Vue {
     await this.getLocation();
   }
 
+  private goFullscreen() {
+    if (this.mobileView) {
+      const doc = window.document;
+      const docEl = doc.documentElement;
+
+      // @ts-ignore
+      const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      // @ts-ignore
+      const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      // @ts-ignore
+      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        requestFullScreen.call(docEl);
+      } else {
+        cancelFullScreen.call(doc);
+      }
+    }
+  }
+
   private downButtonIcon: string = 'chevron-down';
   private scrollUpOrDown: string = 'scrollDown';
 
@@ -55,15 +73,15 @@ export default class App extends Vue {
   }
 
   private showOrHideCharts() {
-    if (window.matchMedia('(min-aspect-ratio: 13/9)').matches) {
-      this.showWindChart = true;
-      this.showTempChart = true;
-      this.showFeelsLikeChart = true;
-    } else {
-      this.showWindChart = false;
-      this.showTempChart = true;
-      this.showFeelsLikeChart = false;
-    }
+    // if (window.matchMedia('(min-aspect-ratio: 13/9)').matches) {
+    //   this.showWindChart = true;
+    //   this.showTempChart = true;
+    //   this.showFeelsLikeChart = true;
+    // } else {
+    this.showWindChart = false;
+    this.showTempChart = true;
+    this.showFeelsLikeChart = false;
+    // }
   }
 
   private hideAndBlurContent() {
@@ -83,7 +101,7 @@ export default class App extends Vue {
       const crd = pos.coords;
       this.coords.lon = crd.longitude;
       this.coords.lat = crd.latitude;
-      App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart]);
+      App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
       await this.getWeatherByCoords();
     };
 
@@ -97,32 +115,31 @@ export default class App extends Vue {
   private hideContent: boolean = false;
 
   private resizeChart() {
+    let chartWidth;
+    let chartHeight = (window.innerHeight) * 0.35;
     switch (true) {
       // detects landscape mode
       case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
+        chartWidth = window.innerWidth * 0.65;
+        chartHeight = window.innerHeight * 0.5;
         this.mobileView = false;
-        this.windChart.chart.width = (window.innerWidth) * 0.39;
-        this.tempChart.chart.width = (window.innerWidth) * 0.39;
-        this.feelsLikeChart.chart.width = (window.innerWidth) * 0.39;
-        this.hourlyForecast.chart.width = (window.innerWidth) * 0.39;
-        break;
-      case window.innerWidth < 500:
-        this.mobileView = true;
-        this.windChart.chart.width = window.innerWidth - (0.04 * window.innerWidth);
-        this.tempChart.chart.width = window.innerWidth - (0.04 * window.innerWidth);
-        this.hourlyForecast.chart.width = window.innerWidth - (0.04 * window.innerWidth);
-        this.feelsLikeChart.chart.width = window.innerWidth - (0.04 * window.innerWidth);
-        this.windChart.chart.height = (window.innerHeight) * 0.3;
-        this.tempChart.chart.height = (window.innerHeight) * 0.3;
-        this.hourlyForecast.chart.height = (window.innerHeight) * 0.5;
-        this.feelsLikeChart.chart.height = (window.innerHeight) * 0.3;
+        this.windChart.chart.width = chartWidth;
+        this.tempChart.chart.width = chartWidth;
+        this.feelsLikeChart.chart.width = chartWidth;
+        this.hourlyForecast.chart.width = chartWidth;
+        this.hourlyForecast.chart.height = chartHeight;
         break;
       default:
+        chartWidth = window.innerWidth - (0.033 * window.innerWidth);
         this.mobileView = true;
-        this.windChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
-        this.tempChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
-        this.hourlyForecast.chart.width = window.innerWidth - (0.02 * window.innerWidth);
-        this.feelsLikeChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
+        this.windChart.chart.width = chartWidth;
+        this.tempChart.chart.width = chartWidth;
+        this.hourlyForecast.chart.width = chartWidth;
+        this.hourlyForecast.chart.height = (window.innerHeight) * 0.48;
+        this.feelsLikeChart.chart.width = chartWidth;
+        this.feelsLikeChart.chart.height = chartHeight;
+        this.tempChart.chart.height = chartHeight;
+        this.windChart.chart.height = chartHeight;
     }
   }
 
@@ -228,7 +245,7 @@ export default class App extends Vue {
         stacking: 'normal',
         dataLabels: {
           color: 'black',
-          format: '{y} °C',
+          format: '{y}°C',
           enabled: true
         }
       }
@@ -258,7 +275,7 @@ export default class App extends Vue {
     }],
     xAxis: {
       type: 'categories',
-      categories: this.chartHours()
+      categories: App.chartHours()
     },
     yAxis: {
       title: {
@@ -280,7 +297,7 @@ export default class App extends Vue {
     }
   };
 
-  private chartHours() {
+  private static chartHours() {
     const date = new Date();
     let currentHour = date.getHours();
     const hours = [];
@@ -429,7 +446,7 @@ export default class App extends Vue {
     },
     yAxis: {
       title: {
-        text: 'Temperature (°C)',
+        text: 'Temperature (°C)'
       },
       labels: {
         enabled: false
@@ -501,7 +518,7 @@ export default class App extends Vue {
     },
     yAxis: {
       title: {
-        text: 'Temperature (°C)',
+        text: 'Temperature (°C)'
       },
       labels: {
         enabled: false
@@ -624,7 +641,7 @@ export default class App extends Vue {
     results.hourly.forEach((hour: any) => {
       this.hourlyForecast.series[0].data.push({
         y: Math.round(hour.temp),
-        color: colorPicker(Math.round(hour.temp)),
+        color: colorPicker(Math.round(hour.temp))
       });
     });
     results.daily.forEach((day: any) => {

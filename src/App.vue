@@ -15,6 +15,16 @@
               @focusout="hideAndBlurContent"
               @keypress.enter="getWeather">
           </label>
+          <button
+            v-if="!hideContent && mobileView"
+            class="fullscreen"
+            @click="goFullscreen">
+            <font-awesome-icon
+              ref="functionButton"
+              aria-hidden="true"
+              icon="expand-alt"
+              class="icon"/>
+          </button>
         </div>
         <div v-if="!hideContent" class="contentContainer">
           <div v-if="error!==''" class="error">
@@ -31,7 +41,8 @@
             </div>
             <div class="weather-box">
               <div class="weather">
-                <span class="temp" :class="typeof weather.main != 'undefined' && tempClass()">{{
+                <span class="temp" :class="typeof weather.main != 'undefined' && tempClass()">
+                  {{
                     Math.round(weather.main.temp)
                   }}°C</span>
               </div>
@@ -55,12 +66,20 @@
               <span>{{ Math.round(weather.main.temp_max) }}°C</span>
             </div>
             <div class="secondWeatherWindow">
+              <span>Humidity:</span>
+              <span>{{ Math.round(weather.main.humidity) }}%</span>
+            </div>
+            <div class="secondWeatherWindow">
+              <span>Pressure:</span>
+              <span>{{ Math.round(weather.main.pressure) }} hPa</span>
+            </div>
+            <div class="secondWeatherWindow">
               <span>Wind speed:</span>
               <span>{{ weather.wind.speed }}m/s</span>
             </div>
           </div>
         </div>
-        <div v-if="!hideContent && error===''" class="downButton">
+        <div v-if="!hideContent && error===''&& mobileView" class="downButton">
           <button
             class="scrollButton"
             :class="typeof weather.main != 'undefined' && tempClass()"
@@ -75,19 +94,21 @@
       </div>
       <div v-show="!hideContent && !hideContent && error===''" class="downPage">
         <div class="chartContainer">
+          <p>48 hours forecast:</p>
           <Chart :key="componentKey" ref="chart"
                  class="diagram"
                  :options="hourlyForecast"/>
         </div>
-        <div v-show="mobileView" class="chartButtons">
+        <p>Next week's:</p>
+        <div class="chartButtons">
+          <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
+            Temperature
+          </button>
           <button class="buttons" :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
             Feels Like
           </button>
           <button class="buttons" :class="{'selected':showWindChart}" @click="showWind">
             Wind
-          </button>
-          <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
-            Temperature
           </button>
         </div>
         <div v-show="showTempChart " class="chartContainer">
@@ -149,6 +170,7 @@ html {
 .chartContainer {
   transition: 0.8s;
   display: flex;
+  flex-direction: column;
   margin: 5px 0;
   justify-content: center;
 
@@ -219,7 +241,7 @@ html {
   display: grid;
   grid-template-columns: 33% 33% 33%;
   grid-column-gap: 2px;
-  width: 90%;
+  width: 96%;
   height: 25px;
 
   & > .buttons {
@@ -335,17 +357,17 @@ main {
 
   .weather-wrap {
     display: flex;
-    padding: 0 14%;
+    padding: 2% 8%;
     background-color: rgba(255, 255, 255, 0.55);
     border-radius: 16px;
     min-height: 39vh;
     margin-bottom: 10px;
-    box-shadow: 3px 6px rgb(0 0 0 / 25%);
-    width: 90%;
+    box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+    width: 72%;
     justify-content: space-around;
     flex-direction: column;
 
-    @media screen and (max-width: 500px) {
+    @media screen and (max-width: 683px) {
       & > .secondWeatherWindow {
         font-size: 1.7rem !important;
         padding: 5px 5px !important;
@@ -431,7 +453,7 @@ main {
   .infoForecast {
     height: 100vh;
     display: grid;
-    grid-template-rows: 8% 84% 7%;
+    grid-template-rows: 8% 83.5% 7%;
 
     & .scrollButton {
       width: 100%;
@@ -475,16 +497,6 @@ main {
         transition-timing-function: ease-in-out
       }
 
-      & .search-bar:focus {
-        background-color: rgba(255, 255, 255, 0.75);
-        font-size: 2rem;
-        transition-timing-function: ease-in-out;
-        width: 80vw;
-        top: 0;
-        z-index: 11111;
-        right: 100%;
-      }
-
       @media screen and (min-aspect-ratio: 13/9), (pointer: none), (pointer: coarse) {
         .search-bar:focus {
           background-color: rgba(255, 255, 255, 0.75);
@@ -494,16 +506,39 @@ main {
           right: 100%;
         }
       }
-      @media screen and (max-width: 500px), (pointer: none), (pointer: coarse) {
-        .search-bar:focus {
-          background-color: rgba(255, 255, 255, 0.75);
-          font-size: 2rem;
-          transition-timing-function: ease-in-out;
-          width: 100% !important;
-          top: 0;
-          right: 100%;
-          z-index: 11111;
+    }
 
+    @media screen and (max-width: 600px), (pointer: none), (pointer: coarse) {
+      .search-bar:focus {
+        background-color: rgba(255, 255, 255, 0.75);
+        font-size: 2rem;
+        transition-timing-function: ease-in-out;
+        width: 110% !important;
+      }
+      .search-box {
+        display: flex;
+
+        label {
+          width: 90%;
+
+          & > input {
+            height: 100%;
+          }
+        }
+
+        .fullscreen {
+          height: 100%;
+          width: 10%;
+          border-radius: 16px;
+          font-size: 1.7rem;
+          padding: 10px;
+          color: #313131;
+          appearance: none;
+          border: none;
+          outline: none;
+          margin-left: 3px;
+          box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+          background: rgba(255, 255, 255, 0.5) none;
         }
       }
     }
@@ -519,52 +554,33 @@ main {
 }
 
 @media screen and (min-aspect-ratio: 13/9) {
-  .weather-wrap {
-    height: 36vh;
-
-    & > .location-box {
-      height: 20%
-    }
-
-    & > .weather-box {
-      height: 80%;
-    }
-  }
   main {
-    //width: 100%;
-    //height: 100%;
-    //overflow: hidden;
-    //display: grid;
-    //grid-template-columns:auto auto;
-    //grid-template-rows: 50% 50%;
-    //
-    //.highcharts-root {
-    //  border-radius: 16px;
-    //}
-    //
-    //& > .infoForecast {
-    //  grid-column: 1;
-    //  grid-row: 1;
-    //}
-    //
-    //.chartButtons {
-    //  padding-right: 15%;
-    //}
-    //
-    //& .wind {
-    //  grid-column: 2;
-    //  grid-row: 1;
-    //}
-    //
-    //& .feelslike {
-    //  grid-column: 2;
-    //  grid-row: 2;
-    //}
-    //
-    //& .temp {
-    //  grid-column: 1;
-    //  grid-row: 2;
-    //}
+    display: flex;
+    flex-direction: column;
+    padding: 5% 20%;
+
+    & > .infoForecast {
+    }
+
+    .chartButtons {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+
+    & .wind {
+    }
+
+    & .feelslike {
+    }
+
+    & .temp {
+    }
+
+    & .downPage {
+      height: 100%;
+
+    }
   }
 }
 
@@ -624,5 +640,11 @@ main {
       font-weight: 600;
     }
   }
+}
+
+p {
+  color: $whitish;
+  font-size: 1.2rem;
+  font-family: Nunito-Regular, sans-serif;
 }
 </style>
