@@ -83,7 +83,7 @@ export default class App extends Vue {
       const crd = pos.coords;
       this.coords.lon = crd.longitude;
       this.coords.lat = crd.latitude;
-      this.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart]);
+      App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart]);
       await this.getWeatherByCoords();
     };
 
@@ -104,20 +104,24 @@ export default class App extends Vue {
         this.windChart.chart.width = (window.innerWidth) * 0.39;
         this.tempChart.chart.width = (window.innerWidth) * 0.39;
         this.feelsLikeChart.chart.width = (window.innerWidth) * 0.39;
+        this.hourlyForecast.chart.width = (window.innerWidth) * 0.39;
         break;
       case window.innerWidth < 500:
         this.mobileView = true;
         this.windChart.chart.width = window.innerWidth - (0.04 * window.innerWidth);
         this.tempChart.chart.width = window.innerWidth - (0.04 * window.innerWidth);
+        this.hourlyForecast.chart.width = window.innerWidth - (0.04 * window.innerWidth);
         this.feelsLikeChart.chart.width = window.innerWidth - (0.04 * window.innerWidth);
-        this.windChart.chart.height = (window.innerHeight) * 0.5;
-        this.tempChart.chart.height = (window.innerHeight) * 0.5;
-        this.feelsLikeChart.chart.height = (window.innerHeight) * 0.5;
+        this.windChart.chart.height = (window.innerHeight) * 0.3;
+        this.tempChart.chart.height = (window.innerHeight) * 0.3;
+        this.hourlyForecast.chart.height = (window.innerHeight) * 0.5;
+        this.feelsLikeChart.chart.height = (window.innerHeight) * 0.3;
         break;
       default:
         this.mobileView = true;
         this.windChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
         this.tempChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
+        this.hourlyForecast.chart.width = window.innerWidth - (0.02 * window.innerWidth);
         this.feelsLikeChart.chart.width = window.innerWidth - (0.02 * window.innerWidth);
     }
   }
@@ -207,6 +211,95 @@ export default class App extends Vue {
     return unit;
   }
 
+  private hourlyForecast: any = {
+    chart: {
+      // type of diagram
+      type: 'area',
+      marginLeft: 25,
+      marginRight: 10,
+      height: 0,
+      width: 0,
+      zoomType: 'x',
+      panning: true,
+      panKey: 'shift'
+    },
+    plotOptions: {
+      area: {
+        stacking: 'normal',
+        dataLabels: {
+          color: 'black',
+          format: '{y} °C',
+          enabled: true
+        }
+      }
+    },
+    boost: {enabled: true},
+    // bottom right credit
+    credits: {
+      enabled: false
+    },
+    // bottom legend for different chart
+    legend: {
+      enabled: false
+    },
+    title: {
+      text: ''
+    },
+    series: [{
+      name: 'Hourly Forecast',
+      data: [],
+      color: '#74C69D',
+      dataLabels: {
+        style: {
+          fontSize: '1rem',
+          fontFamily: 'Trebuchet MS'
+        }
+      }
+    }],
+    xAxis: {
+      type: 'categories',
+      categories: this.chartHours()
+    },
+    yAxis: {
+      title: {
+        text: 'Temperature (°C)'
+      },
+      labels: {
+        enabled: false
+      }
+    },
+    tooltip: {
+      followPointer: true,
+      crosshairs: true,
+      shared: true,
+      // @ts-ignore
+      formatter() {
+        // @ts-ignore
+        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+      }
+    }
+  };
+
+  private chartHours() {
+    const date = new Date();
+    let currentHour = date.getHours();
+    const hours = [];
+    let n = 0;
+    while (n < 48) {
+      switch (currentHour) {
+        case 24:
+          currentHour = 0;
+          break;
+        default:
+          currentHour += 1;
+          break;
+      }
+      hours.push(currentHour);
+      n += 1;
+    }
+    return hours.map(x => `${x}:00`);
+  }
+
   private windChart: any = {
     chart: {
       // type of diagram
@@ -262,8 +355,7 @@ export default class App extends Vue {
     },
     yAxis: {
       title: {
-        text: 'Metre per second (m/s)',
-        margin: 4
+        text: 'Metre per second (m/s)'
       },
       labels: {
         enabled: false
@@ -338,7 +430,6 @@ export default class App extends Vue {
     yAxis: {
       title: {
         text: 'Temperature (°C)',
-        margin: 4
       },
       labels: {
         enabled: false
@@ -411,7 +502,6 @@ export default class App extends Vue {
     yAxis: {
       title: {
         text: 'Temperature (°C)',
-        margin: 4
       },
       labels: {
         enabled: false
@@ -493,7 +583,7 @@ export default class App extends Vue {
     return require(`../public/assets/${pic}`);
   }
 
-  private clearChartData(charts: any) {
+  private static clearChartData(charts: any) {
     charts.forEach((chart: { series: any[]; }) => {
       chart.series.forEach((obj: any) => {
         // eslint-disable-next-line no-param-reassign
@@ -503,7 +593,7 @@ export default class App extends Vue {
   }
 
   private async getWeather() {
-    this.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart]);
+    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
     const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
     this.weather = results;
     this.coords = results.coord;
@@ -513,7 +603,7 @@ export default class App extends Vue {
   }
 
   private async getWeatherByCoords() {
-    this.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart]);
+    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
     const results = await this.request(`${this.urlBase}weather?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
     this.weather = results;
     this.coords = results.coord;
@@ -531,6 +621,12 @@ export default class App extends Vue {
     }
 
     const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
+    results.hourly.forEach((hour: any) => {
+      this.hourlyForecast.series[0].data.push({
+        y: Math.round(hour.temp),
+        color: colorPicker(Math.round(hour.temp)),
+      });
+    });
     results.daily.forEach((day: any) => {
       this.tempChart.series[0].data.push({
         y: Math.round(day.temp.day),

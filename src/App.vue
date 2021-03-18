@@ -74,6 +74,11 @@
         </div>
       </div>
       <div v-show="!hideContent && !hideContent && error===''" class="downPage">
+        <div class="chartContainer">
+          <Chart :key="componentKey" ref="chart"
+                 class="diagram"
+                 :options="hourlyForecast"/>
+        </div>
         <div v-show="mobileView" class="chartButtons">
           <button class="buttons" :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
             Feels Like
@@ -86,7 +91,7 @@
           </button>
         </div>
         <div v-show="showTempChart " class="chartContainer">
-          <Chart :key="componentKey" ref="chart"
+          <Chart :key="componentKey+3" ref="chart"
                  class="diagram"
                  :options="tempChart"/>
         </div>
@@ -144,7 +149,7 @@ html {
 .chartContainer {
   transition: 0.8s;
   display: flex;
-  padding-top: 10px;
+  margin: 5px 0;
   justify-content: center;
 
   .diagram {
@@ -213,14 +218,15 @@ html {
 .chartButtons {
   display: grid;
   grid-template-columns: 33% 33% 33%;
-  grid-column-gap: 5px;
-  width: 98%;
-  font-family: Nunito-Regular, sans-serif !important;
+  grid-column-gap: 2px;
+  width: 90%;
+  height: 25px;
 
   & > .buttons {
     box-sizing: border-box;
     border: 0;
     align-items: center;
+    font-family: Nunito-Regular, sans-serif !important;
     justify-content: center;
     border: none;
     outline: none;
@@ -228,8 +234,8 @@ html {
     white-space: nowrap;
     cursor: pointer;
     color: black;
-    min-height: 35px;
-    font-size: 1.5rem;
+    min-height: 25px;
+    font-size: 1rem;
     background-color: $whitish;
     top: 0;
     left: 0;
@@ -237,13 +243,6 @@ html {
     position: relative;
     display: inline-block;
     letter-spacing: 1px;
-    box-shadow: 3px 6px 0 rgb(0 0 0 / 65%);
-
-    &:hover {
-      top: 3px;
-      left: 3px;
-      box-shadow: 1px 2px 0 rgb(0, 0, 0);
-    }
   }
 
   @media screen and (max-width: 500px) {
@@ -255,7 +254,6 @@ html {
   & > .selected {
     color: whitesmoke;
     background-color: rgb(3, 7, 30);
-    transition: 0.4s;
   }
 }
 
@@ -433,7 +431,7 @@ main {
   .infoForecast {
     height: 100vh;
     display: grid;
-    grid-template-rows: 10% 83% 7%;
+    grid-template-rows: 8% 84% 7%;
 
     & .scrollButton {
       width: 100%;
@@ -441,6 +439,7 @@ main {
       background: $whitish;
       border: none;
       outline: none;
+      margin: 10px 0;
 
       & > * {
         font-size: 3rem;
@@ -511,8 +510,11 @@ main {
   }
 
   & > .downPage {
-    height: 92vh;
-    margin-top: 10px;
+    height: 93vh;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
   }
 }
 
@@ -591,7 +593,7 @@ main {
 }
 
 .over2 {
-  background-color: rgb(183, 228, 199, 0.7) !important;
+  background-color: $whitish !important;
 
   & > .secondWeatherWindow {
     & > :last-child {
