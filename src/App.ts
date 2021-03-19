@@ -137,7 +137,7 @@ export default class App extends Vue {
         this.windChart.chart.width = chartWidth;
         this.tempChart.chart.width = chartWidth;
         this.hourlyForecast.chart.width = chartWidth;
-        this.hourlyForecast.chart.height = (window.innerHeight) * 0.48;
+        this.hourlyForecast.chart.height = chartHeight;
         this.feelsLikeChart.chart.width = chartWidth;
         this.feelsLikeChart.chart.height = chartHeight;
         this.tempChart.chart.height = chartHeight;
@@ -213,8 +213,7 @@ export default class App extends Vue {
   private query: string = '';
   private error: string = '';
   private coords: any = {};
-  private days = ['Monday', 'Tuesday', 'Wednesday',
-    'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  private days = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
   private weather: any = {};
 
   private static metricUnitSetter(name: string) {
@@ -230,12 +229,29 @@ export default class App extends Vue {
     return unit;
   }
 
+  /*eslint-disable */
+  private static easeOutBounce(pos: number) {
+    if ((pos) < (1 / 2.75)) {
+      return (7.5625 * pos * pos);
+    }
+    if (pos < (2 / 2.75)) {
+      return (7.5625 * (pos -= (1.5 / 2.75)) * pos + 0.75);
+    }
+    if (pos < (2.5 / 2.75)) {
+      return (7.5625 * (pos -= (2.25 / 2.75)) * pos + 0.9375);
+    }
+    return (7.5625 * (pos -= (2.625 / 2.75)) * pos + 0.984375);
+  };
+
+  /* eslint-enable */
+
   private hourlyForecast: any = {
     chart: {
       // type of diagram
       type: 'line',
-      marginLeft: 25,
-      marginRight: 10,
+      marginLeft: 2,
+      marginRight: 2,
+      marginTop: 2,
       marginBottom: 65,
       height: 0,
       width: 0,
@@ -246,8 +262,8 @@ export default class App extends Vue {
         stacking: 'normal',
         dataLabels: {
           color: 'black',
-          format: '{y}°C',
-          enabled: true
+          format: '{y}°C / {x}h',
+          enabled: true,
         }
       }
     },
@@ -266,6 +282,15 @@ export default class App extends Vue {
     series: [{
       name: 'Hourly Forecast',
       data: [],
+      zones: [{
+        value: 0,
+        color: '#f60000'
+      }, {
+        value: 5,
+        color: '#de7e00'
+      }, {
+        color: '#93d306'
+      }],
       color: '#74C69D',
       dataLabels: {
         style: {
@@ -281,27 +306,21 @@ export default class App extends Vue {
       max: 5,
       scrollbar: {
         enabled: true,
-        barBackgroundColor: 'gray',
         barBorderRadius: 7,
         barBorderWidth: 0,
-        buttonBackgroundColor: 'gray',
         buttonBorderWidth: 0,
-        buttonArrowColor: 'red',
         buttonBorderRadius: 7,
-        rifleColor: 'red',
-        trackBackgroundColor: 'yellow',
         trackBorderWidth: 1,
-        trackBorderColor: 'red',
         trackBorderRadius: 7
       },
-
+      tickLength: 0,
       rangeSelector: {
         selected: 1
       }
     },
     yAxis: {
       title: {
-        text: 'Temperature (°C)'
+        text: null
       },
       labels: {
         enabled: false
@@ -314,9 +333,10 @@ export default class App extends Vue {
       // @ts-ignore
       formatter() {
         // @ts-ignore
-        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+        return this.points.reduce((s, point) => `Hour: ${s}<br/>Celsius:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
       }
     },
+    dashStyle: 'shortdot',
     responsive: {
       rules: [{
         condition: {
@@ -353,9 +373,10 @@ export default class App extends Vue {
     chart: {
       // type of diagram
       type: 'area',
-      marginLeft: 25,
-      marginRight: 10,
-      marginBottom: 25,
+      marginLeft: 2,
+      marginRight: 2,
+      marginTop: 2,
+      marginBottom: 23,
       height: 0,
       width: 0
     },
@@ -426,8 +447,10 @@ export default class App extends Vue {
     chart: {
       // type of diagram
       type: 'column',
-      marginLeft: 25,
-      marginRight: 10,
+      marginLeft: 2,
+      marginRight: 2,
+      marginTop: 2,
+      marginBottom: 23,
       height: 0,
       width: 0
     },
@@ -458,6 +481,11 @@ export default class App extends Vue {
     series: [{
       name: 'Temperature',
       data: [],
+      animation: {
+        duration: 2000,
+        // Uses Math.easeOutBounce
+        easing: App.easeOutBounce
+      },
       color: '#1E5531',
       stacking: 'normal',
       dataLabels: {
@@ -497,9 +525,10 @@ export default class App extends Vue {
     chart: {
       // type of diagram
       type: 'column',
-      marginLeft: 25,
-      marginRight: 10,
-      marginBottom: 25,
+      marginLeft: 2,
+      marginRight: 2,
+      marginTop: 2,
+      marginBottom: 23,
       height: 0,
       width: 0
     },
@@ -531,6 +560,11 @@ export default class App extends Vue {
     series: [{
       name: 'Feels Like',
       data: [],
+      animation: {
+        duration: 2000,
+        // Uses Math.easeOutBounce
+        easing: App.easeOutBounce
+      },
       color: '#1E5531',
       dataLabels: {
         style: {

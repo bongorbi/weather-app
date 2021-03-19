@@ -107,21 +107,12 @@
             Wind
           </button>
         </div>
-        <div v-show="showTempChart " class="chartContainer">
-          <Chart :key="componentKey+3" ref="chart"
-                 class="diagram"
-                 :options="tempChart"/>
-        </div>
-        <div v-show="showWindChart" class="chartContainer">
-          <Chart :key="componentKey+1" ref="chart"
-                 class="diagram"
-                 :options="windChart"/>
-        </div>
-        <div v-show="showFeelsLikeChart" class="chartContainer">
-          <Chart :key="componentKey+2" ref="chart"
-                 class="diagram"
-                 :options="feelsLikeChart"/>
-        </div>
+        <ChartComponent v-show="showTempChart"
+                        :chartOptions="tempChart"/>
+        <ChartComponent v-show="showWindChart"
+                        :chartOptions="windChart"/>
+        <ChartComponent v-show="showFeelsLikeChart"
+                        :chartOptions="feelsLikeChart"/>
       </div>
     </main>
   </div>
@@ -168,20 +159,15 @@ html {
   justify-content: center;
 
   .diagram {
-    //border-radius: 16px;
-
-    .highcharts-root {
-      //border-radius: 16px;
-    }
 
     .highcharts-plot-background {
-      fill: aliceblue;
+      fill: $whitish;
     }
 
     .highcharts-xaxis-labels {
       & > * {
         fill: black !important;
-        font-size: 0.8rem !important;
+        font-size: 1rem !important;
       }
     }
 
@@ -192,20 +178,8 @@ html {
       }
     }
 
-    .highcharts-yaxis-labels {
-      & > * {
-        fill: #000000 !important;
-        font-size: 1rem !important;
-      }
-    }
-
     .highcharts-background {
       fill: $whitish;
-    }
-
-    .highcharts-plot-border {
-      stroke-width: 2px;
-      stroke: darkgreen;
     }
   }
 }
@@ -215,6 +189,7 @@ html {
   display: flex;
   justify-content: center;
   width: 93%;
+  margin-top: 20px;
   text-shadow: 1px 3px rgb(0 0 0 / 25%);
   background-color: rgba(255, 255, 255, 0.25);
   border-radius: 16px;
@@ -267,8 +242,8 @@ html {
   }
 
   & > .selected {
-    color: whitesmoke;
-    background-color: rgb(3, 7, 30);
+    color: black;
+    background-color: $white;
   }
 }
 
@@ -289,6 +264,7 @@ html {
 }
 
 #app {
+  background-image: url(../public/assets/coldBackground.jpg);
   -webkit-background-size: cover;
   transition: 0.4s;
   -webkit-font-smoothing: antialiased;
@@ -326,7 +302,7 @@ main {
   text-align: center;
   width: 100vw; /* percentage fixes the X axis white space when zoom out */
   padding: 5vh 10vw;
-  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.75));
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.85));
   background-repeat: no-repeat;
   position: absolute;
   height: 100%;
@@ -420,7 +396,7 @@ main {
         align-items: center;
         font-size: 5rem;
         font-weight: 900;
-        background-color: $lightgreen;
+        background-color: $darkyellow;
         border-radius: 16px;
         box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
       }
@@ -507,13 +483,20 @@ main {
         font-size: 2.5rem;
         transition-timing-function: ease-in-out;
         width: 110% !important;
+        height: 60px;
       }
       .search-box {
         display: flex;
-        height: 100%;
+        height: 50px;
+        padding: 10px 10px 0 10px;
 
         label {
           width: 90%;
+          height: 100%;
+
+          & > input {
+            height: 100%;
+          }
         }
 
         .fullscreen {
@@ -538,9 +521,16 @@ main {
   & > .downPage {
     height: 93vh;
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     flex-direction: column;
     align-items: center;
+
+    & > p:first-child {
+      margin-top: 10px;
+    }
+    &>p{
+      font-size: 1.5rem;
+    }
   }
 }
 
@@ -548,10 +538,7 @@ main {
   main {
     display: flex;
     flex-direction: column;
-    padding: 5% 20%;
-
-    & > .infoForecast {
-    }
+    padding: 4% 20%;
 
     .chartButtons {
       width: 100%;
@@ -559,23 +546,12 @@ main {
       margin-bottom: 10px;
     }
 
-    & .wind {
-    }
-
-    & .feelslike {
-    }
-
-    & .temp {
-    }
-
     & .downPage {
       height: 100%;
-
     }
   }
 }
 
-// mobile
 @media screen and (max-width: 360px) {
   .temp {
     font-size: 1.3rem;
@@ -590,9 +566,6 @@ main {
 @media (pointer: none), (pointer: coarse) {
   main {
     padding: 0
-  }
-  .search-box {
-    padding: 10px 10px 0 10px
   }
   #app {
     padding: 0;
@@ -611,7 +584,7 @@ main {
 }
 
 .bellow2 {
-  background-color: rgb(3, 7, 30) !important;
+  background-color: rgba(41, 3, 93, 0.85) !important;
   color: $whitish !important;
 
   & > .secondWeatherWindow {
@@ -623,7 +596,7 @@ main {
 }
 
 .over16 {
-  background-color: rgb(249, 65, 68, 0.8) !important;
+  background-color: rgb(222, 164, 19) !important;
 
   & > .secondWeatherWindow {
     & > :last-child {
