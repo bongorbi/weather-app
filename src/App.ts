@@ -4,10 +4,12 @@ import axios, {AxiosResponse, Method} from 'axios';
 import debounce from 'lodash/debounce';
 // @ts-ignore
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+import ChartComponent from '@/components/Chart.vue';
 
 @Component({
   components: {
     Chart,
+    ChartComponent,
     FontAwesomeIcon
   }
 })
@@ -231,17 +233,16 @@ export default class App extends Vue {
   private hourlyForecast: any = {
     chart: {
       // type of diagram
-      type: 'area',
+      type: 'line',
       marginLeft: 25,
       marginRight: 10,
+      marginBottom: 65,
       height: 0,
       width: 0,
-      zoomType: 'x',
-      panning: true,
-      panKey: 'shift'
+      panning: true
     },
     plotOptions: {
-      area: {
+      line: {
         stacking: 'normal',
         dataLabels: {
           color: 'black',
@@ -275,7 +276,28 @@ export default class App extends Vue {
     }],
     xAxis: {
       type: 'categories',
-      categories: App.chartHours()
+      categories: App.chartHours(),
+      min: 0,
+      max: 5,
+      scrollbar: {
+        enabled: true,
+        barBackgroundColor: 'gray',
+        barBorderRadius: 7,
+        barBorderWidth: 0,
+        buttonBackgroundColor: 'gray',
+        buttonBorderWidth: 0,
+        buttonArrowColor: 'red',
+        buttonBorderRadius: 7,
+        rifleColor: 'red',
+        trackBackgroundColor: 'yellow',
+        trackBorderWidth: 1,
+        trackBorderColor: 'red',
+        trackBorderRadius: 7
+      },
+
+      rangeSelector: {
+        selected: 1
+      }
     },
     yAxis: {
       title: {
@@ -294,6 +316,16 @@ export default class App extends Vue {
         // @ts-ignore
         return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
       }
+    },
+    responsive: {
+      rules: [{
+        condition: {
+          maxWidth: 500
+        },
+        chart: {
+          panning: true
+        }
+      }]
     }
   };
 
@@ -304,7 +336,7 @@ export default class App extends Vue {
     let n = 0;
     while (n < 48) {
       switch (currentHour) {
-        case 24:
+        case 23:
           currentHour = 0;
           break;
         default:
@@ -396,7 +428,6 @@ export default class App extends Vue {
       type: 'column',
       marginLeft: 25,
       marginRight: 10,
-      marginBottom: 25,
       height: 0,
       width: 0
     },
@@ -429,7 +460,6 @@ export default class App extends Vue {
       data: [],
       color: '#1E5531',
       stacking: 'normal',
-      minPointWidth: 50,
       dataLabels: {
         style: {
           fontSize: '1rem',

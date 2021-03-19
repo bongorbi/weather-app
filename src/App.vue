@@ -93,12 +93,8 @@
         </div>
       </div>
       <div v-show="!hideContent && !hideContent && error===''" class="downPage">
-        <div class="chartContainer">
-          <p>48 hours forecast:</p>
-          <Chart :key="componentKey" ref="chart"
-                 class="diagram"
-                 :options="hourlyForecast"/>
-        </div>
+        <p>48 hours forecast:</p>
+        <ChartComponent :chartOptions="hourlyForecast"/>
         <p>Next week's:</p>
         <div class="chartButtons">
           <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
@@ -148,10 +144,7 @@
   src: url("../public/fonts/Nunito/Nunito-LightItalic.ttf") format("truetype");
 }
 
-$whitish: rgba(255, 255, 255, 0.55);
-$thelightestgreen: #f6fceb;
-$darkgreen: rgba(234, 225, 0, 1);
-$lightgreen: rgba(234, 225, 0, 0.78);
+@import './src/colors.scss';
 
 * {
   box-sizing: border-box;
@@ -508,28 +501,26 @@ main {
       }
     }
 
-    @media screen and (max-width: 600px), (pointer: none), (pointer: coarse) {
+    @media (pointer: none), (pointer: coarse) {
       .search-bar:focus {
         background-color: rgba(255, 255, 255, 0.75);
-        font-size: 2rem;
+        font-size: 2.5rem;
         transition-timing-function: ease-in-out;
         width: 110% !important;
       }
       .search-box {
         display: flex;
+        height: 100%;
 
         label {
           width: 90%;
-
-          & > input {
-            height: 100%;
-          }
         }
 
         .fullscreen {
           height: 100%;
-          width: 10%;
-          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          border-radius: 10px;
           font-size: 1.7rem;
           padding: 10px;
           color: #313131;
