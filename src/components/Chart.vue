@@ -16,9 +16,7 @@ import {Chart} from 'highcharts-vue';
 })
 export default class ChartComponent extends Vue {
   @Prop()
-  private chartOptions;
-  @Prop()
-  private componentKey;
+  private chartOptions: any;
 }
 </script>
 

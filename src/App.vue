@@ -1,5 +1,6 @@
 <template>
   <div style="overflow:hidden">
+    <loading-overlay v-if="loading"/>
     <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()"/>
     <main @scroll.passive="changeScrollBtnIcon">
       <div class="infoForecast">
@@ -94,7 +95,7 @@
       </div>
       <div v-show="!hideContent && !hideContent && error===''" class="downPage">
         <p>48 hours forecast:</p>
-        <ChartComponent :chartOptions="hourlyForecast"/>
+        <ChartComponent :key="componentKey" :chartOptions="hourlyForecast"/>
         <p>Next week's:</p>
         <div class="chartButtons">
           <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
@@ -107,11 +108,11 @@
             Wind
           </button>
         </div>
-        <ChartComponent v-show="showTempChart"
+        <ChartComponent v-show="showTempChart" :key="componentKey+3"
                         :chartOptions="tempChart"/>
-        <ChartComponent v-show="showWindChart"
+        <ChartComponent v-show="showWindChart" :key="componentKey+1"
                         :chartOptions="windChart"/>
-        <ChartComponent v-show="showFeelsLikeChart"
+        <ChartComponent v-show="showFeelsLikeChart" :key="componentKey+2"
                         :chartOptions="feelsLikeChart"/>
       </div>
     </main>
@@ -185,13 +186,13 @@ html {
 }
 
 .error {
-  height: 100%;
+  height: 29%;
   display: flex;
   justify-content: center;
   width: 93%;
   margin-top: 20px;
   text-shadow: 1px 3px rgb(0 0 0 / 25%);
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: rgb(255 255 255 / 67%);
   border-radius: 16px;
   box-shadow: 3px 6px rgb(0 0 0 / 25%);
 
@@ -199,9 +200,8 @@ html {
     font-size: 3rem;
     align-items: center;
     display: flex;
-    font-family: Nunito-Regular, sans-serif;
     font-weight: 700;
-    color: #FFFF3F;
+    color: black;
   }
 }
 
@@ -285,12 +285,12 @@ html {
 }
 
 #app.over2 {
-  background-image: url(../public/assets/2-.jpg);
+  background-image: url(../public/assets/over2background.jpg);
   background-size: cover;
 }
 
 #app.over16 {
-  background-image: url(../public/assets/warm.jpg);
+  background-image: url(../public/assets/over16background.jpg);
   background-size: cover;
 }
 
@@ -525,10 +525,7 @@ main {
     flex-direction: column;
     align-items: center;
 
-    & > p:first-child {
-      margin-top: 10px;
-    }
-    &>p{
+    & > p {
       font-size: 1.5rem;
     }
   }
@@ -573,19 +570,19 @@ main {
 }
 
 .over2 {
-  background-color: $whitish !important;
-
+  background-color: rgb(48 49 46 / 99%) !important;
+  color: white !important;
   & > .secondWeatherWindow {
     & > :last-child {
-      color: rgb(3, 7, 30);
+      color: rgb(255, 255, 255);
       font-weight: 600;
     }
   }
 }
 
 .bellow2 {
-  background-color: rgba(41, 3, 93, 0.85) !important;
-  color: $whitish !important;
+  background-color: grey !important;
+  color: rgb(0 0 0) !important;
 
   & > .secondWeatherWindow {
     & > :last-child {
@@ -596,18 +593,18 @@ main {
 }
 
 .over16 {
-  background-color: rgb(222, 164, 19) !important;
+  background-color: #2b908f !important;
 
   & > .secondWeatherWindow {
     & > :last-child {
-      color: #293241;
+      color: white;
       font-weight: 600;
     }
   }
 }
 
 p {
-  color: $whitish;
+  color: white;
   font-size: 1.2rem;
   font-family: Nunito-Regular, sans-serif;
 }

@@ -5,12 +5,15 @@ import debounce from 'lodash/debounce';
 // @ts-ignore
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import ChartComponent from '@/components/Chart.vue';
+// import {isMobile} from 'mobile-device-detect';
+import LoadingOverlay from '@/components/LoadingOverlay.vue';
 
 @Component({
   components: {
     Chart,
     ChartComponent,
-    FontAwesomeIcon
+    FontAwesomeIcon,
+    LoadingOverlay
   }
 })
 export default class App extends Vue {
@@ -47,6 +50,7 @@ export default class App extends Vue {
     }
   }
 
+  private loading: boolean = false;
   private downButtonIcon: string = 'chevron-down';
   private scrollUpOrDown: string = 'scrollDown';
 
@@ -75,11 +79,6 @@ export default class App extends Vue {
   }
 
   private showOrHideCharts() {
-    // if (window.matchMedia('(min-aspect-ratio: 13/9)').matches) {
-    //   this.showWindChart = true;
-    //   this.showTempChart = true;
-    //   this.showFeelsLikeChart = true;
-    // } else {
     this.showWindChart = false;
     this.showTempChart = true;
     this.showFeelsLikeChart = false;
@@ -131,6 +130,10 @@ export default class App extends Vue {
         this.hourlyForecast.chart.width = chartWidth;
         this.hourlyForecast.chart.height = chartHeight;
         break;
+      // case isMobile:
+      //   console.log(isMobile)
+      //   this.mobileView = true;
+      //   break;
       default:
         chartWidth = window.innerWidth - (0.033 * window.innerWidth);
         this.mobileView = true;
@@ -252,18 +255,27 @@ export default class App extends Vue {
       marginLeft: 2,
       marginRight: 2,
       marginTop: 2,
-      marginBottom: 65,
       height: 0,
       width: 0,
       panning: true
     },
     plotOptions: {
-      line: {
-        stacking: 'normal',
+      series: {
         dataLabels: {
+          style: {
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            fontFamily: 'Trebuchet MS'
+          },
           color: 'black',
-          format: '{y}°C / {x}h',
+          format: '{y}°C </br> {x}h',
+          borderWidth: 2,
+          padding: 5,
+          shadow: true,
           enabled: true,
+          borderRadius: 5,
+          backgroundColor: 'rgba(252, 255, 197, 0.7)',
+          borderColor: '#AAA'
         }
       }
     },
@@ -291,13 +303,7 @@ export default class App extends Vue {
       }, {
         color: '#93d306'
       }],
-      color: '#74C69D',
-      dataLabels: {
-        style: {
-          fontSize: '1rem',
-          fontFamily: 'Trebuchet MS'
-        }
-      }
+      color: '#74C69D'
     }],
     xAxis: {
       type: 'categories',
@@ -437,7 +443,6 @@ export default class App extends Vue {
       shared: true,
       // @ts-ignore
       formatter() {
-        console.log(this);
         // @ts-ignore
         return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
       }
@@ -628,6 +633,7 @@ export default class App extends Vue {
   private imageNextToDeg = '';
 
   private request(url: string, method: Method, body?: any): Promise<any> {
+    this.loading = true;
     this.error = '';
     const request = axios.request({
       method,
@@ -636,11 +642,15 @@ export default class App extends Vue {
       data: body
     });
     return request
-      .then((response: AxiosResponse) => response.data)
+      .then((response: AxiosResponse) => {
+        this.loading = false;
+        return response.data;
+      })
       .catch((e: Error) => {
         this.error = 'No city was found...';
         this.hideContent = true;
         (this.$refs.input as HTMLInputElement).blur();
+        this.loading = false;
         throw e;
       });
   }
