@@ -8,13 +8,17 @@ import ChartComponent from '@/components/Chart.vue';
 // import {isMobile} from 'mobile-device-detect';
 import LoadingOverlay from '@/components/LoadingOverlay.vue';
 import ScrollDownButton from '@/components/ScrollDownButton.vue';
+import ChartButtons from '@/components/ChartButtons.vue';
+import {Buttons} from '@/commonconstants';
+
 @Component({
   components: {
     Chart,
     ChartComponent,
     FontAwesomeIcon,
     LoadingOverlay,
-    ScrollDownButton
+    ScrollDownButton,
+    ChartButtons
   }
 })
 export default class App extends Vue {
@@ -81,7 +85,7 @@ export default class App extends Vue {
 
   private showOrHideCharts() {
     this.showWindChart = false;
-    this.showTempChart = true;
+    this.showTemperatureChart = true;
     this.showFeelsLikeChart = false;
     // }
   }
@@ -123,13 +127,13 @@ export default class App extends Vue {
       // detects landscape mode
       case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
         chartWidth = window.innerWidth * 0.65;
-        chartHeight = window.innerHeight * 0.5;
+        chartHeight = window.innerHeight * 0.4;
         this.mobileView = false;
         this.windChart.chart.width = chartWidth;
         this.tempChart.chart.width = chartWidth;
         this.feelsLikeChart.chart.width = chartWidth;
         this.hourlyForecast.chart.width = chartWidth;
-        this.hourlyForecast.chart.height = chartHeight;
+        this.hourlyForecast.chart.height = window.innerHeight * 0.3;
         break;
       // case isMobile:
       //   console.log(isMobile)
@@ -211,7 +215,7 @@ export default class App extends Vue {
   private componentKey = 0;
   private showFeelsLikeChart = false;
   private showWindChart = false;
-  private showTempChart = true;
+  private showTemperatureChart = true;
   private apiKey = 'cab0c30b1dfc14ce360db2f0b4b5411b';
   private urlBase = 'https://api.openweathermap.org/data/2.5/';
   private query: string = '';
@@ -234,6 +238,8 @@ export default class App extends Vue {
   }
 
   /*eslint-disable */
+
+  // animation for chart when loads
   private static easeOutBounce(pos: number) {
     if ((pos) < (1 / 2.75)) {
       return (7.5625 * pos * pos);
@@ -610,22 +616,31 @@ export default class App extends Vue {
     }
   };
 
-  private showFeelsLike() {
-    this.showWindChart = false;
-    this.showTempChart = false;
-    this.showFeelsLikeChart = true;
-  }
+  private chartButtons: Buttons[] = [
+    {
+      title: 'Temperature',
+      chartName: this.tempChart,
+      selected: true
+    }, {
+      title: 'Feels Like',
+      chartName: this.feelsLikeChart,
+      selected: false
+    }, {
+      title: 'Wind',
+      chartName: this.windChart,
+      selected: false
+    }
+  ];
 
-  private showTemp() {
-    this.showWindChart = false;
-    this.showTempChart = true;
-    this.showFeelsLikeChart = false;
-  }
-
-  private showWind() {
-    this.showWindChart = true;
-    this.showTempChart = false;
-    this.showFeelsLikeChart = false;
+  private onChartButtonClick(buttonType: Buttons) {
+    this.chartButtons.forEach(button => {
+      if (button.selected) {
+        // eslint-disable-next-line no-param-reassign
+        button.selected = false;
+      }
+    });
+    const button = this.chartButtons.find(obj => obj.title === buttonType.title);
+    button!.selected = true;
   }
 
   private static pastWeekDays(array: any[], today: number) {
@@ -664,17 +679,13 @@ export default class App extends Vue {
     this.weatherSmallPicture.forEach((word, index) => {
       if (word.substring(0, 3).toLowerCase() === this.weather.weather[0].main.substring(0, 3).toLowerCase()) {
         const images = require.context('../public/assets/', true);
-        const image = App.requireAll(images);
+        const image = images.keys();
         this.imageNextToDeg = image[index].substring(2, image[index].length);
       }
     });
   }
 
-  private static requireAll(requireContext: any) {
-    return requireContext.keys();
-  }
-
-  private getImgPath(pic: any) {
+  private getImgPath(pic: string) {
     // eslint-disable-next-line global-require,import/no-dynamic-require
     return require(`../public/assets/${pic}`);
   }

@@ -56,7 +56,7 @@
           </div>
           <div v-if="typeof weather.main != 'undefined' && error===''" class="weather-wrap" :class="tempClass()">
             <div class="secondWeatherWindow">
-              <span>Minimum temp.:</span>
+              <span>Minimum temperature:</span>
               <span>{{ Math.round(weather.main.temp_min) }}°C</span>
             </div>
             <div class="secondWeatherWindow">
@@ -64,7 +64,7 @@
               <span>{{ Math.round(weather.main.feels_like) }}°C</span>
             </div>
             <div class="secondWeatherWindow">
-              <span>Maximum temp.:</span>
+              <span>Maximum temperature:</span>
               <span>{{ Math.round(weather.main.temp_max) }}°C</span>
             </div>
             <div class="secondWeatherWindow">
@@ -93,23 +93,13 @@
         <div class="tableAndTitleContainer">
           <p>Next week's:</p>
           <div>
-            <div class="chartButtons">
-              <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
-                Temperature
-              </button>
-              <button class="buttons" :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
-                Feels Like
-              </button>
-              <button class="buttons" :class="{'selected':showWindChart}" @click="showWind">
-                Wind
-              </button>
-            </div>
-            <ChartComponent v-show="showTempChart" :key="componentKey+3"
-                            :chartOptions="tempChart"/>
-            <ChartComponent v-show="showWindChart" :key="componentKey+1"
-                            :chartOptions="windChart"/>
-            <ChartComponent v-show="showFeelsLikeChart" :key="componentKey+2"
-                            :chartOptions="feelsLikeChart"/>
+            <ChartButtons :chart-types="chartButtons" @button-click="onChartButtonClick"/>
+            <ChartComponent v-for="chart in chartButtons" v-show="chart.selected" :key="chart.title"
+                            :chartOptions="chart.chartName"/>
+            <!--            <ChartComponent v-show="showWindChart" :key="componentKey+1"-->
+            <!--                            :chartOptions="windChart"/>-->
+            <!--            <ChartComponent v-show="showFeelsLikeChart" :key="componentKey+2"-->
+            <!--                            :chartOptions="feelsLikeChart"/>-->
           </div>
         </div>
       </div>
@@ -201,47 +191,6 @@ html {
   }
 }
 
-.chartButtons {
-  display: grid;
-  grid-template-columns: 33.3% 33.3% 33.3%;
-  grid-column-gap: 1px;
-  height: 25px;
-
-  & > .buttons {
-    box-sizing: border-box;
-    border: 0;
-    align-items: center;
-    font-family: Nunito-Regular, sans-serif !important;
-    justify-content: center;
-    border: none;
-    outline: none;
-    user-select: none;
-    white-space: nowrap;
-    cursor: pointer;
-    color: black;
-    min-height: 25px;
-    font-size: 1rem;
-    background-color: $whitish;
-    top: 0;
-    left: 0;
-    transition: all .15s linear 0s;
-    position: relative;
-    display: inline-block;
-    letter-spacing: 1px;
-  }
-
-  @media screen and (max-width: 500px) {
-    .buttons {
-      font-size: 1rem;
-    }
-  }
-
-  & > .selected {
-    color: black;
-    background-color: $white;
-  }
-}
-
 //ugly fix for loading background on mobile
 #app:before {
   content: "";
@@ -321,14 +270,14 @@ main {
 
   .weather-wrap {
     display: flex;
-    padding: 2% 8%;
+    padding: 2% 2%;
     background-color: rgba(255, 255, 255, 0.55);
     border-radius: 16px;
     min-height: 39vh;
     margin-bottom: 10px;
     box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
-    width: 72%;
-    justify-content: space-around;
+    width: 70%;
+    justify-content: space-between;
     flex-direction: column;
 
     @media screen and (max-width: 683px) {
@@ -345,6 +294,8 @@ main {
       font-size: 2rem;
       padding: 10px 30px;
       text-align: left;
+      border-bottom: 1px solid $whitish !important;
+      width: 100%;
 
       & > * {
         font-family: Nunito-Regular, sans-serif;
@@ -519,21 +470,37 @@ main {
     }
   }
 }
-
+//desktop mode
 @media screen and (min-aspect-ratio: 13/9) {
   main {
-    display: flex;
-    flex-direction: column;
-    padding: 4% 20%;
+    display: grid;
+    grid-template-rows: 100vh 100vh;
+    padding: 3% 20%;
 
-    .chartButtons {
-      width: 100%;
-      height: 20px;
-      margin-bottom: 10px;
+    &.infoForecast {
+      height: 100vh;
+    }
+
+    :nth-child(2).weather-wrap {
+      display: grid;
+      grid-template-columns: 50% 50%;
+      grid-template-rows: auto auto auto;
     }
 
     & .downPage {
-      height: 100%;
+      height: 100vh;
+
+      & .chartButtons {
+        min-height: 40px;
+
+        & > button {
+          font-size: 1.8rem !important;
+        }
+      }
+
+      p {
+        font-size: 1.8rem
+      }
     }
   }
 }
@@ -564,8 +531,9 @@ main {
 
   & > .secondWeatherWindow {
     & > :last-child {
-      color: rgb(255, 255, 255);
+      color: rgb(181, 231, 21);
       font-weight: 600;
+      font-size: 1.7rem;
     }
   }
 }
