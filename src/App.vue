@@ -1,6 +1,7 @@
 <template>
   <div style="overflow:hidden">
     <loading-overlay v-if="loading"/>
+    <!--    background image-->
     <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()"/>
     <main @scroll.passive="changeScrollBtnIcon">
       <div class="infoForecast">
@@ -80,40 +81,37 @@
             </div>
           </div>
         </div>
-        <div v-if="!hideContent && error===''&& mobileView" class="downButton">
-          <button
-            class="scrollButton"
-            :class="typeof weather.main != 'undefined' && tempClass()"
-            @click="scrollButton">
-            <font-awesome-icon
-              ref="functionButton"
-              aria-hidden="true"
-              :icon="downButtonIcon"
-              class="icon"/>
-          </button>
-        </div>
+        <ScrollDownButton v-if="!hideContent && error===''&& mobileView" :down-button-icon="downButtonIcon"
+                          :custom-class="typeof weather.main != 'undefined' && tempClass()"
+                          @emit-scroll="scrollButton"/>
       </div>
       <div v-show="!hideContent && !hideContent && error===''" class="downPage">
-        <p>48 hours forecast:</p>
-        <ChartComponent :key="componentKey" :chartOptions="hourlyForecast"/>
-        <p>Next week's:</p>
-        <div class="chartButtons">
-          <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
-            Temperature
-          </button>
-          <button class="buttons" :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
-            Feels Like
-          </button>
-          <button class="buttons" :class="{'selected':showWindChart}" @click="showWind">
-            Wind
-          </button>
+        <div class="tableAndTitleContainer">
+          <p>48 hours forecast:</p>
+          <ChartComponent :key="componentKey" :chartOptions="hourlyForecast"/>
         </div>
-        <ChartComponent v-show="showTempChart" :key="componentKey+3"
-                        :chartOptions="tempChart"/>
-        <ChartComponent v-show="showWindChart" :key="componentKey+1"
-                        :chartOptions="windChart"/>
-        <ChartComponent v-show="showFeelsLikeChart" :key="componentKey+2"
-                        :chartOptions="feelsLikeChart"/>
+        <div class="tableAndTitleContainer">
+          <p>Next week's:</p>
+          <div>
+            <div class="chartButtons">
+              <button class="buttons" :class="{'selected':showTempChart}" @click="showTemp">
+                Temperature
+              </button>
+              <button class="buttons" :class="{'selected':showFeelsLikeChart}" @click="showFeelsLike">
+                Feels Like
+              </button>
+              <button class="buttons" :class="{'selected':showWindChart}" @click="showWind">
+                Wind
+              </button>
+            </div>
+            <ChartComponent v-show="showTempChart" :key="componentKey+3"
+                            :chartOptions="tempChart"/>
+            <ChartComponent v-show="showWindChart" :key="componentKey+1"
+                            :chartOptions="windChart"/>
+            <ChartComponent v-show="showFeelsLikeChart" :key="componentKey+2"
+                            :chartOptions="feelsLikeChart"/>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -124,7 +122,6 @@
 
 <style lang="scss">
 @import 'https://code.highcharts.com/css/highcharts.css';
-@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
 
 @font-face {
   font-family: "Nunito-Regular";
@@ -156,7 +153,6 @@ html {
   transition: 0.8s;
   display: flex;
   flex-direction: column;
-  margin: 5px 0;
   justify-content: center;
 
   .diagram {
@@ -207,9 +203,8 @@ html {
 
 .chartButtons {
   display: grid;
-  grid-template-columns: 33% 33% 33%;
-  grid-column-gap: 2px;
-  width: 96%;
+  grid-template-columns: 33.3% 33.3% 33.3%;
+  grid-column-gap: 1px;
   height: 25px;
 
   & > .buttons {
@@ -255,7 +250,7 @@ html {
   left: 0;
   top: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   z-index: -10;
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -280,17 +275,17 @@ html {
 }
 
 #app.under2 {
-  background-image: url(../public/assets/coldBackground.jpg);
+  background-image: url(../public/assets/coldBackground.jpg) !important;
   background-size: cover;
 }
 
 #app.over2 {
-  background-image: url(../public/assets/over2background.jpg);
+  background-image: url(../public/assets/over2background.jpg) !important;
   background-size: cover;
 }
 
 #app.over16 {
-  background-image: url(../public/assets/over16background.jpg);
+  background-image: url(../public/assets/over16background.jpg) !important;
   background-size: cover;
 }
 
@@ -424,19 +419,6 @@ main {
     display: grid;
     grid-template-rows: 8% 83.5% 7%;
 
-    & .scrollButton {
-      width: 100%;
-      height: 100%;
-      background: $whitish;
-      border: none;
-      outline: none;
-      margin: 10px 0;
-
-      & > * {
-        font-size: 3rem;
-      }
-    }
-
     & > .contentContainer {
       justify-content: center;
       display: flex;
@@ -525,7 +507,14 @@ main {
     flex-direction: column;
     align-items: center;
 
-    & > p {
+    & > .tableAndTitleContainer {
+      background-color: $whitish;
+      padding: 5px 0 0 0;
+    }
+
+    p {
+      color: black;
+      padding: 0 0 5px 0;
       font-size: 1.5rem;
     }
   }
@@ -572,6 +561,7 @@ main {
 .over2 {
   background-color: rgb(48 49 46 / 99%) !important;
   color: white !important;
+
   & > .secondWeatherWindow {
     & > :last-child {
       color: rgb(255, 255, 255);

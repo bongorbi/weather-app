@@ -7,13 +7,14 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import ChartComponent from '@/components/Chart.vue';
 // import {isMobile} from 'mobile-device-detect';
 import LoadingOverlay from '@/components/LoadingOverlay.vue';
-
+import ScrollDownButton from '@/components/ScrollDownButton.vue';
 @Component({
   components: {
     Chart,
     ChartComponent,
     FontAwesomeIcon,
-    LoadingOverlay
+    LoadingOverlay,
+    ScrollDownButton
   }
 })
 export default class App extends Vue {
@@ -117,7 +118,7 @@ export default class App extends Vue {
 
   private resizeChart() {
     let chartWidth;
-    let chartHeight = (window.innerHeight) * 0.35;
+    let chartHeight = (window.innerHeight) * 0.39;
     switch (true) {
       // detects landscape mode
       case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
@@ -272,6 +273,7 @@ export default class App extends Vue {
           borderWidth: 2,
           padding: 5,
           shadow: true,
+          allowOverlap: true,
           enabled: true,
           borderRadius: 5,
           backgroundColor: 'rgba(252, 255, 197, 0.7)',
@@ -392,7 +394,8 @@ export default class App extends Vue {
         dataLabels: {
           color: 'black',
           format: '{y} m/s',
-          enabled: true
+          enabled: true,
+          fontSize: '3rem'
         }
       },
       series: {
@@ -419,7 +422,9 @@ export default class App extends Vue {
         style: {
           fontSize: '1rem',
           fontFamily: 'Trebuchet MS'
-        }
+        },
+        enabled: true,
+        allowOverlap: true
       }
     }],
     xAxis: {
