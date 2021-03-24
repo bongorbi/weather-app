@@ -270,20 +270,19 @@ export default class App extends Vue {
       series: {
         dataLabels: {
           style: {
-            fontSize: '1rem',
-            fontWeight: 'bold',
+            textOutline: 0,
+            fontSize: '0.8rem',
             fontFamily: 'Trebuchet MS'
           },
-          color: 'black',
           format: '{y}°C </br> {x}h',
           borderWidth: 2,
           padding: 5,
           shadow: true,
           allowOverlap: true,
           enabled: true,
-          borderRadius: 5,
-          backgroundColor: 'rgba(252, 255, 197, 0.7)',
-          borderColor: '#AAA'
+          borderRadius: 1,
+          y: -15,
+          shape: 'callout'
         }
       }
     },
@@ -401,7 +400,13 @@ export default class App extends Vue {
           color: 'black',
           format: '{y} m/s',
           enabled: true,
-          fontSize: '3rem'
+          fontSize: '3rem',
+          style: {
+            textOutline: 0,
+            fontSize: '1rem',
+            fontFamily: 'Trebuchet MS'
+          },
+          allowOverlap: true
         }
       },
       series: {
@@ -423,15 +428,7 @@ export default class App extends Vue {
     series: [{
       name: 'Wind',
       data: [],
-      color: '#74C69D',
-      dataLabels: {
-        style: {
-          fontSize: '1rem',
-          fontFamily: 'Trebuchet MS'
-        },
-        enabled: true,
-        allowOverlap: true
-      }
+      color: '#74C69D'
     }],
     xAxis: {
       type: 'category',
@@ -473,6 +470,9 @@ export default class App extends Vue {
     plotOptions: {
       column: {
         dataLabels: {
+          style: {
+            textOutline: 0
+          },
           color: 'black',
           format: '{y}°C',
           enabled: true
@@ -552,6 +552,11 @@ export default class App extends Vue {
       column: {
         stacking: 'normal',
         dataLabels: {
+          style: {
+            textOutline: 0,
+            fontSize: '1rem',
+            fontFamily: 'Trebuchet MS'
+          },
           color: 'black',
           format: '{y}°C',
           enabled: true
@@ -581,13 +586,7 @@ export default class App extends Vue {
         // Uses Math.easeOutBounce
         easing: App.easeOutBounce
       },
-      color: '#1E5531',
-      dataLabels: {
-        style: {
-          fontSize: '1rem',
-          fontFamily: 'Trebuchet MS'
-        }
-      }
+      color: '#1E5531'
     }],
     xAxis: {
       type: 'category',

@@ -111,8 +111,6 @@
 </script>
 
 <style lang="scss">
-@import 'https://code.highcharts.com/css/highcharts.css';
-
 @font-face {
   font-family: "Nunito-Regular";
   src: url("../public/fonts/Nunito/Nunito-Regular.ttf") format("truetype");
@@ -146,6 +144,16 @@ html {
   justify-content: center;
 
   .diagram {
+
+    .highcharts-data-label-box {
+      fill: #06ffe2;
+      stroke: gray;
+      stroke-width: 1px;
+    }
+
+    .highcharts-data-label {
+      font-weight: normal;
+    }
 
     .highcharts-plot-background {
       fill: $whitish;
@@ -470,6 +478,7 @@ main {
     }
   }
 }
+
 //desktop mode
 @media screen and (min-aspect-ratio: 13/9) {
   main {
