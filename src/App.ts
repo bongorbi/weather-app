@@ -316,7 +316,8 @@ export default class App extends Vue {
       type: 'categories',
       categories: App.chartHours(),
       min: 0,
-      max: 5,
+      // eslint-disable-next-line no-restricted-globals
+      max: (innerWidth > 600) ? 10 : 5,
       scrollbar: {
         enabled: true,
         barBorderRadius: 7,
