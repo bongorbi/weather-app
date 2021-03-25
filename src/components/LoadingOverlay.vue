@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-property-decorator';
+import {Vue} from 'vue-property-decorator';
 
 export default class LoadingOverlay extends Vue {
 }
@@ -50,6 +50,7 @@ export default class LoadingOverlay extends Vue {
     border: var(--loading-overlay-spinner-border-size, 10px) solid black;
     border-top-color: $whitish;
     border-radius: 50%;
+    z-index: 1111111;
     width: var(--loading-overlay-spinner-size, 115px);
     height: var(--loading-overlay-spinner-size, 115px);
     -webkit-animation: spin-data-v-681413a4 1s cubic-bezier(0.4, 0.15, 0.6, 0.85) infinite;

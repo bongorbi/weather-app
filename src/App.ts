@@ -27,12 +27,9 @@ export default class App extends Vue {
   }
 
   async mounted() {
-    this.showOrHideCharts();
     this.resizeChart();
     window.onresize = debounce(() => {
       this.resizeChart();
-      this.forceRerender();
-      this.showOrHideCharts();
     }, 10);
     await this.getLocation();
   }
@@ -83,16 +80,10 @@ export default class App extends Vue {
     }
   }
 
-  private showOrHideCharts() {
-    this.showWindChart = false;
-    this.showTemperatureChart = true;
-    this.showFeelsLikeChart = false;
-    // }
-  }
-
   private hideAndBlurContent() {
     this.blurBackground = !this.blurBackground;
     this.hideContent = !this.hideContent;
+    // document.getElementById('backgroundImg')!.style.height = window.visualViewport.height;
   }
 
   private async getLocation() {
@@ -109,6 +100,7 @@ export default class App extends Vue {
       this.coords.lat = crd.latitude;
       App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
       await this.getWeatherByCoords();
+      await this.backgroundImage();
     };
 
     function error(err: any) {
@@ -116,6 +108,7 @@ export default class App extends Vue {
     }
 
     navigator.geolocation.getCurrentPosition(success, error, options);
+
   }
 
   private hideContent: boolean = false;
@@ -173,27 +166,17 @@ export default class App extends Vue {
     return cssClass;
   }
 
+  private backgroundImgSrc = '';
+
   private backgroundImage() {
     const {temp} = this.weather.main;
-    let background = '';
-    switch (true) {
-      default:
-        background = '';
-        break;
-      case temp <= 2:
-        background = 'under2';
-        break;
-      case temp > 2 && temp < 16:
-        background = 'over2';
-        break;
-      case temp >= 16:
-        background = 'over16';
-        break;
+    if (temp <= 2) {
+      this.backgroundImgSrc = `url(${require('../public/assets/coldBackground.jpg')})`;
+    } else if (temp > 2 && temp < 16) {
+      this.backgroundImgSrc = `url(${require('../public/assets/over2background.jpg')})`;
+    } else if (temp >= 16) {
+      this.backgroundImgSrc = `url(${require('../public/assets/over16background.jpg')})`;
     }
-    if (this.blurBackground) {
-      background = `${background} blurBackground`;
-    }
-    return background;
   }
 
   private async takeAllImages() {
@@ -206,16 +189,8 @@ export default class App extends Vue {
     });
   }
 
-  private forceRerender(): void {
-    this.componentKey += 1;
-  }
-
   private mobileView: boolean = false;
   private blurBackground: boolean = false;
-  private componentKey = 0;
-  private showFeelsLikeChart = false;
-  private showWindChart = false;
-  private showTemperatureChart = true;
   private apiKey = 'cab0c30b1dfc14ce360db2f0b4b5411b';
   private urlBase = 'https://api.openweathermap.org/data/2.5/';
   private query: string = '';
@@ -258,7 +233,7 @@ export default class App extends Vue {
   private hourlyForecast: any = {
     chart: {
       // type of diagram
-      type: 'line',
+      type: 'spline',
       marginLeft: 2,
       marginRight: 2,
       marginTop: 2,
@@ -267,11 +242,11 @@ export default class App extends Vue {
       panning: true
     },
     plotOptions: {
-      series: {
+      spline: {
         dataLabels: {
           style: {
             textOutline: 0,
-            fontSize: '0.8rem',
+            fontSize: '0.9rem',
             fontFamily: 'Trebuchet MS'
           },
           format: '{y}°C </br> {x}h',
@@ -303,14 +278,14 @@ export default class App extends Vue {
       data: [],
       zones: [{
         value: 0,
-        color: '#f60000'
+        color: '#486eb1'
       }, {
         value: 5,
-        color: '#de7e00'
+        color: '#fea82f'
       }, {
-        color: '#93d306'
+        color: '#ea515f'
       }],
-      color: '#74C69D'
+      color: null
     }],
     xAxis: {
       type: 'categories',
@@ -350,7 +325,6 @@ export default class App extends Vue {
         return this.points.reduce((s, point) => `Hour: ${s}<br/>Celsius:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
       }
     },
-    dashStyle: 'shortdot',
     responsive: {
       rules: [{
         condition: {
@@ -386,7 +360,7 @@ export default class App extends Vue {
   private windChart: any = {
     chart: {
       // type of diagram
-      type: 'area',
+      type: 'spline',
       marginLeft: 2,
       marginRight: 2,
       marginTop: 2,
@@ -395,7 +369,7 @@ export default class App extends Vue {
       width: 0
     },
     plotOptions: {
-      area: {
+      spline: {
         stacking: 'normal',
         dataLabels: {
           color: 'black',
@@ -428,8 +402,7 @@ export default class App extends Vue {
     },
     series: [{
       name: 'Wind',
-      data: [],
-      color: '#74C69D'
+      data: []
     }],
     xAxis: {
       type: 'category',
@@ -500,10 +473,9 @@ export default class App extends Vue {
       data: [],
       animation: {
         duration: 2000,
-        // Uses Math.easeOutBounce
         easing: App.easeOutBounce
       },
-      color: '#1E5531',
+      color: null,
       stacking: 'normal',
       dataLabels: {
         style: {
@@ -584,10 +556,9 @@ export default class App extends Vue {
       data: [],
       animation: {
         duration: 2000,
-        // Uses Math.easeOutBounce
         easing: App.easeOutBounce
       },
-      color: '#1E5531'
+      color: null
     }],
     xAxis: {
       type: 'category',
@@ -707,6 +678,7 @@ export default class App extends Vue {
     (this.$refs.input as HTMLInputElement).blur();
     await this.setImageName();
     await this.getWeatherForNextDays();
+    await this.backgroundImage();
   }
 
   private async getWeatherByCoords() {
@@ -722,9 +694,9 @@ export default class App extends Vue {
   private async getWeatherForNextDays() {
     function colorPicker(temp: number) {
       if (temp > 0) {
-        return '#74C69D';
+        return '#ea515f';
       }
-      return '#E63946';
+      return '#486eb1';
     }
 
     const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');

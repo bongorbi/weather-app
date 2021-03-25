@@ -1,8 +1,8 @@
 <template>
-  <div style="overflow:hidden">
+  <div id="main" style="overflow:hidden">
     <loading-overlay v-if="loading"/>
-    <!--    background image-->
-    <div id="app" :class="typeof weather.main != 'undefined' && backgroundImage()"/>
+    <div id="backgroundImg" :style="{'background-image': backgroundImgSrc}"
+         :class="[blurBackground?'blurBackground fixed':'']"/>
     <main @scroll.passive="changeScrollBtnIcon">
       <div class="infoForecast">
         <div class="search-box">
@@ -85,21 +85,20 @@
                           :custom-class="typeof weather.main != 'undefined' && tempClass()"
                           @emit-scroll="scrollButton"/>
       </div>
-      <div v-show="!hideContent && !hideContent && error===''" class="downPage">
+      <div v-show="!hideContent && error===''&& typeof weather.main != 'undefined'"
+           class="downPage">
         <div class="tableAndTitleContainer">
           <p>48 hours forecast:</p>
-          <ChartComponent :key="componentKey" :chartOptions="hourlyForecast"/>
+          <ChartComponent :chartOptions="hourlyForecast" :class="typeof weather.main != 'undefined' && tempClass()"
+          />
         </div>
         <div class="tableAndTitleContainer">
           <p>Next week's:</p>
           <div>
             <ChartButtons :chart-types="chartButtons" @button-click="onChartButtonClick"/>
-            <ChartComponent v-for="chart in chartButtons" v-show="chart.selected" :key="chart.title"
+            <ChartComponent v-for="chart in chartButtons" v-show="chart.selected"
+                            :class="typeof weather.main != 'undefined' && tempClass()"
                             :chartOptions="chart.chartName"/>
-            <!--            <ChartComponent v-show="showWindChart" :key="componentKey+1"-->
-            <!--                            :chartOptions="windChart"/>-->
-            <!--            <ChartComponent v-show="showFeelsLikeChart" :key="componentKey+2"-->
-            <!--                            :chartOptions="feelsLikeChart"/>-->
           </div>
         </div>
       </div>
@@ -146,13 +145,9 @@ html {
   .diagram {
 
     .highcharts-data-label-box {
-      fill: #06ffe2;
+      fill: rgb(253, 251, 251, 0.1);
       stroke: gray;
       stroke-width: 1px;
-    }
-
-    .highcharts-data-label {
-      font-weight: normal;
     }
 
     .highcharts-plot-background {
@@ -199,64 +194,34 @@ html {
   }
 }
 
-//ugly fix for loading background on mobile
-#app:before {
-  content: "";
-  display: block;
+.fixed {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
   position: fixed;
-  left: 0;
-  top: 0;
+}
+
+#backgroundImg {
+  display: block;
   width: 100%;
   height: 100vh;
-  z-index: -10;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
 }
 
-#app {
-  background-image: url(../public/assets/coldBackground.jpg);
-  -webkit-background-size: cover;
-  transition: 0.4s;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  height: 100vh;
-  color: #2c3e50;
-  padding: 5vh 10vw;
-  overflow: auto;
-  /* Center and scale the image nicely */
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-#app.under2 {
-  background-image: url(../public/assets/coldBackground.jpg) !important;
-  background-size: cover;
-}
-
-#app.over2 {
-  background-image: url(../public/assets/over2background.jpg) !important;
-  background-size: cover;
-}
-
-#app.over16 {
-  background-image: url(../public/assets/over16background.jpg) !important;
-  background-size: cover;
-}
-
 main {
+  position: fixed;
   display: grid;
   grid-template-rows: 100vh 87vh;
   scroll-behavior: smooth;
   overflow: auto;
   text-align: center;
-  width: 100vw; /* percentage fixes the X axis white space when zoom out */
+  width: 100vw;
   padding: 5vh 10vw;
-  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.85));
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.0));
   background-repeat: no-repeat;
-  position: absolute;
   height: 100%;
   top: 50%;
   left: 50%;
@@ -535,7 +500,7 @@ main {
 }
 
 .over2 {
-  background-color: rgb(48 49 46 / 99%) !important;
+  background-color: rgb(67, 87, 26) !important;
   color: white !important;
 
   & > .secondWeatherWindow {
@@ -548,19 +513,18 @@ main {
 }
 
 .bellow2 {
-  background-color: grey !important;
-  color: rgb(0 0 0) !important;
+  background-color: $whitish !important;
+  color: black !important;
 
   & > .secondWeatherWindow {
     & > :last-child {
-      color: white;
       font-weight: 600;
     }
   }
 }
 
 .over16 {
-  background-color: #2b908f !important;
+  background-color: #8093a2 !important;
 
   & > .secondWeatherWindow {
     & > :last-child {
