@@ -5,7 +5,7 @@ import debounce from 'lodash/debounce';
 // @ts-ignore
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import ChartComponent from '@/components/Chart.vue';
-// import {isMobile} from 'mobile-device-detect';
+import {isMobile} from 'mobile-device-detect';
 import LoadingOverlay from '@/components/LoadingOverlay.vue';
 import ScrollDownButton from '@/components/ScrollDownButton.vue';
 import ChartButtons from '@/components/ChartButtons.vue';
@@ -24,9 +24,16 @@ import {Buttons} from '@/commonconstants';
 export default class App extends Vue {
   async created() {
     await this.takeAllImages();
+    this.infoForecastClassHeight = document.getElementById('infoForecast')!.style.height;
+    console.log(document.getElementById('infoForecast')!.style);
   }
 
+  private windowHeight = 0;
+  private infoForecastClassHeight = '';
+
   async mounted() {
+    // взима височината на екрана в началото, за да я използваме по-натам, да предотвратим свиване на фона на мобилни устройства, след като кликнем на инпуита
+    this.windowHeight = window.innerHeight;
     this.resizeChart();
     window.onresize = debounce(() => {
       this.resizeChart();
@@ -38,7 +45,6 @@ export default class App extends Vue {
     if (this.mobileView) {
       const doc = window.document;
       const docEl = doc.documentElement;
-
       // @ts-ignore
       const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
       // @ts-ignore
@@ -80,10 +86,17 @@ export default class App extends Vue {
     }
   }
 
+  private resizeBackgroundImg() {
+    if (isMobile) {
+      document.getElementById('backgroundImg')!.style.setProperty('height', `${this.windowHeight}px`);
+      document.getElementById('backgroundImg')!.style.setProperty('bottom', '0px');
+    }
+  }
+
   private hideAndBlurContent() {
+    this.resizeBackgroundImg();
     this.blurBackground = !this.blurBackground;
     this.hideContent = !this.hideContent;
-    // document.getElementById('backgroundImg')!.style.height = window.visualViewport.height;
   }
 
   private async getLocation() {
@@ -108,7 +121,6 @@ export default class App extends Vue {
     }
 
     navigator.geolocation.getCurrentPosition(success, error, options);
-
   }
 
   private hideContent: boolean = false;

@@ -1,10 +1,8 @@
 <template>
-  <div id="main" style="overflow:hidden">
+  <div id="backgroundImg" :style="{'background-image': backgroundImgSrc}">
     <loading-overlay v-if="loading"/>
-    <div id="backgroundImg" :style="{'background-image': backgroundImgSrc}"
-         :class="[blurBackground?'blurBackground fixed':'']"/>
     <main @scroll.passive="changeScrollBtnIcon">
-      <div class="infoForecast">
+      <div id="infoForecast" class="infoForecast">
         <div class="search-box">
           <label>
             <input
@@ -96,7 +94,8 @@
           <p>Next week's:</p>
           <div>
             <ChartButtons :chart-types="chartButtons" @button-click="onChartButtonClick"/>
-            <ChartComponent v-for="chart in chartButtons" v-show="chart.selected"
+            <ChartComponent v-for="(chart, index) in chartButtons" v-show="chart.selected"
+                            :key="index"
                             :class="typeof weather.main != 'undefined' && tempClass()"
                             :chartOptions="chart.chartName"/>
           </div>
@@ -142,7 +141,6 @@ html {
   flex-direction: column;
   justify-content: center;
 
-  .diagram {
 
     .highcharts-data-label-box {
       fill: rgb(253, 251, 251, 0.1);
@@ -171,7 +169,6 @@ html {
     .highcharts-background {
       fill: $whitish;
     }
-  }
 }
 
 .error {
@@ -203,6 +200,7 @@ html {
 
 #backgroundImg {
   display: block;
+  position: fixed;
   width: 100%;
   height: 100vh;
   -webkit-background-size: cover;
@@ -212,24 +210,22 @@ html {
 }
 
 main {
-  position: fixed;
   display: grid;
   grid-template-rows: 100vh 87vh;
   scroll-behavior: smooth;
   overflow: auto;
+  position: relative;
   text-align: center;
-  width: 100vw;
   padding: 5vh 10vw;
-  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.0));
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0));
   background-repeat: no-repeat;
   height: 100%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   z-index: 2;
 
   & > .infoForecast {
     grid-row: 1;
+    position: absolute;
+    width: 100vw;
   }
 
   & > .downPage {
@@ -249,7 +245,6 @@ main {
     min-height: 39vh;
     margin-bottom: 10px;
     box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
-    width: 70%;
     justify-content: space-between;
     flex-direction: column;
 
@@ -341,7 +336,7 @@ main {
   .infoForecast {
     height: 100vh;
     display: grid;
-    grid-template-rows: 8% 83.5% 7%;
+    grid-template-rows:6% 86% 7%;
 
     & > .contentContainer {
       justify-content: center;
@@ -426,10 +421,10 @@ main {
 
   & > .downPage {
     height: 93vh;
-    display: flex;
+    display: grid;
     justify-content: space-evenly;
-    flex-direction: column;
-    align-items: center;
+    grid-template-rows: auto auto;
+    grid-row-gap: 5px;
 
     & > .tableAndTitleContainer {
       background-color: $whitish;
@@ -439,7 +434,7 @@ main {
     p {
       color: black;
       padding: 0 0 5px 0;
-      font-size: 1.5rem;
+      font-size: 1.2rem;
     }
   }
 }
