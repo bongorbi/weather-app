@@ -16,7 +16,7 @@
               @keypress.enter="getWeather">
           </label>
           <button
-            v-if="!hideContent && mobileView"
+            v-if="!hideContent && isMobile"
             class="fullscreen"
             @click="goFullscreen">
             <font-awesome-icon
@@ -28,7 +28,7 @@
         </div>
         <div v-if="!hideContent" class="contentContainer">
           <div v-if="error!==''" class="error">
-            <p> {{ error }} </p>
+            <img id="errImage" src="../public/assets/nothingFound.png" alt="nothing-found">
           </div>
           <div v-if="typeof weather.main != 'undefined' && error===''" class="weather-wrap">
             <div class="location-box">
@@ -79,7 +79,8 @@
             </div>
           </div>
         </div>
-        <ScrollDownButton v-if="!hideContent && error===''&& mobileView" :down-button-icon="downButtonIcon"
+        <ScrollDownButton v-if="!hideContent && typeof weather.main != 'undefined'&& error===''&& isMobile"
+                          :down-button-icon="downButtonIcon"
                           :custom-class="typeof weather.main != 'undefined' && tempClass()"
                           @emit-scroll="scrollButton"/>
       </div>
@@ -129,78 +130,41 @@ html {
   scroll-behavior: smooth;
 }
 
-.blurBackground {
-  filter: blur(8px);
-  -webkit-filter: blur(8px);
-  transition-timing-function: ease-in-out
-}
-
 .chartContainer {
-  transition: 0.8s;
   display: flex;
   flex-direction: column;
   justify-content: center;
 
+  .highcharts-data-label-box {
+    fill: rgba(253, 251, 251, 0.8);
+    stroke: gray;
+    stroke-width: 1px;
+  }
 
-    .highcharts-data-label-box {
-      fill: rgb(253, 251, 251, 0.1);
-      stroke: gray;
-      stroke-width: 1px;
+  .highcharts-plot-background {
+    fill: $whitish;
+  }
+
+  .highcharts-xaxis-labels {
+    & > * {
+      fill: black !important;
+      font-size: 1rem !important;
     }
+  }
 
-    .highcharts-plot-background {
-      fill: $whitish;
-    }
-
-    .highcharts-xaxis-labels {
-      & > * {
-        fill: black !important;
-        font-size: 1rem !important;
-      }
-    }
-
-    .highcharts-yaxis {
-      & > * {
-        fill: #000000 !important;
-        font-size: 1rem !important;
-      }
-    }
-
-    .highcharts-background {
-      fill: $whitish;
-    }
-}
-
-.error {
-  height: 29%;
-  display: flex;
-  justify-content: center;
-  width: 93%;
-  margin-top: 20px;
-  text-shadow: 1px 3px rgb(0 0 0 / 25%);
-  background-color: rgb(255 255 255 / 67%);
-  border-radius: 16px;
-  box-shadow: 3px 6px rgb(0 0 0 / 25%);
-
-  & > p {
-    font-size: 3rem;
-    align-items: center;
-    display: flex;
-    font-weight: 700;
-    color: black;
+  .highcharts-background {
+    fill: $whitish;
   }
 }
 
-.fixed {
-  overflow: hidden;
-  height: 100%;
+.error {
   width: 100%;
-  position: fixed;
 }
 
 #backgroundImg {
   display: block;
   position: fixed;
+  background: url("../public/assets/over16background.jpg");
   width: 100%;
   height: 100vh;
   -webkit-background-size: cover;
@@ -214,6 +178,7 @@ main {
   grid-template-rows: 100vh 87vh;
   scroll-behavior: smooth;
   overflow: auto;
+  justify-content: center;
   position: relative;
   text-align: center;
   padding: 5vh 10vw;
@@ -221,12 +186,6 @@ main {
   background-repeat: no-repeat;
   height: 100%;
   z-index: 2;
-
-  & > .infoForecast {
-    grid-row: 1;
-    position: absolute;
-    width: 100vw;
-  }
 
   & > .downPage {
     grid-row: 2;
@@ -257,18 +216,20 @@ main {
 
     & > .secondWeatherWindow {
       display: flex;
-      align-items: center;
       justify-content: space-between;
       font-size: 2rem;
-      padding: 10px 30px;
       text-align: left;
-      border-bottom: 1px solid $whitish !important;
+      border-bottom: 1px solid $whitish;
       width: 100%;
 
       & > * {
         font-family: Nunito-Regular, sans-serif;
       }
 
+    }
+
+    & > .secondWeatherWindow:last-child {
+      border-bottom: none !important;
     }
 
     & > .location-box {
@@ -337,6 +298,9 @@ main {
     height: 100vh;
     display: grid;
     grid-template-rows:6% 86% 7%;
+    grid-row: 1;
+    width: 100%;
+    align-items: center;
 
     & > .contentContainer {
       justify-content: center;
@@ -346,13 +310,12 @@ main {
     }
 
     .search-box {
-      height: 7vh;
       width: 100%;
       display: inline-block;
-      transition: all 0.4s linear;
 
       & .search-bar {
         display: block;
+        transition: transform .4s; /* Animation */
         width: 100%;
         padding: 10px;
         color: #313131;
@@ -363,36 +326,28 @@ main {
         border-radius: 16px;
         box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
         background: rgba(255, 255, 255, 0.5) none;
-        transition: all 0.4s;
-        transition-timing-function: ease-in-out
       }
 
       @media screen and (min-aspect-ratio: 13/9), (pointer: none), (pointer: coarse) {
         .search-bar:focus {
           background-color: rgba(255, 255, 255, 0.75);
           font-size: 2rem;
-          transition-timing-function: ease-in-out;
-          top: 0;
-          right: 100%;
         }
       }
     }
 
     @media (pointer: none), (pointer: coarse) {
-      .search-bar:focus {
-        background-color: rgba(255, 255, 255, 0.75);
-        font-size: 2.5rem;
-        transition-timing-function: ease-in-out;
-        width: 110% !important;
-        height: 60px;
-      }
       .search-box {
         display: flex;
-        height: 50px;
-        padding: 10px 10px 0 10px;
+
+        & .search-bar:focus {
+          background-color: rgba(255, 255, 255, 0.75);
+          width: 100vw;
+          transform: translateY(100%);
+        }
 
         label {
-          width: 90%;
+          width: 92%;
           height: 100%;
 
           & > input {
@@ -425,6 +380,7 @@ main {
     justify-content: space-evenly;
     grid-template-rows: auto auto;
     grid-row-gap: 5px;
+    margin-top: 5px;
 
     & > .tableAndTitleContainer {
       background-color: $whitish;
@@ -445,10 +401,6 @@ main {
     display: grid;
     grid-template-rows: 100vh 100vh;
     padding: 3% 20%;
-
-    &.infoForecast {
-      height: 100vh;
-    }
 
     :nth-child(2).weather-wrap {
       display: grid;
@@ -492,6 +444,12 @@ main {
   #app {
     padding: 0;
   }
+  .infoForecast {
+    display: grid;
+    grid-template-rows:5% 88% 7% !important;
+    padding-top: 10px;
+    width: 100vw !important;
+  }
 }
 
 .over2 {
@@ -501,8 +459,6 @@ main {
   & > .secondWeatherWindow {
     & > :last-child {
       color: rgb(181, 231, 21);
-      font-weight: 600;
-      font-size: 1.7rem;
     }
   }
 }
@@ -510,12 +466,6 @@ main {
 .bellow2 {
   background-color: $whitish !important;
   color: black !important;
-
-  & > .secondWeatherWindow {
-    & > :last-child {
-      font-weight: 600;
-    }
-  }
 }
 
 .over16 {
@@ -524,7 +474,6 @@ main {
   & > .secondWeatherWindow {
     & > :last-child {
       color: white;
-      font-weight: 600;
     }
   }
 }

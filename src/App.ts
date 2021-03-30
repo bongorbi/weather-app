@@ -1,5 +1,5 @@
 import {Chart} from 'highcharts-vue';
-import {Component, Vue} from 'vue-property-decorator';
+import {Component, Vue, Watch} from 'vue-property-decorator';
 import axios, {AxiosResponse, Method} from 'axios';
 import debounce from 'lodash/debounce';
 // @ts-ignore
@@ -9,7 +9,8 @@ import {isMobile} from 'mobile-device-detect';
 import LoadingOverlay from '@/components/LoadingOverlay.vue';
 import ScrollDownButton from '@/components/ScrollDownButton.vue';
 import ChartButtons from '@/components/ChartButtons.vue';
-import {Buttons} from '@/commonconstants';
+import {Buttons, GEOLOCATION_STATUS} from '@/commonconstants';
+import {Geolocation} from '@capacitor/core';
 
 @Component({
   components: {
@@ -22,27 +23,57 @@ import {Buttons} from '@/commonconstants';
   }
 })
 export default class App extends Vue {
+  async getCurrentPosition() {
+    try {
+      const coordinates = await Geolocation.getCurrentPosition();
+      this.coords.lon = coordinates.coords.longitude;
+      this.coords.lat = coordinates.coords.latitude;
+      await this.getWeatherByCoords();
+    } catch (e) {
+      if (e.message === GEOLOCATION_STATUS.DENIEDGEOLOCATION) {
+        this.error = e.message;
+      }
+    }
+  }
+
+  @Watch('error')
+  private errorTextWatcher() {
+    switch (this.error) {
+      case GEOLOCATION_STATUS.DENIEDGEOLOCATION:
+        debugger
+        setTimeout(()=>{
+          console.log(document.getElementById('errImage'));
+          document.getElementById('errImage').setAttribute('src', '../public/assets/turnOnGPS.jpg');
+
+        },200)
+        break;
+      default:
+        console.log(document.getElementById('errImage'));
+        break;
+    }
+  }
+
   async created() {
     await this.takeAllImages();
-    this.infoForecastClassHeight = document.getElementById('infoForecast')!.style.height;
-    console.log(document.getElementById('infoForecast')!.style);
   }
 
   private windowHeight = 0;
-  private infoForecastClassHeight = '';
 
   async mounted() {
-    // взима височината на екрана в началото, за да я използваме по-натам, да предотвратим свиване на фона на мобилни устройства, след като кликнем на инпуита
+    // взима височината на екрана в началото, за да я използваме по-натам,
+    // да предотвратим свиване на фона на мобилни устройства, след като кликнем на инпуита
     this.windowHeight = window.innerHeight;
     this.resizeChart();
-    window.onresize = debounce(() => {
-      this.resizeChart();
-    }, 10);
-    await this.getLocation();
+    if (!isMobile) {
+      window.onresize = debounce(() => {
+        this.resizeChart();
+      }, 10);
+    }
+    await this.getCurrentPosition();
   }
 
   private goFullscreen() {
-    if (this.mobileView) {
+    if (isMobile) {
       const doc = window.document;
       const docEl = doc.documentElement;
       // @ts-ignore
@@ -55,6 +86,11 @@ export default class App extends Vue {
       } else {
         cancelFullScreen.call(doc);
       }
+      // чака да стане fullscreen и променя innerHeight да е равна на уголемения прозорец,
+      // за да зададе нов размер на бекграунд картинката
+      setTimeout(() => {
+        App.resizeBackgroundImg(window.innerHeight);
+      }, 100);
     }
   }
 
@@ -86,42 +122,43 @@ export default class App extends Vue {
     }
   }
 
-  private resizeBackgroundImg() {
+  private isMobile = isMobile;
+
+  private static resizeBackgroundImg(pixels: number) {
     if (isMobile) {
-      document.getElementById('backgroundImg')!.style.setProperty('height', `${this.windowHeight}px`);
-      document.getElementById('backgroundImg')!.style.setProperty('bottom', '0px');
+      document.getElementById('backgroundImg')!.style.setProperty('height', `${pixels}px`);
     }
   }
 
   private hideAndBlurContent() {
-    this.resizeBackgroundImg();
+    App.resizeBackgroundImg(this.windowHeight);
     this.blurBackground = !this.blurBackground;
     this.hideContent = !this.hideContent;
   }
 
-  private async getLocation() {
-    const options = {
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumAge: 0
-    };
-
-    const success = async (pos: { coords: any; }) => {
-      this.query = '';
-      const crd = pos.coords;
-      this.coords.lon = crd.longitude;
-      this.coords.lat = crd.latitude;
-      App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
-      await this.getWeatherByCoords();
-      await this.backgroundImage();
-    };
-
-    function error(err: any) {
-      console.warn(`ERROR(${err.code}): ${err.message}`);
-    }
-
-    navigator.geolocation.getCurrentPosition(success, error, options);
-  }
+  // private async getLocation() {
+  //   const options = {
+  //     enableHighAccuracy: true,
+  //     timeout: 5000,
+  //     maximumAge: 0
+  //   };
+  //
+  //   const success = async (pos: { coords: any; }) => {
+  //     this.query = '';
+  //     const crd = pos.coords;
+  //     this.coords.lon = crd.longitude;
+  //     this.coords.lat = crd.latitude;
+  //     App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
+  //     await this.getWeatherByCoords();
+  //     await this.backgroundImage();
+  //   };
+  //
+  //   function error(err: any) {
+  //     console.warn(`ERROR(${err.code}): ${err.message}`);
+  //   }
+  //
+  //   navigator.geolocation.getCurrentPosition(success, error, options);
+  // }
 
   private hideContent: boolean = false;
 
@@ -133,20 +170,14 @@ export default class App extends Vue {
       case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
         chartWidth = window.innerWidth * 0.65;
         chartHeight = window.innerHeight * 0.4;
-        this.mobileView = false;
         this.windChart.chart.width = chartWidth;
         this.tempChart.chart.width = chartWidth;
         this.feelsLikeChart.chart.width = chartWidth;
         this.hourlyForecast.chart.width = chartWidth;
         this.hourlyForecast.chart.height = window.innerHeight * 0.3;
         break;
-      // case isMobile:
-      //   console.log(isMobile)
-      //   this.mobileView = true;
-      //   break;
       default:
         chartWidth = window.innerWidth - (0.033 * window.innerWidth);
-        this.mobileView = true;
         this.windChart.chart.width = chartWidth;
         this.tempChart.chart.width = chartWidth;
         this.hourlyForecast.chart.width = chartWidth;
@@ -201,7 +232,6 @@ export default class App extends Vue {
     });
   }
 
-  private mobileView: boolean = false;
   private blurBackground: boolean = false;
   private apiKey = 'cab0c30b1dfc14ce360db2f0b4b5411b';
   private urlBase = 'https://api.openweathermap.org/data/2.5/';
@@ -650,7 +680,7 @@ export default class App extends Vue {
         return response.data;
       })
       .catch((e: Error) => {
-        this.error = 'No city was found...';
+        this.error = 'No city results...';
         this.hideContent = true;
         (this.$refs.input as HTMLInputElement).blur();
         this.loading = false;
@@ -701,6 +731,7 @@ export default class App extends Vue {
     (this.$refs.input as HTMLInputElement).blur();
     await this.setImageName();
     await this.getWeatherForNextDays();
+    await this.backgroundImage();
   }
 
   private async getWeatherForNextDays() {

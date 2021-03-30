@@ -1,13 +1,13 @@
 <template>
   <div>
     <button
-      class="scrollButton"
-      :class="customClass"
-      @click="scrollEmitted">
+        class="scrollButton"
+        :class="customClass"
+        @click="scrollEmitted">
       <font-awesome-icon
-        aria-hidden="true"
-        :icon="downButtonIcon"
-        class="icon"/>
+          aria-hidden="true"
+          :icon="downButtonIcon"
+          class="icon"/>
     </button>
   </div>
 </template>
@@ -37,7 +37,7 @@ export default class ScrollDownButton extends Vue {
 @import "./src/colors";
 
 .scrollButton {
-  width: 100%;
+  width: 100vw;
   height: 100%;
   background: $whitish;
   border: none;

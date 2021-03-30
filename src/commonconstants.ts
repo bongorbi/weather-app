@@ -9,3 +9,7 @@ export type Buttons = {
   chartName: string,
   selected: boolean
 }
+
+export enum GEOLOCATION_STATUS {
+  DENIEDGEOLOCATION = 'User denied Geolocation'
+}
