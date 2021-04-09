@@ -63,7 +63,7 @@ export default class ChartButtons extends Vue {
 
   & > .selected {
     color: black;
-    background-color: $white;
+    background-color: #cccccc;
   }
 }
 

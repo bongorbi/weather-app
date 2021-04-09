@@ -1,13 +1,13 @@
 <template>
   <div>
     <button
-        class="scrollButton"
-        :class="customClass"
-        @click="scrollEmitted">
+      class="scrollButton"
+      :class="customClass"
+      @click="scrollEmitted">
       <font-awesome-icon
-          aria-hidden="true"
-          :icon="downButtonIcon"
-          class="icon"/>
+        aria-hidden="true"
+        :icon="downButtonIcon"
+        class="icon"/>
     </button>
   </div>
 </template>

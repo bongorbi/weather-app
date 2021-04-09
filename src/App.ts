@@ -36,19 +36,19 @@ export default class App extends Vue {
     }
   }
 
+  private errImage = '';
+  private errorDisplayMsg: string = '';
+
   @Watch('error')
   private errorTextWatcher() {
     switch (this.error) {
       case GEOLOCATION_STATUS.DENIEDGEOLOCATION:
-        debugger
-        setTimeout(()=>{
-          console.log(document.getElementById('errImage'));
-          document.getElementById('errImage').setAttribute('src', '../public/assets/turnOnGPS.jpg');
-
-        },200)
+        this.errImage = `${require('../public/assets/tunrOnGPS.png')}`;
+        this.errorDisplayMsg = 'Turn on your location and press the refresh button ->';
         break;
       default:
-        console.log(document.getElementById('errImage'));
+        this.errImage = `${require('../public/assets/nothingFound.png')}`;
+        this.errorDisplayMsg = 'No city results';
         break;
     }
   }
@@ -59,11 +59,17 @@ export default class App extends Vue {
 
   private windowHeight = 0;
 
+  keyboardShowHideHandler() {
+    App.resizeBackgroundImg(this.windowHeight);
+  }
+
   async mounted() {
     // взима височината на екрана в началото, за да я използваме по-натам,
     // да предотвратим свиване на фона на мобилни устройства, след като кликнем на инпуита
     this.windowHeight = window.innerHeight;
     this.resizeChart();
+    window.addEventListener('native.showkeyboard', this.keyboardShowHideHandler);
+    window.addEventListener('native.hidekeyboard', this.keyboardShowHideHandler);
     if (!isMobile) {
       window.onresize = debounce(() => {
         this.resizeChart();
@@ -90,7 +96,7 @@ export default class App extends Vue {
       // за да зададе нов размер на бекграунд картинката
       setTimeout(() => {
         App.resizeBackgroundImg(window.innerHeight);
-      }, 100);
+      }, 200);
     }
   }
 
@@ -135,30 +141,6 @@ export default class App extends Vue {
     this.blurBackground = !this.blurBackground;
     this.hideContent = !this.hideContent;
   }
-
-  // private async getLocation() {
-  //   const options = {
-  //     enableHighAccuracy: true,
-  //     timeout: 5000,
-  //     maximumAge: 0
-  //   };
-  //
-  //   const success = async (pos: { coords: any; }) => {
-  //     this.query = '';
-  //     const crd = pos.coords;
-  //     this.coords.lon = crd.longitude;
-  //     this.coords.lat = crd.latitude;
-  //     App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
-  //     await this.getWeatherByCoords();
-  //     await this.backgroundImage();
-  //   };
-  //
-  //   function error(err: any) {
-  //     console.warn(`ERROR(${err.code}): ${err.message}`);
-  //   }
-  //
-  //   navigator.geolocation.getCurrentPosition(success, error, options);
-  // }
 
   private hideContent: boolean = false;
 
@@ -240,6 +222,10 @@ export default class App extends Vue {
   private coords: any = {};
   private days = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
   private weather: any = {};
+
+  private reloadPage() {
+    window.location.reload();
+  }
 
   private static metricUnitSetter(name: string) {
     let unit;

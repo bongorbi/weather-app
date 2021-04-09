@@ -27,7 +27,7 @@ module.exports = {
         ignoreTemplateLiterals: true
       }
     ],
-    "global-require": 0,
+    'global-require': 0,
     'no-var': 'off',
     'new-cap': 'off',
     'no-console': 'off',

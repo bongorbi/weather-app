@@ -35,26 +35,43 @@ export default class LoadingOverlay extends Vue {
 
 .loading-overlay {
   z-index: 10000;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   background-color: rgba($whitish, 0.7);
   position: var(--loading-overlay-position, fixed);
   top: 0;
+  right: 0;
+  bottom: 0;
   left: 0;
 
   .spinner {
     box-sizing: border-box;
     border: var(--loading-overlay-spinner-border-size, 10px) solid black;
-    border-top-color: $whitish;
     border-radius: 50%;
     z-index: 1111111;
     width: var(--loading-overlay-spinner-size, 115px);
     height: var(--loading-overlay-spinner-size, 115px);
-    -webkit-animation: spin-data-v-681413a4 1s cubic-bezier(0.4, 0.15, 0.6, 0.85) infinite;
-    animation: spin-data-v-681413a4 1s cubic-bezier(0.4, 0.15, 0.6, 0.85) infinite;
+    -webkit-animation: spin 1.1s infinite linear;
+    font-size: 10px;
+    border-left: .8em solid $whitish;
+    animation: spin 1.1s infinite linear;
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    margin-left: -50px;
+    margin-top: -50px;
+  }
+
+  .spinner, .spinner:after {
+    display: block;
+    position: absolute;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
   }
 }
 </style>
