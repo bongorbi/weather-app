@@ -23,7 +23,7 @@ import {Geolocation} from '@capacitor/core';
   }
 })
 export default class App extends Vue {
-  async getCurrentPosition() {
+  private async getCurrentPosition() {
     try {
       const coordinates = await Geolocation.getCurrentPosition();
       this.coords.lon = coordinates.coords.longitude;
@@ -59,7 +59,7 @@ export default class App extends Vue {
 
   private windowHeight = 0;
 
-  keyboardShowHideHandler() {
+  private keyboardShowHideHandler() {
     App.resizeBackgroundImg(this.windowHeight);
   }
 
@@ -97,6 +97,7 @@ export default class App extends Vue {
       setTimeout(() => {
         App.resizeBackgroundImg(window.innerHeight);
       }, 200);
+      this.resizeChart();
     }
   }
 
@@ -143,23 +144,24 @@ export default class App extends Vue {
   }
 
   private hideContent: boolean = false;
+  private nextWeeksCharts: boolean = false;
 
   private resizeChart() {
     let chartWidth;
-    let chartHeight = (window.innerHeight) * 0.39;
+    let chartHeight = (window.innerHeight) * 0.4;
     switch (true) {
       // detects landscape mode
       case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
-        chartWidth = window.innerWidth * 0.65;
+        chartWidth = window.innerWidth * 0.715;
         chartHeight = window.innerHeight * 0.4;
         this.windChart.chart.width = chartWidth;
         this.tempChart.chart.width = chartWidth;
         this.feelsLikeChart.chart.width = chartWidth;
         this.hourlyForecast.chart.width = chartWidth;
-        this.hourlyForecast.chart.height = window.innerHeight * 0.3;
+        this.hourlyForecast.chart.height = chartHeight;
         break;
       default:
-        chartWidth = window.innerWidth - (0.033 * window.innerWidth);
+        chartWidth = window.innerWidth - 2;
         this.windChart.chart.width = chartWidth;
         this.tempChart.chart.width = chartWidth;
         this.hourlyForecast.chart.width = chartWidth;

@@ -42,7 +42,6 @@ export default class ScrollDownButton extends Vue {
   background: $whitish;
   border: none;
   outline: none;
-  margin: 10px 0;
-  font-size: 3rem;
+  font-size: 2rem;
 }
 </style>

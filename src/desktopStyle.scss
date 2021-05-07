@@ -1,0 +1,182 @@
+@import './src/colors.scss';
+
+@media screen and (min-aspect-ratio: 13/9) {
+  main {
+    display: grid;
+    grid-template-rows: 52vh 100vh;
+    width: 100vw;
+    padding: 5vh 20vw !important;
+    scroll-behavior: smooth;
+    overflow: auto;
+    justify-content: center;
+    text-align: center;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0));
+    background-repeat: no-repeat;
+    height: 100%;
+
+    & > .infoForecast {
+      display: grid;
+      grid-template-rows: 7% 45%;
+
+      :first-child.weather-wrap {
+        box-shadow: none !important;
+      }
+
+      & > .contentContainer {
+        height: 100%;
+        padding-top: 2%;
+        display: grid;
+        grid-template-columns: 50% 50%;
+
+        .weather-wrap {
+          display: flex;
+          padding: 1% 2%;
+          border-radius: 16px;
+          background: transparent;
+          box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+          flex-direction: column;
+
+          @media screen and (max-width: 683px) {
+            & > .secondWeatherWindow {
+              font-size: 1.7rem !important;
+              padding: 5px 5px !important;
+            }
+          }
+
+          & > .secondWeatherWindow {
+            display: flex;
+            justify-content: space-between;
+            font-size: 2rem;
+            text-align: left;
+            border-bottom: 1px solid $whitish;
+
+            & > * {
+              font-family: Nunito-Regular, sans-serif;
+            }
+          }
+
+          & > .secondWeatherWindow:last-child {
+            border-bottom: none;
+          }
+
+          & > .location-box {
+            padding: 5px;
+
+            & > .location {
+              color: white;
+              padding: 5px;
+              font-size: 1.4em;
+              font-weight: 600;
+              text-align: center;
+            }
+
+            & > .date {
+              padding: 5px;
+              color: white;
+              font-size: 1.4rem;
+              text-align: center;
+              font-weight: 300;
+              font-style: italic;
+            }
+          }
+
+          & > .weather-box {
+            display: flex;
+            justify-content: space-between;
+            text-align: left;
+            flex-direction: column;
+
+            & .temp {
+              margin-left: 5px;
+              color: black;
+              display: inline-block;
+              padding: 10px 25px;
+              align-items: center;
+              font-size: 5rem;
+              font-weight: 900;
+              background-color: $green;
+              border-radius: 16px;
+              box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+            }
+
+            & .weather {
+              color: whitesmoke;
+              grid-template-columns: auto 50%;
+              align-items: center;
+              font-size: 2.5rem;
+              padding: 5px;
+              font-weight: 700;
+              justify-content: center;
+              display: flex;
+
+              & > img {
+                margin-left: 10px;
+                height: 10vh;
+              }
+            }
+          }
+        }
+      }
+
+      :nth-child(2).weather-wrap {
+        display: grid;
+        grid-template-rows: auto auto auto;
+
+        & > .secondWeatherWindow {
+          padding: 0 10px;
+        }
+      }
+
+      .error {
+        width: 70vw;
+
+        & p {
+          font-size: 3rem !important;
+        }
+      }
+    }
+
+    & .chartPage {
+      display: grid;
+      grid-template-columns: 5% 90% 5%;
+      grid-row: 2;
+
+      & > .tableAndTitleContainer {
+        background-color: $whitish;
+        padding: 5px 0 0 0;
+      }
+
+      p {
+        color: black !important;
+        padding: 0 0 5px 0;
+        font-size: 1.2rem;
+      }
+
+      & > button {
+        border: none;
+        outline: none;
+        user-select: none;
+        cursor: pointer;
+        margin: 0 2px;
+      }
+
+      & .selectedNextChartButton {
+        color: black;
+        background-color: #cccccc;
+      }
+
+      & .chartButtons {
+        min-height: 40px;
+
+        & > button {
+          font-size: 1.8rem !important;
+        }
+      }
+
+      p {
+        font-size: 1.8rem
+      }
+
+    }
+  }
+}

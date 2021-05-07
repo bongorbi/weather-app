@@ -1,0 +1,200 @@
+@import './src/colors.scss';
+
+@media (pointer: none), (pointer: coarse) {
+  main {
+    padding: 0 !important;
+    display: grid;
+    grid-template-rows: 100vh 87vh;
+    scroll-behavior: smooth;
+    overflow: auto;
+    overflow-x: hidden;
+    justify-content: center;
+    position: relative;
+    text-align: center;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0));
+    background-repeat: no-repeat;
+    height: 100%;
+
+    :first-child.weather-wrap {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .contentContainer {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+
+      .weather-wrap {
+        display: flex;
+        padding: 2% 2%;
+        border-radius: 16px;
+        min-height: 39vh;
+        background: transparent;
+        margin-bottom: 10px;
+        box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+        justify-content: space-between;
+        flex-direction: column;
+
+        @media screen and (max-width: 683px) {
+          & > .secondWeatherWindow {
+            font-size: 1.7rem !important;
+            padding: 5px 5px !important;
+          }
+        }
+
+        & > .secondWeatherWindow {
+          display: flex;
+          justify-content: space-between;
+          font-size: 2rem;
+          text-align: left;
+          border-bottom: 1px solid $whitish;
+          width: 100%;
+
+          & > * {
+            font-family: Nunito-Regular, sans-serif;
+          }
+        }
+
+        & > .secondWeatherWindow:last-child {
+          border-bottom: none;
+        }
+
+        & > .location-box {
+          padding: 5px;
+
+          & > .location {
+            color: white;
+            padding: 5px;
+            font-size: 1.4em;
+            font-weight: 600;
+            text-align: center;
+          }
+
+          & > .date {
+            padding: 5px;
+            color: white;
+            font-size: 1.4rem;
+            text-align: center;
+            font-weight: 300;
+            font-style: italic;
+          }
+        }
+
+        & > .weather-box {
+          display: flex;
+          justify-content: space-between;
+          text-align: left;
+          flex-direction: column;
+
+          & > * {
+            font-family: Nunito-Regular, sans-serif;
+          }
+
+          & .temp {
+            margin-left: 5px;
+            color: black;
+            display: inline-block;
+            padding: 10px 25px;
+            align-items: center;
+            font-size: 5rem;
+            font-weight: 900;
+            background-color: $green;
+            border-radius: 16px;
+            box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+          }
+
+          & .weather {
+            color: whitesmoke;
+            grid-template-columns: auto 50%;
+            align-items: center;
+            font-size: 2.5rem;
+            padding: 5px;
+            font-weight: 700;
+            justify-content: center;
+            display: flex;
+
+            & > img {
+              margin-left: 10px;
+              height: 10vh;
+            }
+          }
+        }
+      }
+    }
+
+    & > .infoForecast {
+      display: grid;
+      grid-template-rows: 9% 85.2% 6% !important;
+      width: 100vw;
+    }
+
+    & > .chartPage {
+      grid-row: 2;
+      height: 94vh;
+      display: grid;
+      justify-content: space-evenly;
+      grid-template-rows: auto auto;
+      grid-row-gap: 5px;
+
+      & > .tableAndTitleContainer {
+        background-color: $whitish;
+        padding: 5px 0 0 0;
+      }
+
+      p {
+        color: black !important;
+        padding: 0 0 5px 0;
+        font-size: 1.2rem;
+      }
+
+    }
+
+    .search-box {
+      display: flex;
+      padding: 10px;
+      height: 70px;
+      .search-bar:focus {
+        background-color: rgba(255, 255, 255, 0.75);
+        transform: translateY(100%);
+      }
+
+      label {
+        width: 100%;
+        height: 100%;
+
+        & > input {
+          height: 100%;
+        }
+      }
+
+      .fullscreen {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        border-radius: 10px;
+        font-size: 1.7rem;
+        padding: 10px;
+        color: #313131;
+        appearance: none;
+        border: none;
+        outline: none;
+        margin-left: 3px;
+        box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
+        background: rgba(255, 255, 255, 0.5) none;
+      }
+    }
+
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .temp {
+    font-size: 1.3rem;
+  }
+  .secondWeatherWindow {
+    & > span {
+      font-size: 1.3rem;
+    }
+  }
+}
