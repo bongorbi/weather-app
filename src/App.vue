@@ -26,20 +26,25 @@
               class="icon"/>
           </button>
         </div>
-        <div v-if="!hideContent" class="contentContainer">
-          <div v-if="error!==''" class="error">
-            <div>
-              <p>{{ errorDisplayMsg }}</p>
-              <button v-show="error==='User denied Geolocation'" class="refreshBtn"
-                      @click="reloadPage">
-                <font-awesome-icon
-                  aria-hidden="true"
-                  icon="redo"
-                  class="icon"/>
-              </button>
-            </div>
-            <img id="errImage" :src="errImage" :alt="imageNextToDeg">
+        <div v-if="error!==''" class="error" :class="{'nothingFoundErr':error==='No city results...'}">
+          <div>
+            <p>
+              {{ errorDisplayMsg }}
+            </p>
+            <font-awesome-icon v-show="error===deniedLocation" color="#3f52d8" aria-hidden="true"
+                               icon="hand-point-right"
+                               class="handIcon"/>
+            <button v-show="error==='User denied Geolocation'" class="refreshBtn"
+                    @click="reloadPage">
+              <font-awesome-icon
+                aria-hidden="true"
+                icon="redo"
+                class="icon"/>
+            </button>
           </div>
+          <img id="errImage" :src="errImage" :alt="imageNextToDeg">
+        </div>
+        <div v-if="!hideContent" class="contentContainer">
           <div v-if="typeof weather.main != 'undefined' && error===''" class="weather-wrap">
             <div class="location-box">
               <div class="location">
@@ -62,51 +67,40 @@
               </div>
             </div>
           </div>
-          <div v-if="typeof weather.main != 'undefined' && error===''" class="weather-wrap" :class="tempClass()">
-            <div class="secondWeatherWindow">
-              <span>Minimum temperature:</span>
-              <span>{{ Math.round(weather.main.temp_min) }}°C</span>
-            </div>
-            <div class="secondWeatherWindow">
-              <span>Feels like:</span>
-              <span>{{ Math.round(weather.main.feels_like) }}°C</span>
-            </div>
-            <div class="secondWeatherWindow">
-              <span>Maximum temperature:</span>
-              <span>{{ Math.round(weather.main.temp_max) }}°C</span>
-            </div>
-            <div class="secondWeatherWindow">
-              <span>Humidity:</span>
-              <span>{{ Math.round(weather.main.humidity) }}%</span>
-            </div>
-            <div class="secondWeatherWindow">
-              <span>Pressure:</span>
-              <span>{{ Math.round(weather.main.pressure) }} hPa</span>
-            </div>
-            <div class="secondWeatherWindow">
-              <span>Wind speed:</span>
-              <span>{{ weather.wind.speed }}m/s</span>
+          <div v-if="typeof weather.main != 'undefined' && error==='' && tempLabels.length>0" class="weather-wrap"
+               :class="tempClass()">
+            <div v-for="row in tempLabels" :key="row.label" class="secondWeatherWindow">
+              <span>{{ row.label }}</span>
+              <span>{{ row.value }}</span>
             </div>
           </div>
         </div>
-        <div>
-          <ScrollDownButton v-if="!hideContent && typeof weather.main != 'undefined'&& error===''&& isMobile"
-                            :down-button-icon="downButtonIcon"
-                            :custom-class="typeof weather.main != 'undefined' && tempClass()"
-                            @emit-scroll="scrollButton"/>
+        <div v-if="!hideContent && typeof weather.main != 'undefined'&& error===''&& isMobile">
+          <ScrollDownButton
+            :down-button-icon="downButtonIcon"
+            :custom-class="typeof weather.main != 'undefined' && tempClass()"
+            @emit-scroll="scrollButton"/>
         </div>
       </div>
       <div v-show="!hideContent && error===''&& typeof weather.main != 'undefined'"
            class="chartPage">
-        <button v-if="!isMobile" :class="{'selectedNextChartButton':!nextWeeksCharts}" @click="nextWeeksCharts=false">48
-          hours forecast
-        </button>
-        <div v-if="!nextWeeksCharts || isMobile" class="tableAndTitleContainer">
+        <div class="buttonContainer">
+          <button v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':!nextWeeksCharts}"
+                  @click="nextWeeksCharts=false">
+            48
+            hours forecast
+          </button>
+          <button v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':nextWeeksCharts}"
+                  @click="nextWeeksCharts=true">
+            Next week's forecast
+          </button>
+        </div>
+        <div v-show="!nextWeeksCharts || isMobile" class="tableAndTitleContainer">
           <p>48 hours forecast:</p>
           <ChartComponent :chartOptions="hourlyForecast" :class="typeof weather.main != 'undefined' && tempClass()"
           />
         </div>
-        <div v-if="nextWeeksCharts || isMobile" class="tableAndTitleContainer">
+        <div v-show="nextWeeksCharts || isMobile" class="tableAndTitleContainer">
           <p>Next week's:</p>
           <div>
             <ChartButtons :chart-types="chartButtons" @button-click="onChartButtonClick"/>
@@ -116,9 +110,6 @@
                             :chartOptions="chart.chartName"/>
           </div>
         </div>
-        <button v-if="!isMobile" :class="{'selectedNextChartButton':nextWeeksCharts}"
-                @click="nextWeeksCharts=true">Next week's forecast
-        </button>
       </div>
     </main>
   </div>
@@ -184,10 +175,8 @@ html, body {
   justify-content: space-around;
   flex-direction: column;
   width: 90vw;
-  height: 85vh;
   align-items: center;
   background-color: $whitish;
-  border-radius: 16px;
   box-sizing: border-box;
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.95);
 
@@ -210,9 +199,20 @@ html, body {
       appearance: none;
       border: none;
       outline: none;
-      box-shadow: 3px 6px rgb(63, 82, 216);
+      box-shadow: 6px 3px rgb(63, 82, 216);
       background: rgb(24, 196, 90) none;
+      cursor: pointer;
     }
+
+    .refreshBtn:hover {
+      background-color: $whitish
+    }
+
+    .refreshBtn:active {
+      box-shadow: none;
+      transform: translate(6px, 3px);
+    }
+
 
     & > p {
       color: black !important;
@@ -222,11 +222,16 @@ html, body {
   }
 
   & > #errImage {
-    width: 40%;
-    height: 70%;
+    transition: transform .7s ease-in-out;
+  }
+
+  & > #errImage:hover {
+    transform: rotate(360deg);
   }
 }
-
+.nothingFoundErr {
+  width: 100%;
+}
 #backgroundImg {
   display: block;
   position: fixed;
@@ -245,10 +250,11 @@ html, body {
   }
 
   .search-box {
+    z-index: 1111;
+
     & .search-bar {
       display: block;
-      transition: transform .4s; /* Animation */
-      width: 100%;
+      transition: transform .6s; /* Animation */
       padding: 10px;
       color: #313131;
       font-size: 1.5rem;
@@ -263,6 +269,7 @@ html, body {
     & .search-bar:focus {
       background-color: rgba(255, 255, 255, 0.75);
       font-size: 2rem;
+      transform: translateY(100%);
       width: 100%;
     }
   }
@@ -300,4 +307,7 @@ html, body {
   }
 }
 
+.secondWeatherWindow {
+  align-items: center;
+}
 </style>

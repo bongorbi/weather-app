@@ -14,22 +14,24 @@
     background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0));
     background-repeat: no-repeat;
     height: 100%;
-
-    :first-child.weather-wrap {
-      background: transparent;
-      box-shadow: none;
-    }
+    width: 100%;
 
     .contentContainer {
       display: flex;
       justify-content: center;
       flex-direction: column;
+      align-items: center;
+
+      :first-child.weather-wrap {
+        background: transparent;
+        box-shadow: none !important;
+      }
 
       .weather-wrap {
         display: flex;
         padding: 2% 2%;
-        border-radius: 16px;
         min-height: 39vh;
+        width: 100vw;
         background: transparent;
         margin-bottom: 10px;
         box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
@@ -121,12 +123,34 @@
           }
         }
       }
+
+      .error {
+        width: 90vw;
+
+        & .handIcon {
+          height: 100%;
+          margin: 0 10px 0 0;
+          font-size: 3rem;
+          transition: transform .7s ease-in-out;
+        }
+
+        & .handIcon:hover {
+          transform: rotate(360deg);
+        }
+
+      }
     }
 
     & > .infoForecast {
       display: grid;
       grid-template-rows: 9% 85.2% 6% !important;
       width: 100vw;
+      justify-content: center;
+      align-items: center;
+      & .search-bar {
+        width: 100%;
+        color: #b5e715;
+      }
     }
 
     & > .chartPage {
@@ -154,6 +178,7 @@
       display: flex;
       padding: 10px;
       height: 70px;
+
       .search-bar:focus {
         background-color: rgba(255, 255, 255, 0.75);
         transform: translateY(100%);

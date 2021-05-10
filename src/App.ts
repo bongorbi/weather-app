@@ -2,7 +2,6 @@ import {Chart} from 'highcharts-vue';
 import {Component, Vue, Watch} from 'vue-property-decorator';
 import axios, {AxiosResponse, Method} from 'axios';
 import debounce from 'lodash/debounce';
-// @ts-ignore
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import ChartComponent from '@/components/Chart.vue';
 import {isMobile} from 'mobile-device-detect';
@@ -23,6 +22,8 @@ import {Geolocation} from '@capacitor/core';
   }
 })
 export default class App extends Vue {
+  private deniedLocation = GEOLOCATION_STATUS.DENIEDGEOLOCATION;
+
   private async getCurrentPosition() {
     try {
       const coordinates = await Geolocation.getCurrentPosition();
@@ -30,7 +31,7 @@ export default class App extends Vue {
       this.coords.lat = coordinates.coords.latitude;
       await this.getWeatherByCoords();
     } catch (e) {
-      if (e.message === GEOLOCATION_STATUS.DENIEDGEOLOCATION) {
+      if (e.message === this.deniedLocation) {
         this.error = e.message;
       }
     }
@@ -42,9 +43,9 @@ export default class App extends Vue {
   @Watch('error')
   private errorTextWatcher() {
     switch (this.error) {
-      case GEOLOCATION_STATUS.DENIEDGEOLOCATION:
+      case this.deniedLocation:
         this.errImage = `${require('../public/assets/tunrOnGPS.png')}`;
-        this.errorDisplayMsg = 'Turn on your location and press the refresh button ->';
+        this.errorDisplayMsg = 'Turn on your location and press the refresh button';
         break;
       default:
         this.errImage = `${require('../public/assets/nothingFound.png')}`;
@@ -60,10 +61,13 @@ export default class App extends Vue {
   private windowHeight = 0;
 
   private keyboardShowHideHandler() {
+    debugger
     App.resizeBackgroundImg(this.windowHeight);
   }
 
-  async mounted() {
+  private tempLabels: { label: string, value: any }[] = [];
+
+  private async mounted() {
     // взима височината на екрана в началото, за да я използваме по-натам,
     // да предотвратим свиване на фона на мобилни устройства, след като кликнем на инпуита
     this.windowHeight = window.innerHeight;
@@ -94,9 +98,7 @@ export default class App extends Vue {
       }
       // чака да стане fullscreen и променя innerHeight да е равна на уголемения прозорец,
       // за да зададе нов размер на бекграунд картинката
-      setTimeout(() => {
-        App.resizeBackgroundImg(window.innerHeight);
-      }, 200);
+      App.resizeBackgroundImg(window.innerHeight);
       this.resizeChart();
     }
   }
@@ -146,17 +148,23 @@ export default class App extends Vue {
   private hideContent: boolean = false;
   private nextWeeksCharts: boolean = false;
 
+  // setting width and height of charts depending on screen of the device
   private resizeChart() {
     let chartWidth;
     let chartHeight = (window.innerHeight) * 0.4;
     switch (true) {
       // detects landscape mode
       case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
-        chartWidth = window.innerWidth * 0.715;
+        // 60% from window width
+        chartWidth = window.innerWidth * 0.6;
+        // 40% from window height
         chartHeight = window.innerHeight * 0.4;
         this.windChart.chart.width = chartWidth;
+        this.windChart.chart.height = chartHeight - 40;
         this.tempChart.chart.width = chartWidth;
+        this.tempChart.chart.height = chartHeight - 40;
         this.feelsLikeChart.chart.width = chartWidth;
+        this.feelsLikeChart.chart.height = chartHeight - 40;
         this.hourlyForecast.chart.width = chartWidth;
         this.hourlyForecast.chart.height = chartHeight;
         break;
@@ -705,6 +713,12 @@ export default class App extends Vue {
     const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
     this.weather = results;
     this.coords = results.coord;
+    this.tempLabels = [{label: 'Minimum temperature:', value: `${Math.round(this.weather.main.temp_min)}°C`},
+      {label: 'Feels like:', value: `${Math.round(this.weather.main.feels_like)}°C`},
+      {label: 'Maximum temperature:', value: `${Math.round(this.weather.main.temp_max)}°C`},
+      {label: 'Humidity:', value: `${Math.round(this.weather.main.humidity)}%`},
+      {label: 'Pressure:', value: `${Math.round(this.weather.main.pressure)}hPa`},
+      {label: 'Wind speed:', value: `${Math.round(this.weather.wind.speed)}m/s`}];
     (this.$refs.input as HTMLInputElement).blur();
     await this.setImageName();
     await this.getWeatherForNextDays();
@@ -716,6 +730,12 @@ export default class App extends Vue {
     const results = await this.request(`${this.urlBase}weather?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
     this.weather = results;
     this.coords = results.coord;
+    this.tempLabels = [{label: 'Minimum temperature:', value: `${Math.round(this.weather.main.temp_min)}°C`},
+      {label: 'Feels like:', value: `${Math.round(this.weather.main.feels_like)}°C`},
+      {label: 'Maximum temperature:', value: `${Math.round(this.weather.main.temp_max)}°C`},
+      {label: 'Humidity:', value: `${Math.round(this.weather.main.humidity)}%`},
+      {label: 'Pressure:', value: `${Math.round(this.weather.main.pressure)}hPa`},
+      {label: 'Wind speed:', value: `${Math.round(this.weather.wind.speed)}m/s`}];
     (this.$refs.input as HTMLInputElement).blur();
     await this.setImageName();
     await this.getWeatherForNextDays();

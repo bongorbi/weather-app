@@ -32,7 +32,7 @@ export default class ChartButtons extends Vue {
   grid-column-gap: 1px;
   height: 25px;
 
-  & > .buttons {
+  & > button {
     box-sizing: border-box;
     border: 0;
     align-items: center;
@@ -46,7 +46,7 @@ export default class ChartButtons extends Vue {
     color: black;
     min-height: 25px;
     font-size: 1rem;
-    background-color: $whitish;
+    background-color: #cccccc;
     top: 0;
     left: 0;
     transition: all .15s linear 0s;
@@ -56,14 +56,14 @@ export default class ChartButtons extends Vue {
   }
 
   @media screen and (max-width: 500px) {
-    .buttons {
+    button {
       font-size: 1rem;
     }
   }
 
   & > .selected {
     color: black;
-    background-color: #cccccc;
+    background-color: white;
   }
 }
 
