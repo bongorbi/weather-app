@@ -13,7 +13,7 @@
               placeholder="Search City..."
               @focus="hideAndBlurContent"
               @focusout="hideAndBlurContent"
-              @keypress.enter="getWeather">
+              @keypress.enter="getWeatherBySearching">
           </label>
           <button
             v-if="!hideContent && isMobile"
@@ -87,8 +87,7 @@
         <div class="buttonContainer">
           <button v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':!nextWeeksCharts}"
                   @click="nextWeeksCharts=false">
-            48
-            hours forecast
+            48 hours forecast
           </button>
           <button v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':nextWeeksCharts}"
                   @click="nextWeeksCharts=true">
@@ -213,7 +212,6 @@ html, body {
       transform: translate(6px, 3px);
     }
 
-
     & > p {
       color: black !important;
       font-size: 1.5rem;
@@ -229,9 +227,11 @@ html, body {
     transform: rotate(360deg);
   }
 }
+
 .nothingFoundErr {
   width: 100%;
 }
+
 #backgroundImg {
   display: block;
   position: fixed;

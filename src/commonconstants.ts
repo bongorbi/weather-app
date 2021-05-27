@@ -13,3 +13,8 @@ export type Buttons = {
 export enum GEOLOCATION_STATUS {
   DENIEDGEOLOCATION = 'User denied Geolocation'
 }
+
+export enum SCROLL_BUTTON_POSITION {
+  UP = 'scrollUp',
+  DOWN = 'scrollDown'
+}

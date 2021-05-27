@@ -8,7 +8,7 @@ import {isMobile} from 'mobile-device-detect';
 import LoadingOverlay from '@/components/LoadingOverlay.vue';
 import ScrollDownButton from '@/components/ScrollDownButton.vue';
 import ChartButtons from '@/components/ChartButtons.vue';
-import {Buttons, GEOLOCATION_STATUS} from '@/commonconstants';
+import {Buttons, GEOLOCATION_STATUS, SCROLL_BUTTON_POSITION} from '@/commonconstants';
 import {Geolocation} from '@capacitor/core';
 
 @Component({
@@ -61,7 +61,6 @@ export default class App extends Vue {
   private windowHeight = 0;
 
   private keyboardShowHideHandler() {
-    debugger
     App.resizeBackgroundImg(this.windowHeight);
   }
 
@@ -105,17 +104,17 @@ export default class App extends Vue {
 
   private loading: boolean = false;
   private downButtonIcon: string = 'chevron-down';
-  private scrollUpOrDown: string = 'scrollDown';
+  private scrollUpOrDown: string = SCROLL_BUTTON_POSITION.DOWN;
 
   private changeScrollBtnIcon(e: { target: HTMLInputElement }) {
     const screenHeight = e.target.offsetHeight;
     const scrollFromTop = e.target.scrollTop;
     if ((screenHeight - 120) > scrollFromTop) {
       this.downButtonIcon = 'chevron-down';
-      this.scrollUpOrDown = 'scrollDown';
+      this.scrollUpOrDown = SCROLL_BUTTON_POSITION.DOWN;
     } else {
       this.downButtonIcon = 'chevron-up';
-      this.scrollUpOrDown = 'scrollUp';
+      this.scrollUpOrDown = SCROLL_BUTTON_POSITION.UP;
     }
   }
 
@@ -125,7 +124,7 @@ export default class App extends Vue {
       default:
         mainEl!.scrollBy(0, 1000);
         break;
-      case 'scrollUp':
+      case SCROLL_BUTTON_POSITION.UP:
         mainEl!.scrollBy(0, -1000);
         break;
     }
@@ -708,9 +707,7 @@ export default class App extends Vue {
     });
   }
 
-  private async getWeather() {
-    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
-    const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
+  private async getWeather(results: any) {
     this.weather = results;
     this.coords = results.coord;
     this.tempLabels = [{label: 'Minimum temperature:', value: `${Math.round(this.weather.main.temp_min)}°C`},
@@ -725,21 +722,16 @@ export default class App extends Vue {
     await this.backgroundImage();
   }
 
+  private async getWeatherBySearching() {
+    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
+    const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
+    await this.getWeather(results);
+  }
+
   private async getWeatherByCoords() {
     App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
     const results = await this.request(`${this.urlBase}weather?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
-    this.weather = results;
-    this.coords = results.coord;
-    this.tempLabels = [{label: 'Minimum temperature:', value: `${Math.round(this.weather.main.temp_min)}°C`},
-      {label: 'Feels like:', value: `${Math.round(this.weather.main.feels_like)}°C`},
-      {label: 'Maximum temperature:', value: `${Math.round(this.weather.main.temp_max)}°C`},
-      {label: 'Humidity:', value: `${Math.round(this.weather.main.humidity)}%`},
-      {label: 'Pressure:', value: `${Math.round(this.weather.main.pressure)}hPa`},
-      {label: 'Wind speed:', value: `${Math.round(this.weather.wind.speed)}m/s`}];
-    (this.$refs.input as HTMLInputElement).blur();
-    await this.setImageName();
-    await this.getWeatherForNextDays();
-    await this.backgroundImage();
+    await this.getWeather(results);
   }
 
   private async getWeatherForNextDays() {

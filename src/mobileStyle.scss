@@ -4,7 +4,7 @@
   main {
     padding: 0 !important;
     display: grid;
-    grid-template-rows: 100vh 87vh;
+    grid-template-rows: 100vh 100vh;
     scroll-behavior: smooth;
     overflow: auto;
     overflow-x: hidden;
@@ -21,6 +21,7 @@
       justify-content: center;
       flex-direction: column;
       align-items: center;
+      height: 100%;
 
       :first-child.weather-wrap {
         background: transparent;
@@ -154,6 +155,7 @@
     }
 
     & > .chartPage {
+      background-color:black;
       grid-row: 2;
       height: 94vh;
       display: grid;
