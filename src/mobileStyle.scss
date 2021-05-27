@@ -148,6 +148,7 @@
       width: 100vw;
       justify-content: center;
       align-items: center;
+
       & .search-bar {
         width: 100%;
         color: #b5e715;
@@ -155,7 +156,6 @@
     }
 
     & > .chartPage {
-      background-color:black;
       grid-row: 2;
       height: 94vh;
       display: grid;
@@ -222,6 +222,17 @@
   .secondWeatherWindow {
     & > span {
       font-size: 1.3rem;
+    }
+  }
+  .highcharts-data-label {
+    & > * {
+      font-size: 1rem !important;
+    }
+  }
+  .highcharts-xaxis-labels {
+    & > * {
+      fill: black !important;
+      font-size: 1rem !important;
     }
   }
 }

@@ -147,6 +147,21 @@ html, body {
   flex-direction: column;
   justify-content: center;
 
+  & > * {
+    font-family: "Times New Roman", sans-serif !important;
+  }
+
+  & rect {
+    stroke-width: 0;
+  }
+
+  & path {
+  }
+
+  & path:last-child {
+    stroke-width: 1;
+  }
+
   .highcharts-data-label-box {
     fill: rgba(253, 251, 251, 0.8);
     stroke: gray;
@@ -155,13 +170,6 @@ html, body {
 
   .highcharts-plot-background {
     fill: $whitish;
-  }
-
-  .highcharts-xaxis-labels {
-    & > * {
-      fill: black !important;
-      font-size: 1rem !important;
-    }
   }
 
   .highcharts-background {
@@ -246,7 +254,7 @@ html, body {
   background-size: cover;
 
   * {
-    font-family: Nunito-Regular, sans-serif !important;
+    font-family: Nunito-Regular, sans-serif;
   }
 
   .search-box {

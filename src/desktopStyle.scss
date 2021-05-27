@@ -229,4 +229,17 @@
 
     }
   }
+
+  .highcharts-data-label {
+    & > * {
+      font-size: 1.3rem !important;
+    }
+  }
+  .highcharts-xaxis-labels {
+    & > * {
+      fill: black !important;
+      font-size: 1.3rem !important;
+    }
+  }
+
 }

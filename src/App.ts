@@ -270,7 +270,7 @@ export default class App extends Vue {
   private hourlyForecast: any = {
     chart: {
       // type of diagram
-      type: 'spline',
+      type: 'column',
       marginLeft: 2,
       marginRight: 2,
       marginTop: 2,
@@ -279,22 +279,16 @@ export default class App extends Vue {
       panning: true
     },
     plotOptions: {
-      spline: {
+      column: {
         dataLabels: {
           style: {
             textOutline: 0,
-            fontSize: '0.9rem',
-            fontFamily: 'Trebuchet MS'
           },
-          format: '{y}°C </br> {x}h',
-          borderWidth: 2,
-          padding: 5,
-          shadow: true,
-          allowOverlap: true,
           enabled: true,
-          borderRadius: 1,
-          y: -15,
-          shape: 'callout'
+          format: '{y}°C',
+          color: 'whitesmoke',
+          shadow: false,
+          inside: true
         }
       }
     },
@@ -313,6 +307,7 @@ export default class App extends Vue {
     series: [{
       name: 'Hourly Forecast',
       data: [],
+      pointWidth: 50,
       zones: [{
         value: 0,
         color: '#486eb1'
@@ -320,7 +315,7 @@ export default class App extends Vue {
         value: 5,
         color: '#fea82f'
       }, {
-        color: '#ea515f'
+        color: '#BA181B'
       }],
       color: null
     }],
@@ -332,12 +327,13 @@ export default class App extends Vue {
       max: (innerWidth > 600) ? 10 : 5,
       scrollbar: {
         enabled: true,
-        barBorderRadius: 7,
         barBorderWidth: 0,
         buttonBorderWidth: 0,
-        buttonBorderRadius: 7,
+        barBackgroundColor: 'gray',
+        buttonBackgroundColor: 'silver',
         trackBorderWidth: 1,
-        trackBorderRadius: 7
+        trackBorderColor: 'gray',
+        height: 30
       },
       tickLength: 0,
       rangeSelector: {
@@ -412,11 +408,9 @@ export default class App extends Vue {
           color: 'black',
           format: '{y} m/s',
           enabled: true,
-          fontSize: '3rem',
           style: {
             textOutline: 0,
-            fontSize: '1rem',
-            fontFamily: 'Trebuchet MS'
+            fontSize: '1rem'
           },
           allowOverlap: true
         }
@@ -484,7 +478,6 @@ export default class App extends Vue {
           style: {
             textOutline: 0
           },
-          color: 'black',
           format: '{y}°C',
           enabled: true
         }
@@ -515,6 +508,7 @@ export default class App extends Vue {
       color: null,
       stacking: 'normal',
       dataLabels: {
+        color: 'whitesmoke',
         style: {
           fontSize: '1rem',
           fontFamily: 'Trebuchet MS'
@@ -567,7 +561,7 @@ export default class App extends Vue {
             fontSize: '1rem',
             fontFamily: 'Trebuchet MS'
           },
-          color: 'black',
+          color: 'whitesmoke',
           format: '{y}°C',
           enabled: true
         }
@@ -737,7 +731,7 @@ export default class App extends Vue {
   private async getWeatherForNextDays() {
     function colorPicker(temp: number) {
       if (temp > 0) {
-        return '#ea515f';
+        return '#BA181B';
       }
       return '#486eb1';
     }
