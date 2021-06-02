@@ -1,6 +1,7 @@
 /* eslint-disable */
 // vue.config.js
 const { version } = require('./package.json');
+
 module.exports = {
   productionSourceMap: false,
   configureWebpack: {
