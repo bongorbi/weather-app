@@ -776,8 +776,15 @@ export default class App extends Vue {
   }
 
   private static pastWeekDays(array: any[], today: number) {
-    const week = array.slice(today - 1, array.length).concat(array.slice(0, today));
-    week.push(week[0]);
+    let week: any[];
+    if (today === 0) {
+      const firstEl = array[array.length - 1];
+      week = array.slice(0);
+      week.unshift(firstEl);
+    } else {
+      week = array.slice(today - 1, array.length).concat(array.slice(0, today));
+      week.push(week[0]);
+    }
     return week;
   }
 
