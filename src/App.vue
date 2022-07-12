@@ -15,7 +15,7 @@
               @focus="hideAndBlurContent"
               @focusout="hideAndBlurContent"
               @keypress.enter="getWeatherBySearching"
-            />
+            >
           </label>
           <button v-if="!hideContent && isMobile" class="fullscreen" @click="goFullscreen">
             <font-awesome-icon ref="functionButton" aria-hidden="true" icon="expand-alt" class="icon" />
@@ -37,12 +37,14 @@
               <font-awesome-icon aria-hidden="true" icon="redo" class="icon" />
             </button>
           </div>
-          <img id="errImage" :src="errImage" :alt="imageNextToDeg" />
+          <img id="errImage" :src="errImage" :alt="imageNextToDeg" >
         </div>
         <div v-if="!hideContent" class="contentContainer">
           <div v-if="typeof weather.main != 'undefined' && error === ''" class="weather-wrap">
             <div class="location-box">
-              <div class="location">{{ weather.name }}, {{ weather.sys.country }}</div>
+              <div class="location">
+                {{ weather.name }}, {{ weather.sys.country }}
+              </div>
               <div class="date">
                 {{ dateBuilder() }}
               </div>
@@ -58,7 +60,7 @@
               </div>
               <div class="weather">
                 {{ weather.weather[0].main }}
-                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg" />
+                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg" >
               </div>
             </div>
           </div>
@@ -208,20 +210,18 @@ export default class App extends Vue {
       const doc = window.document;
       const docEl = doc.documentElement;
       // @ts-ignore
-      const requestFullScreen =
-        docEl.requestFullscreen ||
-        docEl.mozRequestFullScreen ||
-        docEl.webkitRequestFullScreen ||
-        docEl.msRequestFullscreen;
+      const requestFullScreen = docEl.requestFullscreen
+        || docEl.mozRequestFullScreen
+        || docEl.webkitRequestFullScreen
+        || docEl.msRequestFullscreen;
       // @ts-ignore
-      const cancelFullScreen =
-        doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
       // @ts-ignore
       if (
-        !doc.fullscreenElement &&
-        !doc.mozFullScreenElement &&
-        !doc.webkitFullscreenElement &&
-        !doc.msFullscreenElement
+        !doc.fullscreenElement
+        && !doc.mozFullScreenElement
+        && !doc.webkitFullscreenElement
+        && !doc.msFullscreenElement
       ) {
         requestFullScreen.call(docEl);
       } else {
@@ -347,7 +347,7 @@ export default class App extends Vue {
 
   private async takeAllImages() {
     const pictures = require.context('../public/assets/', true);
-    pictures.keys().forEach((key) => {
+    pictures.keys().forEach(key => {
       this.weatherSmallPicture.push(key.substring(2, 6));
     });
   }
@@ -494,8 +494,7 @@ export default class App extends Vue {
       formatter() {
         // @ts-ignore
         return this.points.reduce(
-          (s: any, point: { y: any; series: { name: string } }) =>
-            `Hour: ${s}<br/>Celsius:${point.y}${App.metricUnitSetter(point.series.name)}`,
+          (s: any, point: { y: any; series: { name: string } }) => `Hour: ${s}<br/>Celsius:${point.y}${App.metricUnitSetter(point.series.name)}`,
           `<b>${this.x}</b>`
         );
       }
@@ -531,7 +530,7 @@ export default class App extends Vue {
       hours.push(currentHour);
       n += 1;
     }
-    return hours.map((x) => `${x}:00`);
+    return hours.map(x => `${x}:00`);
   }
 
   private windChart: any = {
@@ -603,8 +602,7 @@ export default class App extends Vue {
       // @ts-ignore
       formatter() {
         return this.points.reduce(
-          (s: any, point: { series: { name: string }; y: any }) =>
-            `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
+          (s: any, point: { series: { name: string }; y: any }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
           `<b>${this.x}</b>`
         );
       }
@@ -693,8 +691,7 @@ export default class App extends Vue {
       formatter() {
         // @ts-ignore
         return this.points.reduce(
-          (s: any, point: { series: { name: string }; y: any }) =>
-            `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
+          (s: any, point: { series: { name: string }; y: any }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
           `<b>${this.x}</b>`
         );
       }
@@ -780,8 +777,7 @@ export default class App extends Vue {
         console.log(this);
         // @ts-ignore
         return this.points.reduce(
-          (s: any, point: { series: { name: string }; y: any }) =>
-            `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
+          (s: any, point: { series: { name: string }; y: any }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
           `<b>${this.x}</b>`
         );
       }
@@ -807,13 +803,13 @@ export default class App extends Vue {
   ];
 
   private onChartButtonClick(buttonType: Buttons) {
-    this.chartButtons.forEach((button) => {
+    this.chartButtons.forEach(button => {
       if (button.selected) {
         // eslint-disable-next-line no-param-reassign
         button.selected = false;
       }
     });
-    const button = this.chartButtons.find((obj) => obj.title === buttonType.title);
+    const button = this.chartButtons.find(obj => obj.title === buttonType.title);
     button!.selected = true;
   }
 
