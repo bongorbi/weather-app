@@ -15,26 +15,13 @@
               @focus="hideAndBlurContent"
               @focusout="hideAndBlurContent"
               @keypress.enter="getWeatherBySearching"
-            >
-          </label>
-          <button
-            v-if="!hideContent && isMobile"
-            class="fullscreen"
-            @click="goFullscreen"
-          >
-            <font-awesome-icon
-              ref="functionButton"
-              aria-hidden="true"
-              icon="expand-alt"
-              class="icon"
             />
+          </label>
+          <button v-if="!hideContent && isMobile" class="fullscreen" @click="goFullscreen">
+            <font-awesome-icon ref="functionButton" aria-hidden="true" icon="expand-alt" class="icon" />
           </button>
         </div>
-        <div
-          v-if="error !== ''"
-          class="error"
-          :class="{ nothingFoundErr: error === 'No city results...' }"
-        >
+        <div v-if="error !== ''" class="error" :class="{ nothingFoundErr: error === 'No city results...' }">
           <div>
             <p>
               {{ errorDisplayMsg }}
@@ -46,25 +33,16 @@
               icon="hand-point-right"
               class="handIcon"
             />
-            <button
-              v-show="error === 'User denied Geolocation'"
-              class="refreshBtn"
-              @click="reloadPage"
-            >
+            <button v-show="error === 'User denied Geolocation'" class="refreshBtn" @click="reloadPage">
               <font-awesome-icon aria-hidden="true" icon="redo" class="icon" />
             </button>
           </div>
-          <img id="errImage" :src="errImage" :alt="imageNextToDeg" >
+          <img id="errImage" :src="errImage" :alt="imageNextToDeg" />
         </div>
         <div v-if="!hideContent" class="contentContainer">
-          <div
-            v-if="typeof weather.main != 'undefined' && error === ''"
-            class="weather-wrap"
-          >
+          <div v-if="typeof weather.main != 'undefined' && error === ''" class="weather-wrap">
             <div class="location-box">
-              <div class="location">
-                {{ weather.name }}, {{ weather.sys.country }}
-              </div>
+              <div class="location">{{ weather.name }}, {{ weather.sys.country }}</div>
               <div class="date">
                 {{ dateBuilder() }}
               </div>
@@ -74,46 +52,28 @@
             </div>
             <div class="weather-box">
               <div class="weather">
-                <span
-                  class="temp"
-                  :class="typeof weather.main != 'undefined' && tempClass()"
-                >
+                <span class="temp" :class="typeof weather.main != 'undefined' && tempClass()">
                   {{ Math.round(weather.main.temp) }}°C</span
                 >
               </div>
               <div class="weather">
                 {{ weather.weather[0].main }}
-                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg" >
+                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg" />
               </div>
             </div>
           </div>
           <div
-            v-if="
-              typeof weather.main != 'undefined' &&
-                error === '' &&
-                tempLabels.length > 0
-            "
+            v-if="typeof weather.main != 'undefined' && error === '' && tempLabels.length > 0"
             class="weather-wrap"
             :class="tempClass()"
           >
-            <div
-              v-for="row in tempLabels"
-              :key="row.label"
-              class="secondWeatherWindow"
-            >
+            <div v-for="row in tempLabels" :key="row.label" class="secondWeatherWindow">
               <span>{{ row.label }}</span>
               <span>{{ row.value }}</span>
             </div>
           </div>
         </div>
-        <div
-          v-if="
-            !hideContent &&
-              typeof weather.main != 'undefined' &&
-              error === '' &&
-              isMobile
-          "
-        >
+        <div v-if="!hideContent && typeof weather.main != 'undefined' && error === '' && isMobile">
           <ScrollDownButton
             :down-button-icon="downButtonIcon"
             :custom-class="typeof weather.main != 'undefined' && tempClass()"
@@ -121,12 +81,7 @@
           />
         </div>
       </div>
-      <div
-        v-show="
-          !hideContent && error === '' && typeof weather.main != 'undefined'
-        "
-        class="chartPage"
-      >
+      <div v-show="!hideContent && error === '' && typeof weather.main != 'undefined'" class="chartPage">
         <div class="buttonContainer">
           <button
             v-show="!isMobile"
@@ -145,26 +100,14 @@
             Next week's forecast
           </button>
         </div>
-        <div
-          v-show="!nextWeeksCharts || isMobile"
-          class="tableAndTitleContainer"
-        >
+        <div v-show="!nextWeeksCharts || isMobile" class="tableAndTitleContainer">
           <p>48 hours forecast:</p>
-          <ChartComponent
-            :chartOptions="hourlyForecast"
-            :class="typeof weather.main != 'undefined' && tempClass()"
-          />
+          <ChartComponent :chartOptions="hourlyForecast" :class="typeof weather.main != 'undefined' && tempClass()" />
         </div>
-        <div
-          v-show="nextWeeksCharts || isMobile"
-          class="tableAndTitleContainer"
-        >
+        <div v-show="nextWeeksCharts || isMobile" class="tableAndTitleContainer">
           <p>Next week's:</p>
           <div>
-            <ChartButtons
-              :chart-types="chartButtons"
-              @button-click="onChartButtonClick"
-            />
+            <ChartButtons :chart-types="chartButtons" @button-click="onChartButtonClick" />
             <ChartComponent
               v-for="(chart, index) in chartButtons"
               v-show="chart.selected"
@@ -185,11 +128,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import axios, { AxiosResponse, Method } from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { isMobile } from 'mobile-device-detect';
-import {
-  Buttons,
-  GEOLOCATION_STATUS,
-  SCROLL_BUTTON_POSITION
-} from '@/commonconstants';
+import { Buttons, GEOLOCATION_STATUS, SCROLL_BUTTON_POSITION } from '@/commonconstants';
 import { Geolocation } from '@capacitor/core';
 
 const ChartComponent = () => import('@/components/Chart.vue');
@@ -259,14 +198,8 @@ export default class App extends Vue {
     this.windowHeight = window.innerHeight;
     this.resizeChart();
     // предотвратява фоновата картинка да се свива при поява на клавиатурата, защото vh се сменя
-    window.addEventListener(
-      'native.showkeyboard',
-      this.keyboardShowHideHandler
-    );
-    window.addEventListener(
-      'native.hidekeyboard',
-      this.keyboardShowHideHandler
-    );
+    window.addEventListener('native.showkeyboard', this.keyboardShowHideHandler);
+    window.addEventListener('native.hidekeyboard', this.keyboardShowHideHandler);
     await this.getCurrentPosition();
   }
 
@@ -275,21 +208,20 @@ export default class App extends Vue {
       const doc = window.document;
       const docEl = doc.documentElement;
       // @ts-ignore
-      const requestFullScreen = docEl.requestFullscreen
-        || docEl.mozRequestFullScreen
-        || docEl.webkitRequestFullScreen
-        || docEl.msRequestFullscreen;
+      const requestFullScreen =
+        docEl.requestFullscreen ||
+        docEl.mozRequestFullScreen ||
+        docEl.webkitRequestFullScreen ||
+        docEl.msRequestFullscreen;
       // @ts-ignore
-      const cancelFullScreen = doc.exitFullscreen
-        || doc.mozCancelFullScreen
-        || doc.webkitExitFullscreen
-        || doc.msExitFullscreen;
+      const cancelFullScreen =
+        doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
       // @ts-ignore
       if (
-        !doc.fullscreenElement
-        && !doc.mozFullScreenElement
-        && !doc.webkitFullscreenElement
-        && !doc.msFullscreenElement
+        !doc.fullscreenElement &&
+        !doc.mozFullScreenElement &&
+        !doc.webkitFullscreenElement &&
+        !doc.msFullscreenElement
       ) {
         requestFullScreen.call(docEl);
       } else {
@@ -334,9 +266,7 @@ export default class App extends Vue {
 
   private static resizeBackgroundImg(pixels: number) {
     if (isMobile) {
-      document
-        .getElementById('backgroundImg')!
-        .style.setProperty('height', `${pixels}px`);
+      document.getElementById('backgroundImg')!.style.setProperty('height', `${pixels}px`);
     }
   }
 
@@ -417,7 +347,7 @@ export default class App extends Vue {
 
   private async takeAllImages() {
     const pictures = require.context('../public/assets/', true);
-    pictures.keys().forEach(key => {
+    pictures.keys().forEach((key) => {
       this.weatherSmallPicture.push(key.substring(2, 6));
     });
   }
@@ -564,9 +494,8 @@ export default class App extends Vue {
       formatter() {
         // @ts-ignore
         return this.points.reduce(
-          (s: any, point: { y: any; series: { name: string; }; }) => `Hour: ${s}<br/>Celsius:${point.y}${App.metricUnitSetter(
-            point.series.name
-          )}`,
+          (s: any, point: { y: any; series: { name: string } }) =>
+            `Hour: ${s}<br/>Celsius:${point.y}${App.metricUnitSetter(point.series.name)}`,
           `<b>${this.x}</b>`
         );
       }
@@ -602,7 +531,7 @@ export default class App extends Vue {
       hours.push(currentHour);
       n += 1;
     }
-    return hours.map(x => `${x}:00`);
+    return hours.map((x) => `${x}:00`);
   }
 
   private windChart: any = {
@@ -674,9 +603,8 @@ export default class App extends Vue {
       // @ts-ignore
       formatter() {
         return this.points.reduce(
-          (s: any, point: { series: { name: string; }; y: any; }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(
-            point.series.name
-          )}`,
+          (s: any, point: { series: { name: string }; y: any }) =>
+            `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
           `<b>${this.x}</b>`
         );
       }
@@ -701,6 +629,7 @@ export default class App extends Vue {
           },
           formatter(): any {
             const color = this.y === 0 ? 'black' : 'white';
+            // @ts-ignore
             return `<span style="color: ${color}">${this.y}°C</span>`;
           },
           enabled: true
@@ -764,9 +693,8 @@ export default class App extends Vue {
       formatter() {
         // @ts-ignore
         return this.points.reduce(
-          (s: any, point: { series: { name: string; }; y: any; }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(
-            point.series.name
-          )}`,
+          (s: any, point: { series: { name: string }; y: any }) =>
+            `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
           `<b>${this.x}</b>`
         );
       }
@@ -852,9 +780,8 @@ export default class App extends Vue {
         console.log(this);
         // @ts-ignore
         return this.points.reduce(
-          (s: any, point: { series: { name: string; }; y: any; }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(
-            point.series.name
-          )}`,
+          (s: any, point: { series: { name: string }; y: any }) =>
+            `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
           `<b>${this.x}</b>`
         );
       }
@@ -880,15 +807,13 @@ export default class App extends Vue {
   ];
 
   private onChartButtonClick(buttonType: Buttons) {
-    this.chartButtons.forEach(button => {
+    this.chartButtons.forEach((button) => {
       if (button.selected) {
         // eslint-disable-next-line no-param-reassign
         button.selected = false;
       }
     });
-    const button = this.chartButtons.find(
-      obj => obj.title === buttonType.title
-    );
+    const button = this.chartButtons.find((obj) => obj.title === buttonType.title);
     button!.selected = true;
   }
 
@@ -933,10 +858,7 @@ export default class App extends Vue {
 
   private setImageName() {
     this.weatherSmallPicture.forEach((word, index) => {
-      if (
-        word.substring(0, 3).toLowerCase()
-        === this.weather.weather[0].main.substring(0, 3).toLowerCase()
-      ) {
+      if (word.substring(0, 3).toLowerCase() === this.weather.weather[0].main.substring(0, 3).toLowerCase()) {
         const images = require.context('../public/assets/', true);
         const image = images.keys();
         this.imageNextToDeg = image[index].substring(2, image[index].length);
@@ -994,12 +916,7 @@ export default class App extends Vue {
   }
 
   private async getWeatherBySearching() {
-    App.clearChartData([
-      this.tempChart,
-      this.windChart,
-      this.feelsLikeChart,
-      this.hourlyForecast
-    ]);
+    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
     const results = await this.request(
       `${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`,
       'GET'
@@ -1008,12 +925,7 @@ export default class App extends Vue {
   }
 
   private async getWeatherByCoords() {
-    App.clearChartData([
-      this.tempChart,
-      this.windChart,
-      this.feelsLikeChart,
-      this.hourlyForecast
-    ]);
+    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
     const results = await this.request(
       `${this.urlBase}weather?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`,
       'GET'
@@ -1088,15 +1000,7 @@ export default class App extends Vue {
       'November',
       'December'
     ];
-    const days = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday'
-    ];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const day = days[d.getDay()];
     const date = d.getDate();
     const month = months[d.getMonth()];
@@ -1108,13 +1012,13 @@ export default class App extends Vue {
 
 <style lang="scss">
 @font-face {
-  font-family: "Nunito-Regular";
-  src: url("../public/fonts/Nunito/Nunito-Regular.ttf") format("truetype");
+  font-family: 'Nunito-Regular';
+  src: url('../public/fonts/Nunito/Nunito-Regular.ttf') format('truetype');
 }
 
-@import "./src/colors.scss";
-@import "./src/desktopStyle.scss";
-@import "./src/mobileStyle.scss";
+@import './src/colors.scss';
+@import './src/desktopStyle.scss';
+@import './src/mobileStyle.scss';
 
 * {
   box-sizing: border-box;
@@ -1133,7 +1037,7 @@ body {
   justify-content: center;
 
   & > * {
-    font-family: "Times New Roman", sans-serif !important;
+    font-family: 'Times New Roman', sans-serif !important;
   }
 
   // borders on the chart bars
@@ -1229,7 +1133,7 @@ body {
 #backgroundImg {
   display: block;
   position: fixed;
-  background: url("../public/assets/over16background.jpg");
+  background: url('../public/assets/over16background.jpg');
   width: 100%;
   min-height: 100vh;
   bottom: 0;

@@ -19,7 +19,6 @@ module.exports = {
     parser: '@typescript-eslint/parser'
   },
   rules: {
-    quotes: ['error', 'single'],
     'max-len': [
       'warn',
       {
@@ -34,10 +33,7 @@ module.exports = {
     'no-undef': 'off',
     'object-curly-spacing': 'off',
     'import/newline-after-import': 'off',
-    'comma-dangle': [
-      'error',
-      'never'
-    ],
+    'comma-dangle': ['error', 'never'],
     'vue/html-closing-bracket-spacing': 'off',
     'vue/html-closing-bracket-newline': 'off',
     'vue/mustache-interpolation-spacing': 'warn',
@@ -54,6 +50,5 @@ module.exports = {
     'linebreak-style': 0,
     'arrow-parens': ['error', 'as-needed'],
     'object-curly-newline': 'off'
-
   }
 };
