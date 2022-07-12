@@ -51,7 +51,9 @@ module.exports = {
     'class-methods-use-this': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'lines-between-class-members': 'off',
+    'linebreak-style': 0,
     'arrow-parens': ['error', 'as-needed'],
     'object-curly-newline': 'off'
+
   }
 };

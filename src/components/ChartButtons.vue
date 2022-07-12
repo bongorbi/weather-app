@@ -1,8 +1,9 @@
 <template>
   <div class="chartButtons">
-    <button v-for="chartType in chartTypes" :key="chartType.title" :chartTypes="chartTypes" class="buttons"
-            :class="{'selected':chartType.selected}"
-            @click="onClick(chartType)">
+    <button
+      v-for="chartType in chartTypes" :key="chartType.title" :chartTypes="chartTypes" class="buttons"
+      :class="{'selected':chartType.selected}"
+      @click="onClick(chartType)">
       {{ chartType.title }}
     </button>
   </div>

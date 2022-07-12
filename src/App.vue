@@ -4,8 +4,9 @@
     <main @scroll.passive="changeScrollBtnIcon">
       <div id="infoForecast" class="infoForecast">
         <div class="search-box">
-          <label>
+          <label for="search-bar">
             <input
+              id="search-bar"
               ref="input"
               v-model="query"
               type="text"
@@ -31,11 +32,13 @@
             <p>
               {{ errorDisplayMsg }}
             </p>
-            <font-awesome-icon v-show="error===deniedLocation" color="#3f52d8" aria-hidden="true"
-                               icon="hand-point-right"
-                               class="handIcon"/>
-            <button v-show="error==='User denied Geolocation'" class="refreshBtn"
-                    @click="reloadPage">
+            <font-awesome-icon
+              v-show="error===deniedLocation" color="#3f52d8" aria-hidden="true"
+              icon="hand-point-right"
+              class="handIcon"/>
+            <button
+              v-show="error==='User denied Geolocation'" class="refreshBtn"
+              @click="reloadPage">
               <font-awesome-icon
                 aria-hidden="true"
                 icon="redo"
@@ -70,8 +73,9 @@
               </div>
             </div>
           </div>
-          <div v-if="typeof weather.main != 'undefined' && error==='' && tempLabels.length>0" class="weather-wrap"
-               :class="tempClass()">
+          <div
+            v-if="typeof weather.main != 'undefined' && error==='' && tempLabels.length>0" class="weather-wrap"
+            :class="tempClass()">
             <div v-for="row in tempLabels" :key="row.label" class="secondWeatherWindow">
               <span>{{ row.label }}</span>
               <span>{{ row.value }}</span>
@@ -85,15 +89,18 @@
             @emit-scroll="scrollButton"/>
         </div>
       </div>
-      <div v-show="!hideContent && error===''&& typeof weather.main != 'undefined'"
-           class="chartPage">
+      <div
+        v-show="!hideContent && error===''&& typeof weather.main != 'undefined'"
+        class="chartPage">
         <div class="buttonContainer">
-          <button v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':!nextWeeksCharts}"
-                  @click="nextWeeksCharts=false">
+          <button
+            v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':!nextWeeksCharts}"
+            @click="nextWeeksCharts=false">
             48 hours forecast
           </button>
-          <button v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':nextWeeksCharts}"
-                  @click="nextWeeksCharts=true">
+          <button
+            v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':nextWeeksCharts}"
+            @click="nextWeeksCharts=true">
             Next week's forecast
           </button>
         </div>
@@ -106,10 +113,11 @@
           <p>Next week's:</p>
           <div>
             <ChartButtons :chart-types="chartButtons" @button-click="onChartButtonClick"/>
-            <ChartComponent v-for="(chart, index) in chartButtons" v-show="chart.selected"
-                            :key="index"
-                            :class="typeof weather.main != 'undefined' && tempClass()"
-                            :chartOptions="chart.chartName"/>
+            <ChartComponent
+              v-for="(chart, index) in chartButtons" v-show="chart.selected"
+              :key="index"
+              :class="typeof weather.main != 'undefined' && tempClass()"
+              :chartOptions="chart.chartName"/>
           </div>
         </div>
       </div>
@@ -238,11 +246,11 @@ export default class App extends Vue {
   private scrollButton() {
     const mainEl = document.querySelector('main');
     switch (this.scrollUpOrDown) {
-      default:
-        mainEl!.scrollBy(0, 1000);
-        break;
       case SCROLL_BUTTON_POSITION.UP:
         mainEl!.scrollBy(0, -1000);
+        break;
+      default:
+        mainEl!.scrollBy(0, 1000);
         break;
     }
   }
@@ -301,9 +309,6 @@ export default class App extends Vue {
     const {temp} = this.weather.main;
     let cssClass = '';
     switch (true) {
-      default:
-        cssClass = '';
-        break;
       case temp <= 2:
         cssClass = 'bellow2';
         break;
@@ -312,6 +317,9 @@ export default class App extends Vue {
         break;
       case temp >= 16:
         cssClass = 'over16';
+        break;
+      default:
+        cssClass = '';
         break;
     }
     return cssClass;
