@@ -1,6 +1,6 @@
 <template>
-  <div id="backgroundImg" :style="{'background-image': backgroundImgSrc}">
-    <loading-overlay v-if="loading"/>
+  <div id="backgroundImg" :style="{ 'background-image': backgroundImgSrc }">
+    <loading-overlay v-if="loading" />
     <main @scroll.passive="changeScrollBtnIcon">
       <div id="infoForecast" class="infoForecast">
         <div class="search-box">
@@ -14,41 +14,53 @@
               placeholder="Search City..."
               @focus="hideAndBlurContent"
               @focusout="hideAndBlurContent"
-              @keypress.enter="getWeatherBySearching">
+              @keypress.enter="getWeatherBySearching"
+            >
           </label>
           <button
             v-if="!hideContent && isMobile"
             class="fullscreen"
-            @click="goFullscreen">
+            @click="goFullscreen"
+          >
             <font-awesome-icon
               ref="functionButton"
               aria-hidden="true"
               icon="expand-alt"
-              class="icon"/>
+              class="icon"
+            />
           </button>
         </div>
-        <div v-if="error!==''" class="error" :class="{'nothingFoundErr':error==='No city results...'}">
+        <div
+          v-if="error !== ''"
+          class="error"
+          :class="{ nothingFoundErr: error === 'No city results...' }"
+        >
           <div>
             <p>
               {{ errorDisplayMsg }}
             </p>
             <font-awesome-icon
-              v-show="error===deniedLocation" color="#3f52d8" aria-hidden="true"
+              v-show="error === deniedLocation"
+              color="#3f52d8"
+              aria-hidden="true"
               icon="hand-point-right"
-              class="handIcon"/>
+              class="handIcon"
+            />
             <button
-              v-show="error==='User denied Geolocation'" class="refreshBtn"
-              @click="reloadPage">
-              <font-awesome-icon
-                aria-hidden="true"
-                icon="redo"
-                class="icon"/>
+              v-show="error === 'User denied Geolocation'"
+              class="refreshBtn"
+              @click="reloadPage"
+            >
+              <font-awesome-icon aria-hidden="true" icon="redo" class="icon" />
             </button>
           </div>
-          <img id="errImage" :src="errImage" :alt="imageNextToDeg">
+          <img id="errImage" :src="errImage" :alt="imageNextToDeg" >
         </div>
         <div v-if="!hideContent" class="contentContainer">
-          <div v-if="typeof weather.main != 'undefined' && error===''" class="weather-wrap">
+          <div
+            v-if="typeof weather.main != 'undefined' && error === ''"
+            class="weather-wrap"
+          >
             <div class="location-box">
               <div class="location">
                 {{ weather.name }}, {{ weather.sys.country }}
@@ -62,62 +74,104 @@
             </div>
             <div class="weather-box">
               <div class="weather">
-                <span class="temp" :class="typeof weather.main != 'undefined' && tempClass()">
-                  {{
-                    Math.round(weather.main.temp)
-                  }}°C</span>
+                <span
+                  class="temp"
+                  :class="typeof weather.main != 'undefined' && tempClass()"
+                >
+                  {{ Math.round(weather.main.temp) }}°C</span
+                >
               </div>
               <div class="weather">
                 {{ weather.weather[0].main }}
-                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
+                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg" >
               </div>
             </div>
           </div>
           <div
-            v-if="typeof weather.main != 'undefined' && error==='' && tempLabels.length>0" class="weather-wrap"
-            :class="tempClass()">
-            <div v-for="row in tempLabels" :key="row.label" class="secondWeatherWindow">
+            v-if="
+              typeof weather.main != 'undefined' &&
+                error === '' &&
+                tempLabels.length > 0
+            "
+            class="weather-wrap"
+            :class="tempClass()"
+          >
+            <div
+              v-for="row in tempLabels"
+              :key="row.label"
+              class="secondWeatherWindow"
+            >
               <span>{{ row.label }}</span>
               <span>{{ row.value }}</span>
             </div>
           </div>
         </div>
-        <div v-if="!hideContent && typeof weather.main != 'undefined'&& error===''&& isMobile">
+        <div
+          v-if="
+            !hideContent &&
+              typeof weather.main != 'undefined' &&
+              error === '' &&
+              isMobile
+          "
+        >
           <ScrollDownButton
             :down-button-icon="downButtonIcon"
             :custom-class="typeof weather.main != 'undefined' && tempClass()"
-            @emit-scroll="scrollButton"/>
+            @emit-scroll="scrollButton"
+          />
         </div>
       </div>
       <div
-        v-show="!hideContent && error===''&& typeof weather.main != 'undefined'"
-        class="chartPage">
+        v-show="
+          !hideContent && error === '' && typeof weather.main != 'undefined'
+        "
+        class="chartPage"
+      >
         <div class="buttonContainer">
           <button
-            v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':!nextWeeksCharts}"
-            @click="nextWeeksCharts=false">
+            v-show="!isMobile"
+            class="chartButtons"
+            :class="{ selectedNextChartButton: !nextWeeksCharts }"
+            @click="nextWeeksCharts = false"
+          >
             48 hours forecast
           </button>
           <button
-            v-show="!isMobile" class="chartButtons" :class="{'selectedNextChartButton':nextWeeksCharts}"
-            @click="nextWeeksCharts=true">
+            v-show="!isMobile"
+            class="chartButtons"
+            :class="{ selectedNextChartButton: nextWeeksCharts }"
+            @click="nextWeeksCharts = true"
+          >
             Next week's forecast
           </button>
         </div>
-        <div v-show="!nextWeeksCharts || isMobile" class="tableAndTitleContainer">
+        <div
+          v-show="!nextWeeksCharts || isMobile"
+          class="tableAndTitleContainer"
+        >
           <p>48 hours forecast:</p>
-          <ChartComponent :chartOptions="hourlyForecast" :class="typeof weather.main != 'undefined' && tempClass()"
+          <ChartComponent
+            :chartOptions="hourlyForecast"
+            :class="typeof weather.main != 'undefined' && tempClass()"
           />
         </div>
-        <div v-show="nextWeeksCharts || isMobile" class="tableAndTitleContainer">
+        <div
+          v-show="nextWeeksCharts || isMobile"
+          class="tableAndTitleContainer"
+        >
           <p>Next week's:</p>
           <div>
-            <ChartButtons :chart-types="chartButtons" @button-click="onChartButtonClick"/>
+            <ChartButtons
+              :chart-types="chartButtons"
+              @button-click="onChartButtonClick"
+            />
             <ChartComponent
-              v-for="(chart, index) in chartButtons" v-show="chart.selected"
+              v-for="(chart, index) in chartButtons"
+              v-show="chart.selected"
               :key="index"
               :class="typeof weather.main != 'undefined' && tempClass()"
-              :chartOptions="chart.chartName"/>
+              :chartOptions="chart.chartName"
+            />
           </div>
         </div>
       </div>
@@ -126,13 +180,17 @@
 </template>
 
 <script lang="ts">
-import {Chart} from 'highcharts-vue';
-import {Component, Vue, Watch} from 'vue-property-decorator';
-import axios, {AxiosResponse, Method} from 'axios';
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
-import {isMobile} from 'mobile-device-detect';
-import {Buttons, GEOLOCATION_STATUS, SCROLL_BUTTON_POSITION} from '@/commonconstants';
-import {Geolocation} from '@capacitor/core';
+import { Chart } from 'highcharts-vue';
+import { Component, Vue, Watch } from 'vue-property-decorator';
+import axios, { AxiosResponse, Method } from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { isMobile } from 'mobile-device-detect';
+import {
+  Buttons,
+  GEOLOCATION_STATUS,
+  SCROLL_BUTTON_POSITION
+} from '@/commonconstants';
+import { Geolocation } from '@capacitor/core';
 
 const ChartComponent = () => import('@/components/Chart.vue');
 const LoadingOverlay = () => import('@/components/LoadingOverlay.vue');
@@ -158,7 +216,7 @@ export default class App extends Vue {
       this.coords.lon = coordinates.coords.longitude;
       this.coords.lat = coordinates.coords.latitude;
       await this.getWeatherByCoords();
-    } catch (e) {
+    } catch (e: any) {
       if (e.message === this.deniedLocation) {
         this.error = e.message;
       }
@@ -193,7 +251,7 @@ export default class App extends Vue {
     App.resizeBackgroundImg(this.windowHeight);
   }
 
-  private tempLabels: { label: string, value: any }[] = [];
+  private tempLabels: { label: string; value: any }[] = [];
 
   private async mounted() {
     // взима височината на екрана в началото, за да я използваме по-натам,
@@ -201,8 +259,14 @@ export default class App extends Vue {
     this.windowHeight = window.innerHeight;
     this.resizeChart();
     // предотвратява фоновата картинка да се свива при поява на клавиатурата, защото vh се сменя
-    window.addEventListener('native.showkeyboard', this.keyboardShowHideHandler);
-    window.addEventListener('native.hidekeyboard', this.keyboardShowHideHandler);
+    window.addEventListener(
+      'native.showkeyboard',
+      this.keyboardShowHideHandler
+    );
+    window.addEventListener(
+      'native.hidekeyboard',
+      this.keyboardShowHideHandler
+    );
     await this.getCurrentPosition();
   }
 
@@ -211,11 +275,22 @@ export default class App extends Vue {
       const doc = window.document;
       const docEl = doc.documentElement;
       // @ts-ignore
-      const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      const requestFullScreen = docEl.requestFullscreen
+        || docEl.mozRequestFullScreen
+        || docEl.webkitRequestFullScreen
+        || docEl.msRequestFullscreen;
       // @ts-ignore
-      const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      const cancelFullScreen = doc.exitFullscreen
+        || doc.mozCancelFullScreen
+        || doc.webkitExitFullscreen
+        || doc.msExitFullscreen;
       // @ts-ignore
-      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      if (
+        !doc.fullscreenElement
+        && !doc.mozFullScreenElement
+        && !doc.webkitFullscreenElement
+        && !doc.msFullscreenElement
+      ) {
         requestFullScreen.call(docEl);
       } else {
         cancelFullScreen.call(doc);
@@ -234,7 +309,7 @@ export default class App extends Vue {
   private changeScrollBtnIcon(e: { target: HTMLInputElement }) {
     const screenHeight = e.target.offsetHeight;
     const scrollFromTop = e.target.scrollTop;
-    if ((screenHeight - 120) > scrollFromTop) {
+    if (screenHeight - 120 > scrollFromTop) {
       this.downButtonIcon = 'chevron-down';
       this.scrollUpOrDown = SCROLL_BUTTON_POSITION.DOWN;
     } else {
@@ -259,7 +334,9 @@ export default class App extends Vue {
 
   private static resizeBackgroundImg(pixels: number) {
     if (isMobile) {
-      document.getElementById('backgroundImg')!.style.setProperty('height', `${pixels}px`);
+      document
+        .getElementById('backgroundImg')!
+        .style.setProperty('height', `${pixels}px`);
     }
   }
 
@@ -275,7 +352,7 @@ export default class App extends Vue {
   // setting width and height of charts depending on screen of the device
   private resizeChart() {
     let chartWidth;
-    let chartHeight = (window.innerHeight) * 0.4;
+    let chartHeight = window.innerHeight * 0.4;
     switch (true) {
       // detects landscape mode
       case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
@@ -306,7 +383,7 @@ export default class App extends Vue {
   }
 
   private tempClass() {
-    const {temp} = this.weather.main;
+    const { temp } = this.weather.main;
     let cssClass = '';
     switch (true) {
       case temp <= 2:
@@ -328,7 +405,7 @@ export default class App extends Vue {
   private backgroundImgSrc = '';
 
   private backgroundImage() {
-    const {temp} = this.weather.main;
+    const { temp } = this.weather.main;
     if (temp <= 2) {
       this.backgroundImgSrc = `url(${require('../public/assets/coldBackground.jpg')})`;
     } else if (temp > 2 && temp < 16) {
@@ -339,10 +416,7 @@ export default class App extends Vue {
   }
 
   private async takeAllImages() {
-    const pictures = require.context(
-      '../public/assets/',
-      true
-    );
+    const pictures = require.context('../public/assets/', true);
     pictures.keys().forEach(key => {
       this.weatherSmallPicture.push(key.substring(2, 6));
     });
@@ -378,17 +452,17 @@ export default class App extends Vue {
 
   // animation for chart when loads
   private static easeOutBounce(pos: number) {
-    if ((pos) < (1 / 2.75)) {
-      return (7.5625 * pos * pos);
+    if (pos < 1 / 2.75) {
+      return 7.5625 * pos * pos;
     }
-    if (pos < (2 / 2.75)) {
-      return (7.5625 * (pos -= (1.5 / 2.75)) * pos + 0.75);
+    if (pos < 2 / 2.75) {
+      return 7.5625 * (pos -= 1.5 / 2.75) * pos + 0.75;
     }
-    if (pos < (2.5 / 2.75)) {
-      return (7.5625 * (pos -= (2.25 / 2.75)) * pos + 0.9375);
+    if (pos < 2.5 / 2.75) {
+      return 7.5625 * (pos -= 2.25 / 2.75) * pos + 0.9375;
     }
-    return (7.5625 * (pos -= (2.625 / 2.75)) * pos + 0.984375);
-  };
+    return 7.5625 * (pos -= 2.625 / 2.75) * pos + 0.984375;
+  }
 
   /* eslint-enable */
 
@@ -420,7 +494,7 @@ export default class App extends Vue {
         }
       }
     },
-    boost: {enabled: true},
+    boost: { enabled: true },
     // bottom right credit
     credits: {
       enabled: false
@@ -432,27 +506,33 @@ export default class App extends Vue {
     title: {
       text: ''
     },
-    series: [{
-      name: 'Hourly Forecast',
-      data: [],
-      pointWidth: 50,
-      zones: [{
-        value: 0,
-        color: '#486eb1'
-      }, {
-        value: 5,
-        color: '#fea82f'
-      }, {
-        color: '#BA181B'
-      }],
-      color: null
-    }],
+    series: [
+      {
+        name: 'Hourly Forecast',
+        data: [],
+        pointWidth: 50,
+        zones: [
+          {
+            value: 0,
+            color: '#486eb1'
+          },
+          {
+            value: 5,
+            color: '#fea82f'
+          },
+          {
+            color: '#BA181B'
+          }
+        ],
+        color: null
+      }
+    ],
     xAxis: {
       type: 'categories',
       categories: App.chartHours(),
       min: 0,
       // eslint-disable-next-line no-restricted-globals
-      max: (innerWidth > 600) ? 10 : 5,
+      max: innerWidth > 600 ? 10 : 5,
       scrollbar: {
         enabled: true,
         barBorderWidth: 0,
@@ -483,18 +563,25 @@ export default class App extends Vue {
       // @ts-ignore
       formatter() {
         // @ts-ignore
-        return this.points.reduce((s, point) => `Hour: ${s}<br/>Celsius:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+        return this.points.reduce(
+          (s: any, point: { y: any; series: { name: string; }; }) => `Hour: ${s}<br/>Celsius:${point.y}${App.metricUnitSetter(
+            point.series.name
+          )}`,
+          `<b>${this.x}</b>`
+        );
       }
     },
     responsive: {
-      rules: [{
-        condition: {
-          maxWidth: 500
-        },
-        chart: {
-          panning: true
+      rules: [
+        {
+          condition: {
+            maxWidth: 500
+          },
+          chart: {
+            panning: true
+          }
         }
-      }]
+      ]
     }
   };
 
@@ -547,7 +634,7 @@ export default class App extends Vue {
         pointPadding: -0.2
       }
     },
-    boost: {enabled: true},
+    boost: { enabled: true },
     // bottom right credit
     credits: {
       enabled: false
@@ -559,10 +646,12 @@ export default class App extends Vue {
     title: {
       text: ''
     },
-    series: [{
-      name: 'Wind',
-      data: []
-    }],
+    series: [
+      {
+        name: 'Wind',
+        data: []
+      }
+    ],
     xAxis: {
       type: 'category',
       categories: App.pastWeekDays(this.days, new Date().getDay()),
@@ -584,8 +673,12 @@ export default class App extends Vue {
       shared: true,
       // @ts-ignore
       formatter() {
-        // @ts-ignore
-        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+        return this.points.reduce(
+          (s: any, point: { series: { name: string; }; y: any; }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(
+            point.series.name
+          )}`,
+          `<b>${this.x}</b>`
+        );
       }
     }
   };
@@ -607,9 +700,7 @@ export default class App extends Vue {
             textOutline: 0
           },
           formatter(): any {
-            // @ts-ignore
             const color = this.y === 0 ? 'black' : 'white';
-            // @ts-ignore
             return `<span style="color: ${color}">${this.y}°C</span>`;
           },
           enabled: true
@@ -619,7 +710,7 @@ export default class App extends Vue {
         pointPadding: -0.2
       }
     },
-    boost: {enabled: true},
+    boost: { enabled: true },
     // bottom right credit
     credits: {
       enabled: false
@@ -631,23 +722,25 @@ export default class App extends Vue {
     title: {
       text: ''
     },
-    series: [{
-      name: 'Temperature',
-      data: [],
-      animation: {
-        duration: 2000,
-        easing: App.easeOutBounce
-      },
-      color: null,
-      stacking: 'normal',
-      dataLabels: {
-        color: 'whitesmoke',
-        style: {
-          fontSize: '1rem',
-          fontFamily: 'Trebuchet MS'
+    series: [
+      {
+        name: 'Temperature',
+        data: [],
+        animation: {
+          duration: 2000,
+          easing: App.easeOutBounce
+        },
+        color: null,
+        stacking: 'normal',
+        dataLabels: {
+          color: 'whitesmoke',
+          style: {
+            fontSize: '1rem',
+            fontFamily: 'Trebuchet MS'
+          }
         }
       }
-    }],
+    ],
     xAxis: {
       type: 'category',
       categories: App.pastWeekDays(this.days, new Date().getDay()),
@@ -670,7 +763,12 @@ export default class App extends Vue {
       // @ts-ignore
       formatter() {
         // @ts-ignore
-        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+        return this.points.reduce(
+          (s: any, point: { series: { name: string; }; y: any; }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(
+            point.series.name
+          )}`,
+          `<b>${this.x}</b>`
+        );
       }
     }
   };
@@ -707,7 +805,7 @@ export default class App extends Vue {
         pointPadding: -0.2
       }
     },
-    boost: {enabled: true},
+    boost: { enabled: true },
     // bottom right credit
     credits: {
       enabled: false
@@ -719,15 +817,17 @@ export default class App extends Vue {
     title: {
       text: ''
     },
-    series: [{
-      name: 'Feels Like',
-      data: [],
-      animation: {
-        duration: 2000,
-        easing: App.easeOutBounce
-      },
-      color: null
-    }],
+    series: [
+      {
+        name: 'Feels Like',
+        data: [],
+        animation: {
+          duration: 2000,
+          easing: App.easeOutBounce
+        },
+        color: null
+      }
+    ],
     xAxis: {
       type: 'category',
       categories: App.pastWeekDays(this.days, new Date().getDay()),
@@ -751,7 +851,12 @@ export default class App extends Vue {
       formatter() {
         console.log(this);
         // @ts-ignore
-        return this.points.reduce((s, point) => `${s}<br/>${point.series.name}:${(point.y)}${App.metricUnitSetter(point.series.name)}`, `<b>${this.x}</b>`);
+        return this.points.reduce(
+          (s: any, point: { series: { name: string; }; y: any; }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(
+            point.series.name
+          )}`,
+          `<b>${this.x}</b>`
+        );
       }
     }
   };
@@ -761,11 +866,13 @@ export default class App extends Vue {
       title: 'Temperature',
       chartName: this.tempChart,
       selected: true
-    }, {
+    },
+    {
       title: 'Feels Like',
       chartName: this.feelsLikeChart,
       selected: false
-    }, {
+    },
+    {
       title: 'Wind',
       chartName: this.windChart,
       selected: false
@@ -779,7 +886,9 @@ export default class App extends Vue {
         button.selected = false;
       }
     });
-    const button = this.chartButtons.find(obj => obj.title === buttonType.title);
+    const button = this.chartButtons.find(
+      obj => obj.title === buttonType.title
+    );
     button!.selected = true;
   }
 
@@ -824,7 +933,10 @@ export default class App extends Vue {
 
   private setImageName() {
     this.weatherSmallPicture.forEach((word, index) => {
-      if (word.substring(0, 3).toLowerCase() === this.weather.weather[0].main.substring(0, 3).toLowerCase()) {
+      if (
+        word.substring(0, 3).toLowerCase()
+        === this.weather.weather[0].main.substring(0, 3).toLowerCase()
+      ) {
         const images = require.context('../public/assets/', true);
         const image = images.keys();
         this.imageNextToDeg = image[index].substring(2, image[index].length);
@@ -838,7 +950,7 @@ export default class App extends Vue {
   }
 
   private static clearChartData(charts: any) {
-    charts.forEach((chart: { series: any[]; }) => {
+    charts.forEach((chart: { series: any[] }) => {
       chart.series.forEach((obj: any) => {
         // eslint-disable-next-line no-param-reassign
         obj.data = [];
@@ -849,12 +961,32 @@ export default class App extends Vue {
   private async getWeather(results: any) {
     this.weather = results;
     this.coords = results.coord;
-    this.tempLabels = [{label: 'Minimum temperature:', value: `${Math.round(this.weather.main.temp_min)}°C`},
-      {label: 'Feels like:', value: `${Math.round(this.weather.main.feels_like)}°C`},
-      {label: 'Maximum temperature:', value: `${Math.round(this.weather.main.temp_max)}°C`},
-      {label: 'Humidity:', value: `${Math.round(this.weather.main.humidity)}%`},
-      {label: 'Pressure:', value: `${Math.round(this.weather.main.pressure)}hPa`},
-      {label: 'Wind speed:', value: `${Math.round(this.weather.wind.speed)}m/s`}];
+    this.tempLabels = [
+      {
+        label: 'Minimum temperature:',
+        value: `${Math.round(this.weather.main.temp_min)}°C`
+      },
+      {
+        label: 'Feels like:',
+        value: `${Math.round(this.weather.main.feels_like)}°C`
+      },
+      {
+        label: 'Maximum temperature:',
+        value: `${Math.round(this.weather.main.temp_max)}°C`
+      },
+      {
+        label: 'Humidity:',
+        value: `${Math.round(this.weather.main.humidity)}%`
+      },
+      {
+        label: 'Pressure:',
+        value: `${Math.round(this.weather.main.pressure)}hPa`
+      },
+      {
+        label: 'Wind speed:',
+        value: `${Math.round(this.weather.wind.speed)}m/s`
+      }
+    ];
     (this.$refs.input as HTMLInputElement).blur();
     await this.setImageName();
     await this.getWeatherForNextDays();
@@ -862,14 +994,30 @@ export default class App extends Vue {
   }
 
   private async getWeatherBySearching() {
-    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
-    const results = await this.request(`${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`, 'GET');
+    App.clearChartData([
+      this.tempChart,
+      this.windChart,
+      this.feelsLikeChart,
+      this.hourlyForecast
+    ]);
+    const results = await this.request(
+      `${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`,
+      'GET'
+    );
     await this.getWeather(results);
   }
 
   private async getWeatherByCoords() {
-    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
-    const results = await this.request(`${this.urlBase}weather?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`, 'GET');
+    App.clearChartData([
+      this.tempChart,
+      this.windChart,
+      this.feelsLikeChart,
+      this.hourlyForecast
+    ]);
+    const results = await this.request(
+      `${this.urlBase}weather?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`,
+      'GET'
+    );
     await this.getWeather(results);
   }
 
@@ -881,7 +1029,10 @@ export default class App extends Vue {
       return '#486eb1';
     }
 
-    const results = await this.request(`${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`, 'GET');
+    const results = await this.request(
+      `${this.urlBase}onecall?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&cnt=8&APPID=${this.apiKey}`,
+      'GET'
+    );
 
     results.hourly.forEach((hour: any) => {
       this.hourlyForecast.series[0].data.push({
@@ -904,7 +1055,7 @@ export default class App extends Vue {
       });
     });
     if (results.alerts) {
-      const {alerts} = results;
+      const { alerts } = results;
       if (alerts[1]) {
         if (alerts[1].description !== '') {
           this.weatherAlerts = results.alerts[1].description;
@@ -923,8 +1074,29 @@ export default class App extends Vue {
 
   private dateBuilder() {
     const d = new Date();
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    const days = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday'
+    ];
     const day = days[d.getDay()];
     const date = d.getDate();
     const month = months[d.getMonth()];
@@ -932,7 +1104,6 @@ export default class App extends Vue {
     return `${day} ${date} ${month} ${year}`;
   }
 }
-
 </script>
 
 <style lang="scss">
@@ -941,15 +1112,16 @@ export default class App extends Vue {
   src: url("../public/fonts/Nunito/Nunito-Regular.ttf") format("truetype");
 }
 
-@import './src/colors.scss';
-@import './src/desktopStyle.scss';
-@import './src/mobileStyle.scss';
+@import "./src/colors.scss";
+@import "./src/desktopStyle.scss";
+@import "./src/mobileStyle.scss";
 
 * {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   scroll-behavior: smooth;
   height: 100%;
   margin: 0;
@@ -1026,7 +1198,7 @@ html, body {
     }
 
     .refreshBtn:hover {
-      background-color: $whitish
+      background-color: $whitish;
     }
 
     .refreshBtn:active {
@@ -1042,7 +1214,7 @@ html, body {
   }
 
   & > #errImage {
-    transition: transform .7s ease-in-out;
+    transition: transform 0.7s ease-in-out;
   }
 
   & > #errImage:hover {
@@ -1076,7 +1248,7 @@ html, body {
 
     & .search-bar {
       display: block;
-      transition: transform .6s; /* Animation */
+      transition: transform 0.6s; /* Animation */
       padding: 10px;
       color: #313131;
       font-size: 1.5rem;
