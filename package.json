@@ -5,9 +5,9 @@
   "scripts": {
     "start": "echo 'use npm run serve next time' && npm run serve",
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "npm run tests && vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "tests": "wdio run test/wdio.conf.ts"
+    "tests": "wdio run wdio.conf.ts"
   },
   "dependencies": {
     "@capacitor/android": "^2.4.7",
@@ -45,8 +45,8 @@
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
     "@typescript-eslint/typescript-estree": "^5.30.6",
-    "@vue/babel-preset-app": "^5.0.8",
     "@vue/cli-plugin-babel": "^4.5.10",
+    "@vue/babel-preset-app": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-plugin-pwa": "^4.5.10",
     "@vue/cli-plugin-typescript": "^4.5.10",
