@@ -1,6 +1,6 @@
 <template>
   <div id="backgroundImg" :style="{ 'background-image': backgroundImgSrc }">
-    <loading-overlay v-if="loading" />
+    <loading-overlay v-if="loading"/>
     <main @scroll.passive="changeScrollBtnIcon">
       <div id="infoForecast" class="infoForecast">
         <div class="search-box">
@@ -18,7 +18,7 @@
             >
           </label>
           <button v-if="!hideContent && isMobile" class="fullscreen" @click="goFullscreen">
-            <font-awesome-icon ref="functionButton" aria-hidden="true" icon="expand-alt" class="icon" />
+            <font-awesome-icon ref="functionButton" aria-hidden="true" icon="expand-alt" class="icon"/>
           </button>
         </div>
         <div v-if="error !== ''" class="error" :class="{ nothingFoundErr: error === 'No city results...' }">
@@ -34,10 +34,10 @@
               class="handIcon"
             />
             <button v-show="error === 'User denied Geolocation'" class="refreshBtn" @click="reloadPage">
-              <font-awesome-icon aria-hidden="true" icon="redo" class="icon" />
+              <font-awesome-icon aria-hidden="true" icon="redo" class="icon"/>
             </button>
           </div>
-          <img id="errImage" :src="errImage" :alt="imageNextToDeg" >
+          <img id="errImage" :src="errImage" :alt="imageNextToDeg">
         </div>
         <div v-if="!hideContent" class="contentContainer">
           <div v-if="typeof weather.main != 'undefined' && error === ''" class="weather-wrap">
@@ -60,7 +60,7 @@
               </div>
               <div class="weather">
                 {{ weather.weather[0].main }}
-                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg" >
+                <img :src="getImgPath(imageNextToDeg)" :alt="imageNextToDeg">
               </div>
             </div>
           </div>
@@ -104,12 +104,12 @@
         </div>
         <div v-show="!nextWeeksCharts || isMobile" class="tableAndTitleContainer">
           <p>48 hours forecast:</p>
-          <ChartComponent :chartOptions="hourlyForecast" :class="typeof weather.main != 'undefined' && tempClass()" />
+          <ChartComponent :chartOptions="hourlyForecast" :class="typeof weather.main != 'undefined' && tempClass()"/>
         </div>
         <div v-show="nextWeeksCharts || isMobile" class="tableAndTitleContainer">
           <p>Next week's:</p>
           <div>
-            <ChartButtons :chart-types="chartButtons" @button-click="onChartButtonClick" />
+            <ChartButtons :chart-types="chartButtons" @button-click="onChartButtonClick"/>
             <ChartComponent
               v-for="(chart, index) in chartButtons"
               v-show="chart.selected"
@@ -125,13 +125,13 @@
 </template>
 
 <script lang="ts">
-import { Chart } from 'highcharts-vue';
-import { Component, Vue, Watch } from 'vue-property-decorator';
-import axios, { AxiosResponse, Method } from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { isMobile } from 'mobile-device-detect';
-import { Buttons, GEOLOCATION_STATUS, SCROLL_BUTTON_POSITION } from '@/commonconstants';
-import { Geolocation } from '@capacitor/core';
+import {Chart} from 'highcharts-vue';
+import {Component, Vue, Watch} from 'vue-property-decorator';
+import axios, {AxiosResponse, Method} from 'axios';
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+import {isMobile} from 'mobile-device-detect';
+import {Buttons, GEOLOCATION_STATUS, SCROLL_BUTTON_POSITION} from '@/commonconstants';
+import {Geolocation} from '@capacitor/core';
 
 const ChartComponent = () => import('@/components/Chart.vue');
 const LoadingOverlay = () => import('@/components/LoadingOverlay.vue');
@@ -170,15 +170,12 @@ export default class App extends Vue {
 
   @Watch('error')
   private errorTextWatcher() {
-    switch (this.error) {
-      case this.deniedLocation:
-        this.errImage = `${require('../public/assets/tunrOnGPS.png')}`;
-        this.errorDisplayMsg = 'Turn on your location and press the refresh button';
-        break;
-      default:
-        this.errImage = `${require('../public/assets/nothingFound.png')}`;
-        this.errorDisplayMsg = 'No city results';
-        break;
+    if (this.error === this.deniedLocation) {
+      this.errImage = `${require('../public/assets/tunrOnGPS.png')}`;
+      this.errorDisplayMsg = 'Turn on your location and press the refresh button';
+    } else {
+      this.errImage = `${require('../public/assets/nothingFound.png')}`;
+      this.errorDisplayMsg = 'No city results';
     }
   }
 
@@ -252,13 +249,10 @@ export default class App extends Vue {
 
   private scrollButton() {
     const mainEl = document.querySelector('main');
-    switch (this.scrollUpOrDown) {
-      case SCROLL_BUTTON_POSITION.UP:
-        mainEl!.scrollBy(0, -1000);
-        break;
-      default:
-        mainEl!.scrollBy(0, 1000);
-        break;
+    if (this.scrollUpOrDown === SCROLL_BUTTON_POSITION.UP) {
+      mainEl!.scrollBy(0, -1000);
+    } else {
+      mainEl!.scrollBy(0, 1000);
     }
   }
 
@@ -283,37 +277,35 @@ export default class App extends Vue {
   private resizeChart() {
     let chartWidth;
     let chartHeight = window.innerHeight * 0.4;
-    switch (true) {
-      // detects landscape mode
-      case window.matchMedia('(min-aspect-ratio: 13/9)').matches:
-        // 60% from window width
-        chartWidth = window.innerWidth * 0.6;
-        // 40% from window height
-        chartHeight = window.innerHeight * 0.4;
-        this.windChart.chart.width = chartWidth;
-        this.windChart.chart.height = chartHeight - 40;
-        this.tempChart.chart.width = chartWidth;
-        this.tempChart.chart.height = chartHeight - 40;
-        this.feelsLikeChart.chart.width = chartWidth;
-        this.feelsLikeChart.chart.height = chartHeight - 40;
-        this.hourlyForecast.chart.width = chartWidth;
-        this.hourlyForecast.chart.height = chartHeight;
-        break;
-      default:
-        chartWidth = window.innerWidth - 2;
-        this.windChart.chart.width = chartWidth;
-        this.tempChart.chart.width = chartWidth;
-        this.hourlyForecast.chart.width = chartWidth;
-        this.hourlyForecast.chart.height = chartHeight;
-        this.feelsLikeChart.chart.width = chartWidth;
-        this.feelsLikeChart.chart.height = chartHeight;
-        this.tempChart.chart.height = chartHeight;
-        this.windChart.chart.height = chartHeight;
+    // detects landscape mode
+    if (window.matchMedia('(min-aspect-ratio: 13/9)').matches) {
+      // 60% from window width
+      chartWidth = window.innerWidth * 0.6;
+      // 40% from window height
+      chartHeight = window.innerHeight * 0.4;
+      this.windChart.chart.width = chartWidth;
+      this.windChart.chart.height = chartHeight - 40;
+      this.tempChart.chart.width = chartWidth;
+      this.tempChart.chart.height = chartHeight - 40;
+      this.feelsLikeChart.chart.width = chartWidth;
+      this.feelsLikeChart.chart.height = chartHeight - 40;
+      this.hourlyForecast.chart.width = chartWidth;
+      this.hourlyForecast.chart.height = chartHeight;
+    } else {
+      chartWidth = window.innerWidth - 2;
+      this.windChart.chart.width = chartWidth;
+      this.tempChart.chart.width = chartWidth;
+      this.hourlyForecast.chart.width = chartWidth;
+      this.hourlyForecast.chart.height = chartHeight;
+      this.feelsLikeChart.chart.width = chartWidth;
+      this.feelsLikeChart.chart.height = chartHeight;
+      this.tempChart.chart.height = chartHeight;
+      this.windChart.chart.height = chartHeight;
     }
   }
 
   private tempClass() {
-    const { temp } = this.weather.main;
+    const {temp} = this.weather.main;
     let cssClass = '';
     switch (true) {
       case temp <= 2:
@@ -326,7 +318,6 @@ export default class App extends Vue {
         cssClass = 'over16';
         break;
       default:
-        cssClass = '';
         break;
     }
     return cssClass;
@@ -335,7 +326,7 @@ export default class App extends Vue {
   private backgroundImgSrc = '';
 
   private backgroundImage() {
-    const { temp } = this.weather.main;
+    const {temp} = this.weather.main;
     if (temp <= 2) {
       this.backgroundImgSrc = `url(${require('../public/assets/coldBackground.jpg')})`;
     } else if (temp > 2 && temp < 16) {
@@ -367,13 +358,10 @@ export default class App extends Vue {
 
   private static metricUnitSetter(name: string) {
     let unit;
-    switch (true) {
-      case name === 'Wind':
-        unit = 'm/s';
-        break;
-      default:
-        unit = '°C';
-        break;
+    if (name === 'Wind') {
+      unit = 'm/s';
+    } else {
+      unit = '°C';
     }
     return unit;
   }
@@ -424,7 +412,7 @@ export default class App extends Vue {
         }
       }
     },
-    boost: { enabled: true },
+    boost: {enabled: true},
     // bottom right credit
     credits: {
       enabled: false
@@ -519,13 +507,10 @@ export default class App extends Vue {
     const hours = [];
     let n = 0;
     while (n < 48) {
-      switch (currentHour) {
-        case 23:
-          currentHour = 0;
-          break;
-        default:
-          currentHour += 1;
-          break;
+      if (currentHour === 23) {
+        currentHour = 0;
+      } else {
+        currentHour += 1;
       }
       hours.push(currentHour);
       n += 1;
@@ -562,7 +547,7 @@ export default class App extends Vue {
         pointPadding: -0.2
       }
     },
-    boost: { enabled: true },
+    boost: {enabled: true},
     // bottom right credit
     credits: {
       enabled: false
@@ -637,7 +622,7 @@ export default class App extends Vue {
         pointPadding: -0.2
       }
     },
-    boost: { enabled: true },
+    boost: {enabled: true},
     // bottom right credit
     credits: {
       enabled: false
@@ -717,7 +702,7 @@ export default class App extends Vue {
             fontSize: '1rem',
             fontFamily: 'Trebuchet MS'
           },
-          formatter(): any {
+          formatter() {
             // @ts-ignore
             const color = this.y === 0 ? 'black' : 'white';
             // @ts-ignore
@@ -730,7 +715,7 @@ export default class App extends Vue {
         pointPadding: -0.2
       }
     },
-    boost: { enabled: true },
+    boost: {enabled: true},
     // bottom right credit
     credits: {
       enabled: false
@@ -906,9 +891,9 @@ export default class App extends Vue {
       }
     ];
     (this.$refs.input as HTMLInputElement).blur();
-    await this.setImageName();
+    this.setImageName();
     await this.getWeatherForNextDays();
-    await this.backgroundImage();
+    this.backgroundImage();
   }
 
   private async getWeatherBySearching() {
@@ -963,7 +948,7 @@ export default class App extends Vue {
       });
     });
     if (results.alerts) {
-      const { alerts } = results;
+      const {alerts} = results;
       if (alerts[1]) {
         if (alerts[1].description !== '') {
           this.weatherAlerts = results.alerts[1].description;
