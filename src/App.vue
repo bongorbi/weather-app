@@ -150,8 +150,20 @@ const ChartButtons = () => import('@/components/ChartButtons.vue');
 })
 export default class App extends Vue {
   private deniedLocation = GEOLOCATION_STATUS.DENIEDGEOLOCATION;
+  private hideContent: boolean = false;
+  private nextWeeksCharts: boolean = false;
 
-  private async getCurrentPosition() {
+  private errImage = '';
+
+  private isMobile = isMobile;
+
+  private weatherSmallPicture: any[] = [];
+  private imageNextToDeg = '';
+
+  private errorDisplayMsg: string = '';
+  private weatherAlerts: string = '';
+
+  public async getCurrentPosition(): Promise<void> {
     try {
       const coordinates = await Geolocation.getCurrentPosition();
       this.coords.lon = coordinates.coords.longitude;
@@ -163,10 +175,6 @@ export default class App extends Vue {
       }
     }
   }
-
-  private errImage = '';
-  private errorDisplayMsg: string = '';
-  private weatherAlerts: string = '';
 
   @Watch('error')
   private errorTextWatcher() {
@@ -256,8 +264,6 @@ export default class App extends Vue {
     }
   }
 
-  private isMobile = isMobile;
-
   private static resizeBackgroundImg(pixels: number) {
     if (isMobile) {
       document.getElementById('backgroundImg')!.style.setProperty('height', `${pixels}px`);
@@ -269,9 +275,6 @@ export default class App extends Vue {
     this.blurBackground = !this.blurBackground;
     this.hideContent = !this.hideContent;
   }
-
-  private hideContent: boolean = false;
-  private nextWeeksCharts: boolean = false;
 
   // setting width and height of charts depending on screen of the device
   private resizeChart() {
@@ -304,7 +307,7 @@ export default class App extends Vue {
     }
   }
 
-  private tempClass() {
+  public tempClass() {
     const {temp} = this.weather.main;
     let cssClass = '';
     switch (true) {
@@ -325,7 +328,7 @@ export default class App extends Vue {
 
   private backgroundImgSrc = '';
 
-  private backgroundImage() {
+  backgroundImage() {
     const {temp} = this.weather.main;
     if (temp <= 2) {
       this.backgroundImgSrc = `url(${require('../public/assets/coldBackground.jpg')})`;
@@ -350,7 +353,7 @@ export default class App extends Vue {
   private error: string = '';
   private coords: any = {};
   private days = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
-  private weather: any = {};
+  public weather: any = {};
 
   private reloadPage() {
     window.location.reload();
@@ -384,7 +387,7 @@ export default class App extends Vue {
 
   /* eslint-enable */
 
-  private hourlyForecast: any = {
+  public hourlyForecast: any = {
     chart: {
       // type of diagram
       type: 'spline',
@@ -518,7 +521,7 @@ export default class App extends Vue {
     return hours.map(x => `${x}:00`);
   }
 
-  private windChart: any = {
+  public windChart: any = {
     chart: {
       // type of diagram
       type: 'spline',
@@ -593,7 +596,7 @@ export default class App extends Vue {
       }
     }
   };
-  private tempChart: any = {
+  public tempChart: any = {
     chart: {
       // type of diagram
       type: 'column',
@@ -682,7 +685,7 @@ export default class App extends Vue {
       }
     }
   };
-  private feelsLikeChart: any = {
+  public feelsLikeChart: any = {
     chart: {
       // type of diagram
       type: 'column',
@@ -811,9 +814,6 @@ export default class App extends Vue {
     return week;
   }
 
-  private weatherSmallPicture: any[] = [];
-  private imageNextToDeg = '';
-
   private request(url: string, method: Method, body?: any): Promise<any> {
     this.loading = true;
     this.error = '';
@@ -848,7 +848,7 @@ export default class App extends Vue {
   }
 
   private getImgPath(pic: string) {
-    // eslint-disable-next-line global-require,import/no-dynamic-require
+    // eslint-disable-next-line import/no-dynamic-require
     return require(`../public/assets/${pic}`);
   }
 
@@ -861,7 +861,7 @@ export default class App extends Vue {
     });
   }
 
-  private async getWeather(results: any) {
+  public async getWeather(results: any) {
     this.weather = results;
     this.coords = results.coord;
     this.tempLabels = [
@@ -896,21 +896,29 @@ export default class App extends Vue {
     this.backgroundImage();
   }
 
-  private async getWeatherBySearching() {
-    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
-    const results = await this.request(
+  public async getWeatherBySearchQuery() {
+    return this.request(
       `${this.urlBase}weather?q=${this.query}&units=metric&APPID=${this.apiKey}`,
       'GET'
     );
+  }
+
+  public async getWeatherByCoordsQuery() {
+    return this.request(
+      `${this.urlBase}weather?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`,
+      'GET'
+    );
+  }
+
+  private async getWeatherBySearching() {
+    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
+    const results = await this.getWeatherBySearchQuery();
     await this.getWeather(results);
   }
 
   private async getWeatherByCoords() {
     App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
-    const results = await this.request(
-      `${this.urlBase}weather?lat=${this.coords.lat}&lon=${this.coords.lon}&units=metric&APPID=${this.apiKey}`,
-      'GET'
-    );
+    const results = await this.getWeatherByCoordsQuery();
     await this.getWeather(results);
   }
 
