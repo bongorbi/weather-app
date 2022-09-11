@@ -17,6 +17,7 @@
 
     & > .infoForecast {
       display: flex;
+      margin-top: 40px;
       width: 100%;
       justify-content: center;
       flex-direction: column;
@@ -37,14 +38,13 @@
 
       & > .contentContainer {
         height: 100%;
-        padding-top: 2%;
         display: grid;
         grid-template-columns: 50% 50%;
 
         .weather-wrap {
           display: flex;
-          padding: 1% 2%;
-          border-radius: 16px;
+          padding: 0 2%;
+          border-radius: 6px;
           background: transparent;
           box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
           flex-direction: column;
@@ -73,22 +73,25 @@
           }
 
           & > .location-box {
-            padding: 5px;
 
             & > .location {
               color: white;
-              padding: 5px;
               font-size: 1.4em;
               font-weight: 600;
               text-align: center;
             }
 
             & > .date {
-              padding: 5px;
               color: white;
               font-size: 1.4rem;
               text-align: center;
-              font-weight: 300;
+              font-style: italic;
+            }
+
+            & > .alert {
+              color: #9cdb14;
+              font-size: 1.3rem;
+              text-align: center;
               font-style: italic;
             }
           }
@@ -100,15 +103,12 @@
             flex-direction: column;
 
             & .temp {
-              margin-left: 5px;
               color: black;
               display: inline-block;
-              padding: 10px 25px;
+              padding: 0 15px;
               align-items: center;
               font-size: 5rem;
-              font-weight: 900;
-              background-color: $green;
-              border-radius: 16px;
+              border-radius: 6px;
               box-shadow: 3px 6px rgba(0, 0, 0, 0.25);
             }
 
@@ -117,11 +117,10 @@
               grid-template-columns: auto 50%;
               align-items: center;
               font-size: 2.5rem;
-              padding: 5px;
+              padding: 2px;
               font-weight: 700;
               justify-content: center;
               display: flex;
-
               & > img {
                 margin-left: 10px;
                 height: 10vh;
@@ -229,4 +228,17 @@
 
     }
   }
+
+  .highcharts-data-label {
+    & > * {
+      font-size: 1.3rem !important;
+    }
+  }
+  .highcharts-xaxis-labels {
+    & > * {
+      fill: black !important;
+      font-size: 1.3rem !important;
+    }
+  }
+
 }

@@ -1,7 +1,8 @@
 <template>
   <div class="chartContainer">
-    <Chart ref="highcharts"
-           :options="chartOptions"/>
+    <Chart
+      ref="highcharts"
+      :options="chartOptions"/>
   </div>
 </template>
 

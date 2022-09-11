@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "es5",
+    "target": "esnext",
     "module": "commonjs",
     "jsx": "preserve",
+    "useUnknownInCatchVariables": false,
+    "noImplicitThis": true,
     "importHelpers": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
@@ -15,8 +17,10 @@
     "types": [
       "webpack-env",
       "mocha",
-      "chai",
-      "node"
+      "node",
+      "webdriverio/async",
+      "@wdio/mocha-framework",
+      "expect-webdriverio"
     ],
     "paths": {
       "*": [
