@@ -2,8 +2,7 @@ import {shallowMount} from '@vue/test-utils';
 import App from '../../src/App.vue';
 
 describe('Test the Weather app', () => {
-  let wrapper: any;
-  wrapper = shallowMount(App);
+  const wrapper = shallowMount(App);
 
   it('Return the correct response object from the request for weather forecast when searching city by name', async () => {
     await wrapper.setData({query: 'Sofia'});
