@@ -1,8 +1,6 @@
 import {Vue} from 'vue-property-decorator';
 import HighchartsMore from 'highcharts/highcharts-more';
-// @ts-ignore
 import {library} from '@fortawesome/fontawesome-svg-core';
-// @ts-ignore
 import {fas} from '@fortawesome/free-solid-svg-icons';
 import Highcharts from 'highcharts';
 import Stock from 'highcharts/modules/stock';
