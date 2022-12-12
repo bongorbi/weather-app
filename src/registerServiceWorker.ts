@@ -1,19 +1,15 @@
-// @ts-ignore
-// eslint-disable-next-line import/no-extraneous-dependencies
 import {Workbox} from 'workbox-window';
 
-// eslint-disable-next-line import/no-mutable-exports
-let wb;
-if ('serviceWorker' in navigator) {
-  wb = new Workbox(`${process.env.BASE_URL}service-worker.js`);
-
-  wb.addEventListener('controlling', () => {
-    window.location.reload();
-  });
-
-  wb.register();
-} else {
-  wb = null;
+function wb() {
+  let workbox;
+  if ('serviceWorker' in navigator) {
+    workbox = new Workbox(`${process.env.BASE_URL}service-worker.js`);
+    workbox.addEventListener('controlling', () => {
+      window.location.reload();
+    });
+    workbox.register();
+  }
+  return workbox;
 }
 
-export default wb;
+export default wb();

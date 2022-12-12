@@ -25,7 +25,7 @@ export default class ChartButtons extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "./src/colors";
+@import "../colors";
 
 .chartButtons {
   display: grid;

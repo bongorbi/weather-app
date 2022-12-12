@@ -104,7 +104,9 @@
         </div>
         <div v-show="!nextWeeksCharts || isMobile" class="tableAndTitleContainer">
           <p>48 hours forecast:</p>
-          <ChartComponent :chartOptions="hourlyForecast" :class="typeof weather.main != 'undefined' && tempClass()"/>
+          <ChartComponent
+            :chartOptions="hourlyForecast"
+            :class="typeof weather.main != 'undefined' && tempClass()"/>
         </div>
         <div v-show="nextWeeksCharts || isMobile" class="tableAndTitleContainer">
           <p>Next week's:</p>
@@ -132,6 +134,7 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {isMobile} from 'mobile-device-detect';
 import {Buttons, GEOLOCATION_STATUS, SCROLL_BUTTON_POSITION} from '@/commonconstants';
 import {Geolocation} from '@capacitor/core';
+import Charts from '@/utils/Charts';
 
 const ChartComponent = () => import('@/components/Chart.vue');
 const LoadingOverlay = () => import('@/components/LoadingOverlay.vue');
@@ -149,6 +152,7 @@ const ChartButtons = () => import('@/components/ChartButtons.vue');
   }
 })
 export default class App extends Vue {
+  private hourlyForecast = Charts.hourlyForecast;
   private deniedLocation = GEOLOCATION_STATUS.DENIEDGEOLOCATION;
   private hideContent: boolean = false;
   private nextWeeksCharts: boolean = false;
@@ -286,24 +290,24 @@ export default class App extends Vue {
       chartWidth = window.innerWidth * 0.6;
       // 40% from window height
       chartHeight = window.innerHeight * 0.4;
-      this.windChart.chart.width = chartWidth;
-      this.windChart.chart.height = chartHeight - 40;
-      this.tempChart.chart.width = chartWidth;
-      this.tempChart.chart.height = chartHeight - 40;
-      this.feelsLikeChart.chart.width = chartWidth;
-      this.feelsLikeChart.chart.height = chartHeight - 40;
-      this.hourlyForecast.chart.width = chartWidth;
-      this.hourlyForecast.chart.height = chartHeight;
+      Charts.windChart.chart.width = chartWidth;
+      Charts.windChart.chart.height = chartHeight - 40;
+      Charts.tempChart.chart.width = chartWidth;
+      Charts.tempChart.chart.height = chartHeight - 40;
+      Charts.feelsLikeChart.chart.width = chartWidth;
+      Charts.feelsLikeChart.chart.height = chartHeight - 40;
+      Charts.hourlyForecast.chart.width = chartWidth;
+      Charts.hourlyForecast.chart.height = chartHeight;
     } else {
       chartWidth = window.innerWidth - 2;
-      this.windChart.chart.width = chartWidth;
-      this.tempChart.chart.width = chartWidth;
-      this.hourlyForecast.chart.width = chartWidth;
-      this.hourlyForecast.chart.height = chartHeight;
-      this.feelsLikeChart.chart.width = chartWidth;
-      this.feelsLikeChart.chart.height = chartHeight;
-      this.tempChart.chart.height = chartHeight;
-      this.windChart.chart.height = chartHeight;
+      Charts.windChart.chart.width = chartWidth;
+      Charts.tempChart.chart.width = chartWidth;
+      Charts.hourlyForecast.chart.width = chartWidth;
+      Charts.hourlyForecast.chart.height = chartHeight;
+      Charts.feelsLikeChart.chart.width = chartWidth;
+      Charts.feelsLikeChart.chart.height = chartHeight;
+      Charts.tempChart.chart.height = chartHeight;
+      Charts.windChart.chart.height = chartHeight;
     }
   }
 
@@ -347,445 +351,31 @@ export default class App extends Vue {
   }
 
   private blurBackground: boolean = false;
-  private apiKey = 'cab0c30b1dfc14ce360db2f0b4b5411b';
+  private apiKey = async () => axios.get('../config.json');
   private urlBase = 'https://api.openweathermap.org/data/2.5/';
   private query: string = '';
   private error: string = '';
   private coords: any = {};
-  private days = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
   public weather: any = {};
 
   private reloadPage() {
     window.location.reload();
   }
 
-  private static metricUnitSetter(name: string) {
-    let unit;
-    if (name === 'Wind') {
-      unit = 'm/s';
-    } else {
-      unit = '°C';
-    }
-    return unit;
-  }
-
-  /*eslint-disable */
-
-  // animation for chart when loads
-  private static easeOutBounce(pos: number) {
-    if (pos < 1 / 2.75) {
-      return 7.5625 * pos * pos;
-    }
-    if (pos < 2 / 2.75) {
-      return 7.5625 * (pos -= 1.5 / 2.75) * pos + 0.75;
-    }
-    if (pos < 2.5 / 2.75) {
-      return 7.5625 * (pos -= 2.25 / 2.75) * pos + 0.9375;
-    }
-    return 7.5625 * (pos -= 2.625 / 2.75) * pos + 0.984375;
-  }
-
-  /* eslint-enable */
-
-  public hourlyForecast: any = {
-    chart: {
-      // type of diagram
-      type: 'spline',
-      marginLeft: 2,
-      marginRight: 2,
-      marginTop: 2,
-      height: 0,
-      width: 0,
-      panning: true
-    },
-    plotOptions: {
-      spline: {
-        dataLabels: {
-          style: {
-            textOutline: 0
-          },
-          enabled: true,
-          formatter(): any {
-            const color = 'black';
-            // @ts-ignore
-            return `<span style="color: ${color}">${this.y}°C</span>`;
-          },
-          shadow: false,
-          inside: true
-        }
-      }
-    },
-    boost: {enabled: true},
-    // bottom right credit
-    credits: {
-      enabled: false
-    },
-    // bottom legend for different chart
-    legend: {
-      enabled: false
-    },
-    title: {
-      text: ''
-    },
-    series: [
-      {
-        name: 'Hourly Forecast',
-        data: [],
-        pointWidth: 50,
-        zones: [
-          {
-            value: 0,
-            color: '#486eb1'
-          },
-          {
-            value: 5,
-            color: '#fea82f'
-          },
-          {
-            color: '#BA181B'
-          }
-        ],
-        color: null
-      }
-    ],
-    xAxis: {
-      type: 'categories',
-      categories: App.chartHours(),
-      min: 0,
-      // eslint-disable-next-line no-restricted-globals
-      max: innerWidth > 600 ? 10 : 5,
-      scrollbar: {
-        enabled: true,
-        barBorderWidth: 0,
-        buttonBorderWidth: 0,
-        barBackgroundColor: 'gray',
-        buttonBackgroundColor: 'silver',
-        trackBorderWidth: 1,
-        trackBorderColor: 'gray',
-        height: 30
-      },
-      tickLength: 0,
-      rangeSelector: {
-        selected: 1
-      }
-    },
-    yAxis: {
-      title: {
-        text: null
-      },
-      labels: {
-        enabled: false
-      }
-    },
-    tooltip: {
-      followPointer: true,
-      crosshairs: true,
-      shared: true,
-      // @ts-ignore
-      formatter() {
-        // @ts-ignore
-        return this.points.reduce(
-          (s: any, point: { y: any; series: { name: string } }) => `Hour: ${s}<br/>Celsius:${point.y}${App.metricUnitSetter(point.series.name)}`,
-          `<b>${this.x}</b>`
-        );
-      }
-    },
-    responsive: {
-      rules: [
-        {
-          condition: {
-            maxWidth: 500
-          },
-          chart: {
-            panning: true
-          }
-        }
-      ]
-    }
-  };
-
-  private static chartHours() {
-    const date = new Date();
-    let currentHour = date.getHours();
-    const hours = [];
-    let n = 0;
-    while (n < 48) {
-      if (currentHour === 23) {
-        currentHour = 0;
-      } else {
-        currentHour += 1;
-      }
-      hours.push(currentHour);
-      n += 1;
-    }
-    return hours.map(x => `${x}:00`);
-  }
-
-  public windChart: any = {
-    chart: {
-      // type of diagram
-      type: 'spline',
-      marginLeft: 2,
-      marginRight: 2,
-      marginTop: 2,
-      marginBottom: 23,
-      height: 0,
-      width: 0
-    },
-    plotOptions: {
-      spline: {
-        stacking: 'normal',
-        dataLabels: {
-          color: 'black',
-          format: '{y} m/s',
-          enabled: true,
-          style: {
-            textOutline: 0,
-            fontSize: '1rem'
-          },
-          allowOverlap: true
-        }
-      },
-      series: {
-        pointPadding: -0.2
-      }
-    },
-    boost: {enabled: true},
-    // bottom right credit
-    credits: {
-      enabled: false
-    },
-    // bottom legend for different chart
-    legend: {
-      enabled: false
-    },
-    title: {
-      text: ''
-    },
-    series: [
-      {
-        name: 'Wind',
-        data: []
-      }
-    ],
-    xAxis: {
-      type: 'category',
-      categories: App.pastWeekDays(this.days, new Date().getDay()),
-      labels: {
-        rotation: 0
-      }
-    },
-    yAxis: {
-      title: {
-        text: 'Metre per second (m/s)'
-      },
-      labels: {
-        enabled: false
-      }
-    },
-    tooltip: {
-      followPointer: true,
-      crosshairs: true,
-      shared: true,
-      // @ts-ignore
-      formatter() {
-        return this.points.reduce(
-          (s: any, point: { series: { name: string }; y: any }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
-          `<b>${this.x}</b>`
-        );
-      }
-    }
-  };
-  public tempChart: any = {
-    chart: {
-      // type of diagram
-      type: 'column',
-      marginLeft: 2,
-      marginRight: 2,
-      marginTop: 2,
-      marginBottom: 23,
-      height: 0,
-      width: 0
-    },
-    plotOptions: {
-      column: {
-        dataLabels: {
-          style: {
-            textOutline: 0
-          },
-          formatter(): any {
-            const color = this.y === 0 ? 'black' : 'white';
-            // @ts-ignore
-            return `<span style="color: ${color}">${this.y}°C</span>`;
-          },
-          enabled: true
-        }
-      },
-      series: {
-        pointPadding: -0.2
-      }
-    },
-    boost: {enabled: true},
-    // bottom right credit
-    credits: {
-      enabled: false
-    },
-    // bottom legend for different chart
-    legend: {
-      enabled: false
-    },
-    title: {
-      text: ''
-    },
-    series: [
-      {
-        name: 'Temperature',
-        data: [],
-        animation: {
-          duration: 2000,
-          easing: App.easeOutBounce
-        },
-        color: null,
-        stacking: 'normal',
-        dataLabels: {
-          color: 'whitesmoke',
-          style: {
-            fontSize: '1rem',
-            fontFamily: 'Trebuchet MS'
-          }
-        }
-      }
-    ],
-    xAxis: {
-      type: 'category',
-      categories: App.pastWeekDays(this.days, new Date().getDay()),
-      labels: {
-        rotation: 0
-      }
-    },
-    yAxis: {
-      title: {
-        text: 'Temperature (°C)'
-      },
-      labels: {
-        enabled: false
-      }
-    },
-    tooltip: {
-      followPointer: true,
-      crosshairs: true,
-      shared: true,
-      // @ts-ignore
-      formatter() {
-        // @ts-ignore
-        return this.points.reduce(
-          (s: any, point: { series: { name: string }; y: any }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
-          `<b>${this.x}</b>`
-        );
-      }
-    }
-  };
-  public feelsLikeChart: any = {
-    chart: {
-      // type of diagram
-      type: 'column',
-      marginLeft: 2,
-      marginRight: 2,
-      marginTop: 2,
-      marginBottom: 23,
-      height: 0,
-      width: 0
-    },
-    plotOptions: {
-      column: {
-        stacking: 'normal',
-        dataLabels: {
-          style: {
-            textOutline: 0,
-            fontSize: '1rem',
-            fontFamily: 'Trebuchet MS'
-          },
-          formatter() {
-            // @ts-ignore
-            const color = this.y === 0 ? 'black' : 'white';
-            // @ts-ignore
-            return `<span style="color: ${color}">${this.y}°C</span>`;
-          },
-          enabled: true
-        }
-      },
-      series: {
-        pointPadding: -0.2
-      }
-    },
-    boost: {enabled: true},
-    // bottom right credit
-    credits: {
-      enabled: false
-    },
-    // bottom legend for different chart
-    legend: {
-      enabled: false
-    },
-    title: {
-      text: ''
-    },
-    series: [
-      {
-        name: 'Feels Like',
-        data: [],
-        animation: {
-          duration: 2000,
-          easing: App.easeOutBounce
-        },
-        color: null
-      }
-    ],
-    xAxis: {
-      type: 'category',
-      categories: App.pastWeekDays(this.days, new Date().getDay()),
-      labels: {
-        rotation: 0
-      }
-    },
-    yAxis: {
-      title: {
-        text: 'Temperature (°C)'
-      },
-      labels: {
-        enabled: false
-      }
-    },
-    tooltip: {
-      followPointer: true,
-      crosshairs: true,
-      shared: true,
-      // @ts-ignore
-      formatter() {
-        console.log(this);
-        // @ts-ignore
-        return this.points.reduce(
-          (s: any, point: { series: { name: string }; y: any }) => `${s}<br/>${point.series.name}:${point.y}${App.metricUnitSetter(point.series.name)}`,
-          `<b>${this.x}</b>`
-        );
-      }
-    }
-  };
-
   private chartButtons: Buttons[] = [
     {
       title: 'Temperature',
-      chartName: this.tempChart,
+      chartName: Charts.tempChart,
       selected: true
     },
     {
       title: 'Feels Like',
-      chartName: this.feelsLikeChart,
+      chartName: Charts.feelsLikeChart,
       selected: false
     },
     {
       title: 'Wind',
-      chartName: this.windChart,
+      chartName: Charts.windChart,
       selected: false
     }
   ];
@@ -799,19 +389,6 @@ export default class App extends Vue {
     });
     const button = this.chartButtons.find(obj => obj.title === buttonType.title);
     button!.selected = true;
-  }
-
-  private static pastWeekDays(array: any[], today: number) {
-    let week: any[];
-    if (today === 0) {
-      const firstEl = array[array.length - 1];
-      week = array.slice(0);
-      week.unshift(firstEl);
-    } else {
-      week = array.slice(today - 1, array.length).concat(array.slice(0, today));
-      week.push(week[0]);
-    }
-    return week;
   }
 
   private request(url: string, method: Method, body?: any): Promise<any> {
@@ -911,13 +488,13 @@ export default class App extends Vue {
   }
 
   private async getWeatherBySearching() {
-    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
+    App.clearChartData([Charts.tempChart, Charts.windChart, Charts.feelsLikeChart, Charts.hourlyForecast]);
     const results = await this.getWeatherBySearchQuery();
     await this.getWeather(results);
   }
 
   private async getWeatherByCoords() {
-    App.clearChartData([this.tempChart, this.windChart, this.feelsLikeChart, this.hourlyForecast]);
+    App.clearChartData([Charts.tempChart, Charts.windChart, Charts.feelsLikeChart, Charts.hourlyForecast]);
     const results = await this.getWeatherByCoordsQuery();
     await this.getWeather(results);
   }
@@ -935,22 +512,20 @@ export default class App extends Vue {
       'GET'
     );
 
-    results.hourly.forEach((hour: any) => {
-      this.hourlyForecast.series[0].data.push({
-        y: Math.round(hour.temp),
-        color: colorPicker(Math.round(hour.temp))
-      });
-    });
+    results.hourly.forEach((hour: any) => Charts.hourlyForecast.series[0].data.push({
+      y: Math.round(hour.temp),
+      color: colorPicker(Math.round(hour.temp))
+    }));
 
     results.daily.forEach((day: any) => {
-      this.tempChart.series[0].data.push({
+      Charts.tempChart.series[0].data.push({
         y: Math.round(day.temp.day),
         color: colorPicker(Math.round(day.temp.day))
       });
 
-      this.windChart.series[0].data.push(Math.round(day.wind_speed));
+      Charts.windChart.series[0].data.push(Math.round(day.wind_speed));
 
-      this.feelsLikeChart.series[0].data.push({
+      Charts.feelsLikeChart.series[0].data.push({
         y: Math.round(day.feels_like.day),
         color: colorPicker(Math.round(day.feels_like.day))
       });
@@ -1005,9 +580,9 @@ export default class App extends Vue {
   src: url('../public/fonts/Nunito/Nunito-Regular.ttf') format('truetype');
 }
 
-@import './src/colors.scss';
-@import './src/desktopStyle.scss';
-@import './src/mobileStyle.scss';
+@import 'colors';
+@import 'desktopStyle';
+@import 'mobileStyle';
 
 * {
   box-sizing: border-box;

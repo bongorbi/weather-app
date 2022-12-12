@@ -34,7 +34,7 @@ export default class ScrollDownButton extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "./src/colors";
+@import "../colors";
 
 .scrollButton {
   width: 100vw;
