@@ -17,9 +17,9 @@
               @keypress.enter="getWeatherBySearching"
             >
           </label>
-          <button v-if="!hideContent && isMobile" class="fullscreen" @click="goFullscreen">
-            <font-awesome-icon ref="functionButton" aria-hidden="true" icon="expand-alt" class="icon"/>
-          </button>
+<!--          <button v-if="!hideContent && isMobile" class="fullscreen" @click="goFullscreen">-->
+<!--            <font-awesome-icon ref="functionButton" aria-hidden="true" icon="expand-alt" class="icon"/>-->
+<!--          </button>-->
         </div>
         <div v-if="error !== ''" class="error" :class="{ nothingFoundErr: error === 'No city results...' }">
           <div>
@@ -132,6 +132,7 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {isMobile} from 'mobile-device-detect';
 import {Buttons, GEOLOCATION_STATUS, SCROLL_BUTTON_POSITION} from '@/commonconstants';
 import {Geolocation} from '@capacitor/core';
+import {IonApp} from '@ionic/vue';
 
 const ChartComponent = () => import('@/components/Chart.vue');
 const LoadingOverlay = () => import('@/components/LoadingOverlay.vue');
@@ -141,6 +142,7 @@ const ChartButtons = () => import('@/components/ChartButtons.vue');
 @Component({
   components: {
     Chart,
+    IonApp,
     ChartComponent,
     FontAwesomeIcon,
     LoadingOverlay,
@@ -210,34 +212,34 @@ export default class App extends Vue {
     await this.getCurrentPosition();
   }
 
-  private goFullscreen() {
-    if (isMobile) {
-      const doc = window.document;
-      const docEl = doc.documentElement;
-      // @ts-ignore
-      const requestFullScreen = docEl.requestFullscreen
-        || docEl.mozRequestFullScreen
-        || docEl.webkitRequestFullScreen
-        || docEl.msRequestFullscreen;
-      // @ts-ignore
-      const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-      // @ts-ignore
-      if (
-        !doc.fullscreenElement
-        && !doc.mozFullScreenElement
-        && !doc.webkitFullscreenElement
-        && !doc.msFullscreenElement
-      ) {
-        requestFullScreen.call(docEl);
-      } else {
-        cancelFullScreen.call(doc);
-      }
-      // чака да стане fullscreen и променя innerHeight да е равна на уголемения прозорец,
-      // за да зададе нов размер на бекграунд картинката
-      App.resizeBackgroundImg(window.innerHeight);
-      this.resizeChart();
-    }
-  }
+  // private goFullscreen() {
+  //   if (isMobile) {
+  //     const doc = window.document;
+  //     const docEl = doc.documentElement;
+  //     // @ts-ignore
+  //     const requestFullScreen = docEl.requestFullscreen
+  //       || docEl.mozRequestFullScreen
+  //       || docEl.webkitRequestFullScreen
+  //       || docEl.msRequestFullscreen;
+  //     // @ts-ignore
+  //     const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+  //     // @ts-ignore
+  //     if (
+  //       !doc.fullscreenElement
+  //       && !doc.mozFullScreenElement
+  //       && !doc.webkitFullscreenElement
+  //       && !doc.msFullscreenElement
+  //     ) {
+  //       requestFullScreen.call(docEl);
+  //     } else {
+  //       cancelFullScreen.call(doc);
+  //     }
+  //     // чака да стане fullscreen и променя innerHeight да е равна на уголемения прозорец,
+  //     // за да зададе нов размер на бекграунд картинката
+  //     App.resizeBackgroundImg(window.innerHeight);
+  //     this.resizeChart();
+  //   }
+  // }
 
   private loading: boolean = false;
   private downButtonIcon: string = 'chevron-down';
@@ -1032,9 +1034,6 @@ body {
   // borders on the chart bars
   & rect {
     stroke-width: 0;
-  }
-
-  & path {
   }
 
   & path:last-child {

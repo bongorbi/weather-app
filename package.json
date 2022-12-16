@@ -5,13 +5,13 @@
   "scripts": {
     "start": "echo 'use npm run serve next time' && npm run serve",
     "serve": "vue-cli-service serve",
-    "build": "npm run unit-tests && npm run e2e-tests && vue-cli-service build",
+    "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "e2e-tests": "wdio run wdio.conf.ts",
     "unit-tests": "jest"
   },
   "dependencies": {
-    "@capacitor/android": "^2.4.7",
+    "@capacitor/android": "^2.5.0",
     "@capacitor/cli": "^2.4.7",
     "@capacitor/core": "^2.4.7",
     "@fortawesome/fontawesome-free": "^5.15.2",
@@ -21,6 +21,8 @@
     "@ionic-native/android-permissions": "^5.31.1",
     "@ionic-native/core": "^5.31.1",
     "@ionic-native/location-accuracy": "^5.31.1",
+    "@ionic/vue": "^6.0.0",
+    "ionicons": "^6.0.3",
     "axios": "^0.21.1",
     "cordova-plugin-android-permissions": "^1.1.2",
     "cordova-plugin-request-location-accuracy": "^2.3.0",

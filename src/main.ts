@@ -5,6 +5,7 @@ import {fas} from '@fortawesome/free-solid-svg-icons';
 import Highcharts from 'highcharts';
 import Stock from 'highcharts/modules/stock';
 import HighchartsVue from 'highcharts-vue';
+import {IonicVue} from '@ionic/vue';
 import App from './App.vue';
 import router from './router';
 // @ts-ignore
@@ -12,6 +13,7 @@ import wb from './registerServiceWorker';
 
 Stock(Highcharts);
 Vue.use(HighchartsVue);
+Vue.use(IonicVue);
 HighchartsMore(Highcharts);
 Vue.use(HighchartsVue);
 // @ts-ignore
